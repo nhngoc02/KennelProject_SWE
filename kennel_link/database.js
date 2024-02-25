@@ -1,10 +1,8 @@
-// database.js file.
-
-var mysql = require('mysql2');
+import { createConnection } from 'mysql2';
 
 require('dotenv').config(); // use npm install for this first
 
-var connection = mysql.createConnection({
+var connection = createConnection({
     host : process.env.DATABASE_HOST,
     user : process.env.DATABASE_USER,
     password : process.env.DATABASE_PASSWORD,
@@ -16,4 +14,4 @@ connection.connect((err => {
     console.log('MySQL Connected');
 }));
 
-exports.databaseConnection = connection;
+export const databaseConnection = connection;
