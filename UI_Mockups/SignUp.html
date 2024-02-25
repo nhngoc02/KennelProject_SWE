@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Urbanist', sans-serif;
+      background-color: #40826d; /* Viridian green */
+      padding: 20px;
+    }
+
+    .signup-form {
+      max-width: 600px; /* Increase the max-width to fill more of the screen */
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .signup-form h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .signup-form h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      margin-top: 0; /* Reset margin-top to remove extra spacing */
+    }
+
+    .signup-form input[type="text"],
+    .signup-form input[type="email"],
+    .signup-form input[type="tel"],
+    .signup-form input[type="password"],
+    .signup-form select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+      font-family: 'Urbanist', sans-serif; /* Use Urbanist font */
+    }
+
+    .signup-form .additional-box {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 20px; /* Increased margin-bottom */
+    }
+
+    .signup-form label {
+      margin-bottom: 5px; /* Adjusted margin-bottom for labels */
+      display: block;
+    }
+
+    .signup-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff; /* Faded blue color */
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .signup-form button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Add a class to style the error message */
+    .error-message {
+      color: #ff0000;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-form">
+    <h2>Sign Up</h2>
+    <h3>Personal Information</h3>
+    <form action="#" method="post">
+      <input type="text" name="first_name" placeholder="First Name" required>
+      <input type="text" name="last_name" placeholder="Last Name" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="text" name="phone" placeholder="Phone Number" required> <!-- Reverted type to "text" -->
+      <select name="user_type" id="user_type" onchange="toggleAdditionalBox()">
+        <option value="client">Client</option>
+        <option value="employee">Employee</option>
+      </select>
+      <div class="additional-box" id="additional_box">
+        <label for="employee_start_date">Employee Start Date:</label>
+        <input type="date" name="employee_start_date" id="employee_start_date" required>
+        <p id="date-error" class="error-message"></p> <!-- Display error message -->
+      </div>
+      <h3>Account Information</h3>
+      <div class="additional-box" id="account_info_box">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" placeholder="Enter Username">
+      </div>
+      <div class="additional-box" id="account_info_box">
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" placeholder="Enter Password">
+      </div>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+
+  <script>
+    function toggleAdditionalBox() {
+      var userType = document.getElementById("user_type").value;
+      var additionalBox = document.getElementById("additional_box");
+
+      if (userType === "employee") {
+        additionalBox.style.display = "block";
+      } else {
+        additionalBox.style.display = "none";
+      }
+    }
+
+    // Function to validate MMDDYY format
+    function validateDate() {
+      var dateInput = document.getElementById("employee_start_date").value;
+      var dateRegex = /^(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])(\d{2})$/;
+
+      if (!dateRegex.test(dateInput)) {
+        document.getElementById("date-error").textContent = "Please enter a valid MMDDYY date format.";
+        return false;
+      } else {
+        document.getElementById("date-error").textContent = "";
+        return true;
+      }
+    }
+
+    // Add event listener for form submission
+    document.querySelector("form").addEventListener("submit", function(event) {
+      if (!validateDate()) {
+        event.preventDefault(); // Prevent form submission if date format is invalid
+      }
+    });
+  </script>
+</body>
+</html>

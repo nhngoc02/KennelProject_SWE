@@ -1,0 +1,134 @@
+<!-- This page generates the Search tab home fro employees-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservation Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Urbanist', sans-serif;
+      background-color: #40826d; /* Viridian green */
+    }
+
+    .navbar {
+      background-color: #fff; /* White navbar */
+      overflow: hidden;
+      border-radius: 10px; /* Rounded corners */
+      margin-bottom: 20px; /* Added margin bottom for better spacing */
+    }
+
+    .navbar a {
+      float: left;
+      display: block;
+      color: #333; /* Dark gray text */
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      border-radius: 10px; /* Rounded corners */
+    }
+
+    .navbar a:hover {
+      background-color: #ddd; /* Light gray on hover */
+      color: #333; /* Dark gray text */
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff; /* White box background */
+      border-radius: 10px; /* Rounded corners */
+      text-align: center;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      margin: 10px 0;
+      background-color: #3498db; /* Blue button */
+      color: #fff; /* White text */
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #2980b9; /* Darker shade of blue on hover */
+    }
+
+    .search-section {
+      margin-bottom: 20px;
+    }
+
+    .search-section input[type="text"],
+    .search-section input[type="date"] {
+      width: calc(50% - 10px);
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .search-section h3 {
+      text-align: left;
+      margin-top: 0;
+    }
+
+    .search-section button {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      background-color: #3498db; /* Blue button */
+      color: #fff; /* White text */
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .search-section button:hover {
+      background-color: #2980b9; /* Darker shade of blue on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="brand" href="#">KennelLink Employee</a>
+    <a href="#reservations">Reservations</a>
+    <a href="#clients">Clients</a>
+    <a href="#pets">Pets</a>
+    <a href="#transactions">Transactions</a>
+    <a href="#other-employees">Other Employees</a>
+  </div>
+
+  <div class="container">
+    <h2>Reservation Search</h2>
+
+    <div class="search-section">
+      <h3>Bulk Search</h3>
+      <button>View All Reservations</button>
+    </div>
+
+    <div class="search-section">
+      <h3>Delta Search</h3>
+      <input type="text" placeholder="Reservation ID">
+      <input type="text" placeholder="Client Name">
+      <input type="text" placeholder="Pet Name">
+      <h3>Drop-off Date</h3>
+      <input type="date" placeholder="Drop-off Date">
+      <h3>Pickup Date</h3>
+      <input type="date" placeholder="Pickup Date">
+      <button>Search</button>
+    </div>
+  </div>
+</body>
+</html>
+

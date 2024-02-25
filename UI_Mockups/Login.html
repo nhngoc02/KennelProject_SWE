@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Urbanist', sans-serif;
+      background-color: #40826d; /* Viridian green */
+      padding: 20px;
+    }
+
+    .login-form {
+      max-width: 400px; /* Adjusted max-width for login form */
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 60px;
+    }
+
+    .login-form h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"],
+    .login-form select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box; /* Ensure padding and border are included in the width */
+      font-family: 'Urbanist', sans-serif; /* Use Urbanist font */
+    }
+
+    .login-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #3498db; /* Updated button color */
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .login-form button:hover {
+      background-color: #2980b9; /* Darker shade of blue on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="login-form">
+    <h2>Login</h2>
+    <form action="#" method="post">
+      <select name="user_type" id="user_type">
+        <option value="client">Client</option>
+        <option value="employee">Employee</option>
+      </select>
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</body>
+</html>
