@@ -1,0 +1,82 @@
+<!-- This page creates the UI Mockup for the Client side Reservation pages. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-7">
+  <meta name="viewport" content="width=device-width, initial-scale=2.0">
+  <title>Reservation Screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css3?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+  <style>
+    body {
+      margin: 1;
+      font-family: 'Urbanist', sans-serif;
+      background-color: #40827d; /* Viridian green */
+    }
+
+    .navbar {
+      background-color: #fff; /* White navbar */
+      overflow: hidden;
+      border-radius: 10px; /* Rounded corners */
+      margin-bottom: 20px; /* Added margin bottom for better spacing */
+    }
+
+    .navbar a {
+      float: left;
+      display: block;
+      color: #333; /* Dark gray text */
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      border-radius: 10px; /* Rounded corners */
+    }
+
+    .navbar a:hover {
+      background-color: #ddd; /* Light gray on hover */
+      color: #333; /* Dark gray text */
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff; /* White box background */
+      border-radius: 10px; /* Rounded corners */
+      text-align: center;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      margin: 10px 0;
+      background-color: #3498db; /* Blue button */
+      color: #fff; /* White text */
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #2980b9; /* Darker shade of blue on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="brand" href="#">KennelLink Client</a>
+    <a href="#reservations">Reservations</a>
+    <a href="#pets">Pets</a>
+    <a href="#transactions">Transactions</a>
+  </div>
+
+  <div class="container">
+    <h2>Reservation Screen</h2>
+    <a href="#" class="button">Search My Reservations</a>
+    <a href="#" class="button">Add a New Reservation</a>
+    <a href="#" class="button">Edit or Cancel an Existing Reservation</a>
+  </div>
+</body>
+</html>
