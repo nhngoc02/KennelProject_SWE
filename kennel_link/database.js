@@ -1,17 +1,17 @@
-import { createConnection } from 'mysql2';
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-require('dotenv').config(); // use npm install for this first
+const DATABASE_URL = process.env.DATABASE_URL;
+const CONFIG = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+};
 
-var connection = createConnection({
-    host : process.env.DATABASE_HOST,
-    user : process.env.DATABASE_USER,
-    password : process.env.DATABASE_PASSWORD,
-    database : process.env.DATABASE_NAME
-});
+mongoose.connect(DATABASE_URL, CONFIG);
 
-connection.connect((err => {
-    if(err) throw err;
-    console.log('MySQL Connected');
-}));
+mongoose.connection
+    .on("open", () => console.log("Connected to Mongoose"))
+    .on("close", () => console.log("Disconnected from Mongoose"))
+    .on("error", (error) => console.log(error));
 
-export const databaseConnection = connection;
+module.exports = mongoose;
