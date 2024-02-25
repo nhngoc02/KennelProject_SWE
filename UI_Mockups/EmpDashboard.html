@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Urbanist', sans-serif;
+      background-color: #40826d; /* Viridian green */
+    }
+
+    .navbar {
+      background-color: #fff; /* White navbar */
+      overflow: hidden;
+      border-radius: 10px; /* Rounded corners */
+      margin-bottom: 20px; /* Added margin bottom for better spacing */
+    }
+
+    .navbar a {
+      float: left;
+      display: block;
+      color: #333; /* Dark gray text */
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      border-radius: 10px; /* Rounded corners */
+    }
+
+    .navbar a:hover {
+      background-color: #ddd; /* Light gray on hover */
+      color: #333; /* Dark gray text */
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .brand {
+      float: left;
+      padding: 14px 16px;
+      color: #333; /* Dark gray text */
+      text-decoration: none;
+      font-size: 20px;
+    }
+
+    .info-box {
+      background-color: #fff; /* White box background */
+      border-radius: 10px; /* Rounded corners */
+      padding: 20px;
+      margin-bottom: 20px; /* Added margin bottom for better spacing */
+    }
+
+    .info-box h2 {
+      margin-top: 0; /* Remove default margin */
+      text-align: center; /* Center the title */
+    }
+
+    .edit-button {
+      display: block;
+      margin-top: 20px; /* Added margin top for spacing */
+      text-align: center; /* Center the button */
+    }
+
+    .edit-button button {
+      padding: 10px 20px;
+      background-color: #3498db; /* Blue button */
+      color: #fff; /* White text */
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .edit-button button:hover {
+      background-color: #2980b9; /* Darker shade of blue on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="brand" href="#">KennelLink Employee</a>
+    <a href="#reservations">Reservations</a>
+    <a href="#clients">Clients</a>
+    <a href="#pets">Pets</a>
+    <a href="#transactions">Transactions</a>
+    <a href="#other-employees">Other Employees</a>
+  </div>
+
+  <div class="content">
+    <div class="info-box">
+      <h2>Employee Information</h2>
+      <p><strong>First Name:</strong> John</p>
+      <p><strong>Last Name:</strong> Doe</p>
+      <p><strong>Date Started:</strong> 1/1/2024</p>
+      <div class="edit-button">
+        <button>Edit</button>
+      </div>
+    </div>
+    <!-- Additional content goes here -->
+  </div>
+</body>
+</html>
+

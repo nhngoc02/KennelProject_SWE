@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change Reservation Information</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Urbanist', sans-serif;
+      background-color: #40826d; /* Viridian green */
+      padding: 20px;
+    }
+
+    .navbar {
+      background-color: #fff; /* White navbar */
+      overflow: hidden;
+      border-radius: 10px; /* Rounded corners */
+      margin-bottom: 20px; /* Added margin bottom for better spacing */
+    }
+
+    .navbar a {
+      float: left;
+      display: block;
+      color: #333; /* Dark gray text */
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      border-radius: 10px; /* Rounded corners */
+    }
+
+    .navbar a:hover {
+      background-color: #ddd; /* Light gray on hover */
+      color: #333; /* Dark gray text */
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff; /* White box background */
+      border-radius: 10px; /* Rounded corners */
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="datetime-local"],
+    .form-group select {
+      width: calc(100% - 10px);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .form-group input[type="datetime-local"] {
+      margin-top: 5px;
+    }
+
+    .form-group select {
+      margin-top: 5px;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      background-color: #3498db; /* Blue button */
+      color: #fff; /* White text */
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #2980b9; /* Darker shade of blue on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="brand" href="#">KennelLink Employee</a>
+    <a href="#">Reservations</a>
+    <a href="#">Clients</a>
+    <a href="#">Pets</a>
+    <a href="#">Transactions</a>
+    <a href="#">Other Employees</a>
+  </div>
+
+  <div class="container">
+    <h2>Change Reservation Information</h2>
+    <form action="#" method="post">
+      <div class="form-group">
+        <label for="reservation_id">Reservation ID:</label>
+        <ainput type="text" id="reservation_id" name="reservation_id" value="12345" readonly>
+      </div>
+      <h3>New Reservation Information</h3>
+      <div class="form-group">
+        <label for="new_dropoff_date">New Dropoff Date:</label>
+        <input type="datetime-local" id="new_dropoff_date" name="new_dropoff_date" required>
+      </div>
+      <div class="form-group">
+        <label for="new_pickup_date">New Pickup Date:</label>
+        <input type="datetime-local" id="new_pickup_date" name="new_pickup_date" required>
+      </div>
+      <div class="form-group">
+        <label for="new_kennel_number">New Kennel Number:</label>
+        <select id="new_kennel_number" name="new_kennel_number" required>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <!-- Add more kennel numbers as needed -->
+        </select>
+      </div>
+      <button class="button" type="submit">Submit Changes</button>
+    </form>
+
+    <h3>Cancel Reservation</h3>
+    <form action="#" method="post">
+      <div class="form-group">
+        <label for="cancel_reservation_id">Reservation ID:</label>
+        <input type="text" id="cancel_reservation_id" name="cancel_reservation_id" required>
+      </div>
+      <button class="button" type="submit">Cancel Reservation</button>
+    </form>
+  </div>
+</body>
+</html>
+
+~                  
