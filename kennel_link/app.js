@@ -1,9 +1,9 @@
 const express = require('express')
 const morgan = require("morgan");
 const methodOverride = require("method-override");
-const mongoose = require("./database");
+//const mongoose = require("./database");
 const app = express()
-const port = 3000
+require("dotenv").config({path:'../data.env'});
 
 app.set('view engine', 'ejs')
 
@@ -11,18 +11,15 @@ app.use(morgan("tiny"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
+app.use('/styles', express.static('./styles'));
 
+
+// app.get('/', (req, res) => {
+//     res.render('pages/index')
+// })
 
 app.get('/', (req, res) => {
-    res.render('pages/index')
-})
-
-app.get('/', (req, res) => {
-    res.render("homepage.ejs")
-})
-
-app.listen(port, () => {
-  console.log(`App listening at port ${port}`)
+    res.render('pages/homepage')
 })
 
 app.get("/", (req, res) => {
