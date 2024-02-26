@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    font-family: 'Urbanist',Arial, sans-serif;
+    background-color: #40826d;
+    height: 100vh; /* Ensure the body covers the full height of the viewport */
+}
+
+header {
+    position: relative; /* Position the header container relatively */
+    height: 100%; /* Ensure the header covers the full height of the body */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.title {
+    text-align: center;
+    width: 100%; /* Center the title horizontally */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 4em;
+}
+
+.auth{
+    position: absolute;
+    top: 20px; /* Adjust the distance from the top as needed */
+    left: 20px; /* Adjust the distance from the left as needed */
+}
+
+.auth button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    background-color: #3498db;
+    color: #fff;
+    cursor: pointer;
+      font-family: 'Urbanist', sans-serif;
+      border-radius: 5px;
+}
+
+/* Adjust button styles as needed */
