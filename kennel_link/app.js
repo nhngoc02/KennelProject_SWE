@@ -13,22 +13,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
 
-
-// app.get('/', (req, res) => {
-//     res.render('pages/index')
-// })
-
 app.get('/', (req, res) => {
     res.render('pages/homepage')
 })
 
-app.get("/", (req, res) => {
-    res.render("index.ejs", { greeting: "Hello" });
-});
+app.get("/signup", (req, res) => {
+    res.render("./pages/signup.ejs");
+})
+
+app.get("/login", (req,res) => {
+    res.render("./pages/login.ejs");
+})
 
 app.get("/clientReservation", (req, res) => {
-    res.render("ClientReservation.ejs")
+    res.render("ClientReservation.ejs");
 })
+
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
