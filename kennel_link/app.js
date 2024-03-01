@@ -18,11 +18,11 @@ app.get('/', (req, res) => {
 })
 
 app.get("/signup", (req, res) => {
-    res.render("./pages/signup.ejs");
+    res.render("./pages/signup");
 })
 
 app.get("/login", (req,res) => {
-    res.render("./pages/login.ejs");
+    res.render("pages/login");
 })
 
 app.get("/clientReservation", (req, res) => {
