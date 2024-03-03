@@ -23,7 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
 
+function authenticate(name, pass) {
 
+}
 
 app.get('/', (req, res) => {
     res.render('pages/homepage')
@@ -36,11 +38,13 @@ app.get("/signup", (req, res) => {
 app.get("/login", (req,res) => {
     res.render("pages/login");
 })
+app.post("/login", (req,res) => {
 
-app.get("/clientReservation", (req, res) => {
-    res.render("ClientReservation");
 })
 
+app.get("/home", (req,res) => {
+  res.render("pages/client_dash")
+})
 
 
 const PORT = process.env.PORT;
