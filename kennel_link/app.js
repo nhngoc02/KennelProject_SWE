@@ -1,5 +1,4 @@
 const express = require('express')
-const morgan = require("morgan");
 const methodOverride = require("method-override");
 //const mongoose = require("./database");
 
@@ -19,7 +18,6 @@ const app = express()
 
 app.set('view engine', 'ejs')
 app.use(connectLiveReload());
-app.use(morgan("tiny"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
