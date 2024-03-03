@@ -1,0 +1,119 @@
+body {
+    margin: 0;
+    font-family: 'Urbanist', sans-serif;
+    background-color: #40826d; /* Viridian green */
+    padding: 20px;
+  }
+
+  .login-form {
+    max-width: 400px; /* Adjusted max-width for login form */
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-top: 60px;
+  }
+
+  .login-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .login-form input[type="text"],
+  .login-form input[type="password"],
+  .login-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    font-family: 'Urbanist', sans-serif; /* Use Urbanist font */
+  }
+
+  .login-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #3498db; /* Updated button color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .login-form button:hover {
+    background-color: #2980b9; /* Darker shade of blue on hover */
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Urbanist', sans-serif;
+    background-color: #40826d; /* Viridian green */
+    padding: 20px;
+  }
+
+  .signup-form {
+    max-width: 600px; /* Increase the max-width to fill more of the screen */
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .signup-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .signup-form h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    margin-top: 0; /* Reset margin-top to remove extra spacing */
+  }
+
+  .signup-form input[type="text"],
+  .signup-form input[type="email"],
+  .signup-form input[type="tel"],
+  .signup-form input[type="password"],
+  .signup-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    font-family: 'Urbanist', sans-serif; /* Use Urbanist font */
+  }
+
+  .signup-form .additional-box {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Increased margin-bottom */
+  }
+
+  .signup-form label {
+    margin-bottom: 5px; /* Adjusted margin-bottom for labels */
+    display: block;
+  }
+
+  .signup-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff; /* Faded blue color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .signup-form button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Add a class to style the error message */
+  .error-message {
+    color: #ff0000;
+  }
