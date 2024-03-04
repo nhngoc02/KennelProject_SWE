@@ -26,6 +26,32 @@ body {
     color: #333; /* Dark gray text */
 }
 
+/*For general dashboard*/
+.content {
+    padding: 20px;
+}
+
+.brand {
+    float: left;
+    padding: 14px 16px;
+    color: #333; /* Dark gray text */
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.info-box {
+    background-color: #fff; /* White box background */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px;
+    margin-bottom: 20px; /* Added margin bottom for better spacing */
+}
+
+.info-box h2 {
+    margin-top: 0; /* Remove default margin */
+    text-align: center; /* Center the title */
+}
+
+/*For Reservations*/
 .container {
     max-width: 400px;
     margin: 0 auto;
@@ -51,3 +77,4 @@ body {
 .button:hover {
     background-color: #2980b9; /* Darker shade of blue on hover */
 }
+
