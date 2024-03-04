@@ -1,6 +1,6 @@
 const express = require('express')
 const methodOverride = require("method-override");
-//const mongoose = require("./database");
+const mongoose = require("./database");
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
@@ -23,21 +23,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
 
-function authenticate(name, pass) {
+// function authenticate(name, pass) {
 
-}
+// }
 
 app.get('/', (req, res) => {
-    res.render('pages/homepage')
+  console.log("Displaying homepage")
+  res.render('pages/homepage')
 })
 
 app.get("/signup", (req, res) => {
-    res.render("pages/signup");
+  res.render("pages/signup");
 })
 
 app.get("/login", (req,res) => {
-    res.render("pages/login");
+  res.render("pages/login");
 })
+
 app.post("/login", (req,res) => {
 
 })

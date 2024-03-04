@@ -1,3 +1,4 @@
+const { Int32 } = require("mongodb");
 const mongoose = require("mongoose");
 require("dotenv").config({path:'../data.env'});
 
@@ -34,5 +35,3 @@ mongoose.connection
     .on("error", (error) => console.log(error));
 
 module.exports = mongoose;
-
-
