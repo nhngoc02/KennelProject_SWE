@@ -63,10 +63,15 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     if(authenticate(username, password, user_type) && user_type === 'client') {
-      const person = await Client.findOne({client_username: username, client_password: password}, 'clientFN clientLN')
-      res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} )
+      const person = await Client.findOne({client_username: username, client_password: password}, 'clientFN clientLN');
+      res.send("User has logged in!")
+      //console.log(person.clientFN);
+      //res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} );
     }
-    
+    // if(authenticate(username, password, user_type) && user_type === 'employee') {
+    //   const person = await Employee.findOne({emp_username: username, emp_password: password}, 'empFN empLN')
+    //   res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} )
+    // }
   } catch (error) {
     res.status(500).json({message: error.message});
   }
