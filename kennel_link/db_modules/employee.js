@@ -1,4 +1,3 @@
-const {Int32, Double } = require("mongodb");
 const mongoose = require("../database");
 
 /*Creates a schema for the employee to create and 
@@ -32,7 +31,7 @@ fetch data from employee collection in database*/
 ]
 */
 const employee = new mongoose.Schema({
-    empID: Int32,
+    empID: Number,
     empFN : String,
     empLN : String,
     empEmail : String,
@@ -41,7 +40,7 @@ const employee = new mongoose.Schema({
     empStartDate : { type: Date },
     activeFlag : Boolean,
     // modifiedDate : Int32,
-    modifiedDate : {type: [Date, Int32]},
+    modifiedDate : {type: [Date, Number]},
     emp_username : String,
     emp_password : String,
     createTime: Date
