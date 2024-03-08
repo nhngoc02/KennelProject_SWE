@@ -1,4 +1,3 @@
-const {Int32} = require("mongodb");
 const mongoose = require("../database");
 
 /*Creates a schema for the client to create and 
@@ -41,8 +40,10 @@ fetch data from client collection in database*/
   }
 ]
 */
+
+//Marco adjusted client schema
 const client = new mongoose.Schema({
-    clientID: Int32,
+    clientID: Number,
     clientFN : String,
     clientLN : String,
     clientEmail : String,
@@ -50,16 +51,18 @@ const client = new mongoose.Schema({
     // createTime : { type: Date, default: Date.now }, 
     createTime : Date,
     activeFlag : Boolean,
-    // modifiedDate : Int32,
-    modifiedDate : {type: [Date, Int32]},
+    // modifiedDate : Number,
+    modifiedDate : {type: [Date, Number]},
     client_username : String,
     client_password : String
     },
     {
-    timestamps : true
+    timestamps : true,
+    collections: 'client'
     }
 )
 
 const Client = mongoose.model("client", client);
 
 module.exports = Client;
+
