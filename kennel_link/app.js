@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
 
+
 async function authenticate(name, pass, user_type) {
   if(user_type = 'client') {
     const result = await Client.find({client_username: name, client_password: pass}).exec();
@@ -34,7 +35,8 @@ async function authenticate(name, pass, user_type) {
     } else {
       return true;
     }
-  } else if(user_type = 'employee') {
+  }
+  if(user_type = 'employee') {
     const result = await Employee.find({emp_username: name, emp_password: pass}).exec();
     if(result.length == 0) {
       return false;
@@ -62,16 +64,22 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    if(authenticate(username, password, user_type) && user_type === 'client') {
+    if(authenticate(username, password, user_type)=== true && user_type === 'client') {
       const person = await Client.findOne({client_username: username, client_password: password}, 'clientFN clientLN');
       res.send("User has logged in!")
       //console.log(person.clientFN);
       //res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} );
+    } else {
+      res.send("sup")
     }
-    // if(authenticate(username, password, user_type) && user_type === 'employee') {
-    //   const person = await Employee.findOne({emp_username: username, emp_password: password}, 'empFN empLN')
-    //   res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} )
-    // }
+
+    if(authenticate(username, password, user_type)==true && user_type === 'employee') {
+      const person = await Employee.findOne({emp_username: username, emp_password: password}, 'empFN empLN')
+      res.render("pages/client_dash", {first:person.empFN, last:person.empLN} )
+    } else {
+      res.send("sup")
+    }
+
   } catch (error) {
     res.status(500).json({message: error.message});
   }
