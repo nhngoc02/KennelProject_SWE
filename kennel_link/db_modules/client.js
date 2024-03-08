@@ -40,8 +40,10 @@ fetch data from client collection in database*/
   }
 ]
 */
+
+//Marco adjusted client schema
 const client = new mongoose.Schema({
-    clientID: {type: Number},
+    clientID: Number,
     clientFN : String,
     clientLN : String,
     clientEmail : String,
@@ -55,10 +57,12 @@ const client = new mongoose.Schema({
     client_password : String
     },
     {
-    timestamps : true
+    timestamps : true,
+    collections: 'client'
     }
 )
 
 const Client = mongoose.model("client", client);
 
 module.exports = Client;
+
