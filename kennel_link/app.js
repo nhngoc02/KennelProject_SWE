@@ -26,28 +26,32 @@ app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
 
 
-async function authenticate(name, pass, user_type) {
-  if(user_type = 'client') {
-    const result = await Client.find({client_username: name, client_password: pass}).exec();
-    if(result.length == 0) {
-      console.log("Client not found")
-      return false;
+async function authenticate(name, pass, type) {
+  if(type = 'client') {
+    const result = await Client.findOne({client_username: name});
+    if(!result || result.length == 0) {
+      return {worked: false, message: "Username not found: Please Try Again"};
     } else {
-      return true;
+      if(result.client_password !== pass) {
+        return {worked: false, message: "Incorrect Password: Please Try Again"};
+      }
+      return {worked: true, message: "Successful Login"};
     }
   }
-  if(user_type = 'employee') {
-    const result = await Employee.find({emp_username: name, emp_password: pass}).exec();
-    if(result.length == 0) {
-      return false;
+  if(type = 'employee') {
+    const result = await Employee.find({emp_username: name});
+    if(!result || result.length == 0) {
+      return {worked: false, message: "Username not found: Please Try Again"};
     } else {
-      return true;
+      if(result.emp_password !== pass) {
+        return {worked: false, message: "Incorrect Password: Please Try Again"};
+      }
+      return {worked: true, message: "Successful Login"};
     }
   }
 }
 
 app.get('/', (req, res) => {
-  console.log("Displaying homepage")
   res.render('pages/homepage')
 })
 
@@ -59,29 +63,23 @@ app.get("/login", (req,res) => {
   res.render("pages/login");
 })
 
+app.get("/home", (req,res) => {
+  res.render("pages/client_dash")
+})
+
 app.post("/login", async (req,res) => {
   try {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    if(authenticate(username, password, user_type)=== true && user_type === 'client') {
-      const person = await Client.findOne({client_username: username, client_password: password}, 'clientFN clientLN');
-      res.send("User has logged in!")
-      //console.log(person.clientFN);
-      //res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} );
-    } else {
-      res.send("sup")
+    const result = await authenticate(username, password, user_type)
+    if(result.worked === true) {
+      res.redirect("/home")
+    } else if(result.message == "Username not found: Please Try Again") {
     }
-
-    if(authenticate(username, password, user_type)==true && user_type === 'employee') {
-      const person = await Employee.findOne({emp_username: username, emp_password: password}, 'empFN empLN')
-      res.render("pages/client_dash", {first:person.empFN, last:person.empLN} )
-    } else {
-      res.send("sup")
-    }
-
   } catch (error) {
     res.status(500).json({message: error.message});
+    res.redirect('/login')
   }
 })
 
@@ -240,18 +238,6 @@ async function getNextID() {
         throw error;
     }
 }
-
-
-
-
-
-
-
-
-app.get("/home", (req,res) => {
-  res.render("pages/client_dash")
-})
-
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
