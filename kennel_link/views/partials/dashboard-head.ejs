@@ -13,9 +13,19 @@
 </head>
 <header>
     <div class="navbar">
-        <a class="brand" href="#">KennelLink Client</a>
-        <a href="/client_reservations">Reservations</a>
-        <a href="/pets">Pets</a>
-        <a href="/transactions">Transactions</a>
+        <% if(type == 'Client') { %>
+            <a class="brand" href="/client-dash">KennelLink <%= type %></a>
+            <a href="/client_reservations">Reservations</a>
+            <a href="/pets">Pets</a>
+            <a href="/transactions">Transactions</a>
+        <% } else {%>
+            <a class="brand" href="/emp-dash">KennelLink <%= type %></a>
+            <a href="/client_reservations">Clients</a>
+            <a href="/client_reservations">Reservations</a>
+            <a href="/pets">Pets</a>
+            <a href="/transactions">Transactions</a>
+            <a href="#">Other Employees</a>
+        <% } %>
+
       </div>
 </header>

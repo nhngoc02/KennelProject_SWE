@@ -39,7 +39,7 @@ async function authenticate(name, pass, type) {
     }
   }
   if(type === 'employee') {
-    const result = await Employee.find({emp_username: name});
+    const result = await Employee.findOne({emp_username: name});
     if(!result || result.length == 0) {
       return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
     } else {
@@ -59,11 +59,15 @@ app.get("/signup", (req, res) => {
   res.render("pages/signup");
 })
 
+app.get("/emp-dash", (req,res) => {
+  res.render("pages/emp_dash")
+})
+
 app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
 })
 
-app.get("/home", (req,res) => {
+app.get("/client-dash", (req,res) => {
   res.render("pages/client_dash")
 })
 
@@ -78,7 +82,7 @@ app.post("/login", async (req,res) => {
         res.render("pages/client_dash", {first: result.first, last: result.last})
       } else if(user_type === 'employee') {
         // TODO: change to employee once file is available
-        res.render("pages/client_dash", {first: result.first, last: result.last})
+        res.render("pages/emp_dash", {first: result.first, last: result.last})
       }
     } else {
       res.render("pages/login", {message: result.message})
