@@ -27,26 +27,26 @@ app.use('/styles', express.static('./styles'));
 
 
 async function authenticate(name, pass, type) {
-  if(type = 'client') {
+  if(type === 'client') {
     const result = await Client.findOne({client_username: name});
     if(!result || result.length == 0) {
-      return {worked: false, message: "Username not found: Please Try Again"};
+      return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
     } else {
       if(result.client_password !== pass) {
-        return {worked: false, message: "Incorrect Password: Please Try Again"};
+        return {worked: false, message: "Incorrect Password: Please Try Again", first: "", last: ""};
       }
-      return {worked: true, message: "Successful Login"};
+      return {worked: true, message: "Successful Login", first: result.clientFN, last: result.clientLN};
     }
   }
-  if(type = 'employee') {
+  if(type === 'employee') {
     const result = await Employee.find({emp_username: name});
     if(!result || result.length == 0) {
-      return {worked: false, message: "Username not found: Please Try Again"};
+      return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
     } else {
       if(result.emp_password !== pass) {
-        return {worked: false, message: "Incorrect Password: Please Try Again"};
+        return {worked: false, message: "Incorrect Password: Please Try Again", first: "", last: ""};
       }
-      return {worked: true, message: "Successful Login"};
+      return {worked: true, message: "Successful Login", first: result.empFN, last: result.empLN};
     }
   }
 }
@@ -60,7 +60,7 @@ app.get("/signup", (req, res) => {
 })
 
 app.get("/login", (req,res) => {
-  res.render("pages/login");
+  res.render("pages/login", {message: ""});
 })
 
 app.get("/home", (req,res) => {
@@ -74,8 +74,14 @@ app.post("/login", async (req,res) => {
     const user_type = req.body.user_type;
     const result = await authenticate(username, password, user_type)
     if(result.worked === true) {
-      res.redirect("/home")
-    } else if(result.message == "Username not found: Please Try Again") {
+      if(user_type === 'client') {
+        res.render("pages/client_dash", {first: result.first, last: result.last})
+      } else if(user_type === 'employee') {
+        // TODO: change to employee once file is available
+        res.render("pages/client_dash", {first: result.first, last: result.last})
+      }
+    } else {
+      res.render("pages/login", {message: result.message})
     }
   } catch (error) {
     res.status(500).json({message: error.message});
