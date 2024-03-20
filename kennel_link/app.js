@@ -122,6 +122,12 @@ app.post("/employeesignup", async (req, res) => {
   }
 });
 
+app.get("/client_reservations", (req,res) => {
+  res.render("pages/client_reservation")
+})
+
+
+
 /*
 const { empID, empFN, empLN, empEmail, empPhone, empStartDate, emp_username, emp_password } = req.body;
 
