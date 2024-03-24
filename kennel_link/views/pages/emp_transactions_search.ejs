@@ -1,0 +1,34 @@
+<%- include('../partials/reservation-head', {title: 'Pets Search', type: 'Employee'}) %>
+
+<body>
+    <div class="navbar">
+      <a class="brand" href="#">KennelLink Employee</a>
+      <a href="/emp_reservations">Reservations</a>
+      <a href="/emp_clients">Clients</a>
+      <a href="/emp_pets">Pets</a>
+      <a href="/emp_transactions">Transactions</a>
+      <a href="/emp_employees">Other Employees</a>
+    </div>
+  
+    <div class="container">
+      <h2>Search Transactions</h2>
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="client_name">Client Name:</label>
+          <input type="text" id="client_name" name="client_name" placeholder="Enter client name">
+        </div>
+        <div class="form-group">
+          <label for="transaction_date">Date of Transaction:</label>
+          <input type="text" id="transaction_date" name="transaction_date" placeholder="Enter transaction date">
+        </div>
+        <div class="form-group">
+          <label for="transaction_id">Transaction ID:</label>
+          <input type="text" id="transaction_id" name="transaction_id" placeholder="Enter transaction ID">
+        </div>
+        <button class="button" type="submit">Search</button>
+      </form>
+    </div>
+  </body>
+  </html>
+  
+  

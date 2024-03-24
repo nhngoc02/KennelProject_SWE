@@ -39,7 +39,7 @@ async function authenticate(name, pass, type) {
     }
   }
   if(type === 'employee') {
-    const result = await Employee.find({emp_username: name});
+    const result = await Employee.findOne({emp_username: name});
     if(!result || result.length == 0) {
       return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
     } else {
@@ -59,11 +59,15 @@ app.get("/signup", (req, res) => {
   res.render("pages/signup");
 })
 
+app.get("/emp-dash", (req,res) => {
+  res.render("pages/emp_dash")
+})
+
 app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
 })
 
-app.get("/home", (req,res) => {
+app.get("/client-dash", (req,res) => {
   res.render("pages/client_dash")
 })
 
@@ -78,7 +82,7 @@ app.post("/login", async (req,res) => {
         res.render("pages/client_dash", {first: result.first, last: result.last})
       } else if(user_type === 'employee') {
         // TODO: change to employee once file is available
-        res.render("pages/client_dash", {first: result.first, last: result.last})
+        res.render("pages/emp_dash", {first: result.first, last: result.last})
       }
     } else {
       res.render("pages/login", {message: result.message})
@@ -132,8 +136,61 @@ app.get("/client_reservations", (req,res) => {
   res.render("pages/client_reservation")
 })
 
+app.get("/emp_clients", (req,res) => {
+  res.render("pages/emp_clients")
+})
 
+app.get("/emp_reservations", (req,res) => {
+  res.render("pages/emp_reservations")
+})
 
+app.get("/emp_pets", (req,res) => {
+  res.render("pages/emp_pets")
+})
+
+app.get("/emp_transactions", (req,res) => {
+  res.render("pages/emp_transactions")
+})
+
+app.get("/emp_employees", (req,res) => {
+  res.render("pages/emp_employees")
+})
+
+app.get("/emp_clients_search", (req,res) => {
+  res.render("pages/emp_clients_search")
+})
+
+app.get("/emp_clients_edit", (req,res) => {
+  res.render("pages/emp_clients_edit")
+})
+
+app.get("/emp_reservation_add", (req,res) => {
+  res.render("pages/emp_res_add")
+})
+
+app.get("/emp_reservation_edit", (req,res) => {
+  res.render("pages/emp_res_edit")
+})
+
+app.get("/emp_reservation_search", (req,res) => {
+  res.render("pages/emp_res_search")
+})
+
+app.get("/emp_pets_search", (req,res) => {
+  res.render("pages/emp_pets_search")
+})
+
+app.get("/emp_pets_edit", (req,res) => {
+  res.render("pages/emp_pets_edit")
+})
+
+app.get("/emp_transactions_search", (req,res) => {
+  res.render("pages/emp_transactions_search")
+})
+
+app.get("/emp_transactions_edit", (req,res) => {
+  res.render("pages/emp_transactions_edit")
+})
 /*
 const { empID, empFN, empLN, empEmail, empPhone, empStartDate, emp_username, emp_password } = req.body;
 
