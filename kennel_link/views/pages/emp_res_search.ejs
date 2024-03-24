@@ -1,0 +1,44 @@
+<%- include('../partials/reservation-head', {title: 'Client Search', type: 'Employee'}) %>
+
+<body>
+    <div class="navbar">
+      <a class="brand" href="#">KennelLink Employee</a>
+      <a href="/emp_reservations">Reservations</a>
+      <a href="/emp_clients">Clients</a>
+      <a href="/emp_pets">Pets</a>
+      <a href="/emp_transactions">Transactions</a>
+      <a href="/emp_employees">Other Employees</a>
+    </div>
+  
+    <div class="container">
+      <h2>Reservations Search</h2>
+      <h3>Bulk Search</h3>
+      <a class="button" href="#">View All Upcoming Reservations</a>
+  
+      <h3>Specific Search</h3>
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="res_id">Reservation ID:</label>
+          <input type="text" id="res_id" name="res_id" placeholder="Enter reservation ID">
+        </div>
+        <div class="form-group">
+          <label for="client_name">Client Name:</label>
+          <input type="text" id="client_name" name="client_name" placeholder="Enter client name">
+        </div>
+        <div class="form-group">
+          <label for="pet_name">Pet Name:</label>
+          <input type="text" id="pet_name" name="pet_name" placeholder="Enter client phone">
+        </div>
+        <div class="form-group">
+          <label for="arrival_date">Arrival Date and Time:</label>
+          <input type="datetime-local" id="arrival_date" name="arrival_date" required>
+        </div>
+        <div class="form-group">
+          <label for="end_date">End Date and Time:</label>
+          <input type="datetime-local" id="end_date" name="end_date" required>
+        </div>
+        <button class="button" type="submit">Search</button>
+      </form>
+    </div>
+  </body>
+  </html>

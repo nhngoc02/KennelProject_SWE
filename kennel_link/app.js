@@ -136,8 +136,61 @@ app.get("/client_reservations", (req,res) => {
   res.render("pages/client_reservation")
 })
 
+app.get("/emp_clients", (req,res) => {
+  res.render("pages/emp_clients")
+})
 
+app.get("/emp_reservations", (req,res) => {
+  res.render("pages/emp_reservations")
+})
 
+app.get("/emp_pets", (req,res) => {
+  res.render("pages/emp_pets")
+})
+
+app.get("/emp_transactions", (req,res) => {
+  res.render("pages/emp_transactions")
+})
+
+app.get("/emp_employees", (req,res) => {
+  res.render("pages/emp_employees")
+})
+
+app.get("/emp_clients_search", (req,res) => {
+  res.render("pages/emp_clients_search")
+})
+
+app.get("/emp_clients_edit", (req,res) => {
+  res.render("pages/emp_clients_edit")
+})
+
+app.get("/emp_reservation_add", (req,res) => {
+  res.render("pages/emp_res_add")
+})
+
+app.get("/emp_reservation_edit", (req,res) => {
+  res.render("pages/emp_res_edit")
+})
+
+app.get("/emp_reservation_search", (req,res) => {
+  res.render("pages/emp_res_search")
+})
+
+app.get("/emp_pets_search", (req,res) => {
+  res.render("pages/emp_pets_search")
+})
+
+app.get("/emp_pets_edit", (req,res) => {
+  res.render("pages/emp_pets_edit")
+})
+
+app.get("/emp_transactions_search", (req,res) => {
+  res.render("pages/emp_transactions_search")
+})
+
+app.get("/emp_transactions_edit", (req,res) => {
+  res.render("pages/emp_transactions_edit")
+})
 /*
 const { empID, empFN, empLN, empEmail, empPhone, empStartDate, emp_username, emp_password } = req.body;
 
