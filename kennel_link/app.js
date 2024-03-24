@@ -25,27 +25,33 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
 
-async function authenticate(name, pass, user_type) {
-  if(user_type = 'client') {
-    const result = await Client.find({client_username: name, client_password: pass}).exec();
-    if(result.length == 0) {
-      console.log("Client not found")
-      return false;
+
+async function authenticate(name, pass, type) {
+  if(type === 'client') {
+    const result = await Client.findOne({client_username: name});
+    if(!result || result.length == 0) {
+      return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
     } else {
-      return true;
+      if(result.client_password !== pass) {
+        return {worked: false, message: "Incorrect Password: Please Try Again", first: "", last: ""};
+      }
+      return {worked: true, message: "Successful Login", first: result.clientFN, last: result.clientLN};
     }
-  } else if(user_type = 'employee') {
-    const result = await Employee.find({emp_username: name, emp_password: pass}).exec();
-    if(result.length == 0) {
-      return false;
+  }
+  if(type === 'employee') {
+    const result = await Employee.findOne({emp_username: name});
+    if(!result || result.length == 0) {
+      return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
     } else {
-      return true;
+      if(result.emp_password !== pass) {
+        return {worked: false, message: "Incorrect Password: Please Try Again", first: "", last: ""};
+      }
+      return {worked: true, message: "Successful Login", first: result.empFN, last: result.empLN};
     }
   }
 }
 
 app.get('/', (req, res) => {
-  console.log("Displaying homepage")
   res.render('pages/homepage')
 })
 
@@ -53,8 +59,16 @@ app.get("/signup", (req, res) => {
   res.render("pages/signup");
 })
 
+app.get("/emp-dash", (req,res) => {
+  res.render("pages/emp_dash")
+})
+
 app.get("/login", (req,res) => {
-  res.render("pages/login");
+  res.render("pages/login", {message: ""});
+})
+
+app.get("/client-dash", (req,res) => {
+  res.render("pages/client_dash")
 })
 
 app.post("/login", async (req,res) => {
@@ -62,13 +76,20 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    if(authenticate(username, password, user_type) && user_type === 'client') {
-      const person = await Client.findOne({client_username: username, client_password: password}, 'clientFN clientLN')
-      res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} )
+    const result = await authenticate(username, password, user_type)
+    if(result.worked === true) {
+      if(user_type === 'client') {
+        res.render("pages/client_dash", {first: result.first, last: result.last})
+      } else if(user_type === 'employee') {
+        // TODO: change to employee once file is available
+        res.render("pages/emp_dash", {first: result.first, last: result.last})
+      }
+    } else {
+      res.render("pages/login", {message: result.message})
     }
-    
   } catch (error) {
     res.status(500).json({message: error.message});
+    res.redirect('/login')
   }
 })
 
@@ -111,6 +132,65 @@ app.post("/employeesignup", async (req, res) => {
   }
 });
 
+app.get("/client_reservations", (req,res) => {
+  res.render("pages/client_reservation")
+})
+
+app.get("/emp_clients", (req,res) => {
+  res.render("pages/emp_clients")
+})
+
+app.get("/emp_reservations", (req,res) => {
+  res.render("pages/emp_reservations")
+})
+
+app.get("/emp_pets", (req,res) => {
+  res.render("pages/emp_pets")
+})
+
+app.get("/emp_transactions", (req,res) => {
+  res.render("pages/emp_transactions")
+})
+
+app.get("/emp_employees", (req,res) => {
+  res.render("pages/emp_employees")
+})
+
+app.get("/emp_clients_search", (req,res) => {
+  res.render("pages/emp_clients_search")
+})
+
+app.get("/emp_clients_edit", (req,res) => {
+  res.render("pages/emp_clients_edit")
+})
+
+app.get("/emp_reservation_add", (req,res) => {
+  res.render("pages/emp_res_add")
+})
+
+app.get("/emp_reservation_edit", (req,res) => {
+  res.render("pages/emp_res_edit")
+})
+
+app.get("/emp_reservation_search", (req,res) => {
+  res.render("pages/emp_res_search")
+})
+
+app.get("/emp_pets_search", (req,res) => {
+  res.render("pages/emp_pets_search")
+})
+
+app.get("/emp_pets_edit", (req,res) => {
+  res.render("pages/emp_pets_edit")
+})
+
+app.get("/emp_transactions_search", (req,res) => {
+  res.render("pages/emp_transactions_search")
+})
+
+app.get("/emp_transactions_edit", (req,res) => {
+  res.render("pages/emp_transactions_edit")
+})
 /*
 const { empID, empFN, empLN, empEmail, empPhone, empStartDate, emp_username, emp_password } = req.body;
 
@@ -227,18 +307,6 @@ async function getNextID() {
         throw error;
     }
 }
-
-
-
-
-
-
-
-
-app.get("/home", (req,res) => {
-  res.render("pages/client_dash")
-})
-
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));

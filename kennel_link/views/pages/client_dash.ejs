@@ -1,11 +1,11 @@
-<%- include('../partials/dashboard-head', {title: 'Client Dashboard'}) %>
+<%- include('../partials/dashboard-head', {title: 'Client Dashboard', type: 'Client'}) %>
 
 <body>
     <div class="content">
       <div class="info-box">
         <h2>Client Information</h2>
-        <p><strong>First Name:</strong> <%=first %></p>
-        <p><strong>Last Name:</strong> <%=last %></p>
+        <p><strong>First Name:</strong> <%= first %></p>
+        <p><strong>Last Name:</strong> <%= last %></p>
       </div>
       <!-- Additional content goes here -->
     </div>

@@ -48,21 +48,19 @@ const client = new mongoose.Schema({
     clientLN : String,
     clientEmail : String,
     clientPhone : String,
-    // createTime : { type: Date, default: Date.now }, 
     createTime : Date,
     activeFlag : Boolean,
-    // modifiedDate : Number,
     modifiedDate : {type: [Date, Number]},
     client_username : String,
     client_password : String
     },
     {
     timestamps : true,
-    collections: 'client'
+    collection: 'client'
     }
 )
 
-const Client = mongoose.model("client", client);
+const Client = mongoose.model('client', client);
 
 module.exports = Client;
 

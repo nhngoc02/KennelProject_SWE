@@ -1,0 +1,46 @@
+<%- include('../partials/reservation-head', {title: 'Client Edit', type: 'Employee'}) %>
+<body>
+    <div class="navbar">
+      <a class="brand" href="#">KennelLink Employee</a>
+      <a href="#">Reservations</a>
+      <a href="#">Clients</a>
+      <a href="#">Pets</a>
+      <a href="#">Transactions</a>
+      <a href="#">Other Employees</a>
+    </div>
+    
+    <div class="container">
+      <h2>Edit Client</h2>
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="client_id">Client ID:</label>
+          <input type="text" id="client_id" name="client_id" placeholder="Enter client ID to change information">
+        </div>
+        <div class="form-group">
+          <label for="new_client_name">New Client Name:</label>
+          <input type="text" id="new_client_name" name="new_client_name" placeholder="Enter new client name">
+        </div>
+        <div class="form-group">
+          <label for="new_client_phone">New Client Phone:</label>
+          <input type="text" id="new_client_phone" name="new_client_phone" placeholder="Enter new client phone">
+        </div>
+        <div class="form-group">
+          <label for="new_client_email">New Client Email:</label>
+          <input type="text" id="new_client_email" name="new_client_email" placeholder="Enter new client email">
+        </div>
+        <button class="button" type="submit">Update</button>
+      </form>
+  
+      <h2>Delete Client Information</h2>
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="delete_client_id">Client ID:</label>
+          <input type="text" id="delete_client_id" name="delete_client_id" placeholder="Enter client ID">
+        </div>
+        <button class="button" type="submit">Delete Client</button>
+      </form>
+    </div>
+  </body>
+  </html>
+  
+  
