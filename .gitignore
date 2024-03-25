@@ -2,3 +2,4 @@ data.env
 kennel_link/node_modules
 node_modules
 .env
+.json
