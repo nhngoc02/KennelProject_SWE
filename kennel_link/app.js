@@ -32,9 +32,8 @@ app.use(session({
 }));
 
 async function authenticate(name, pass, type) {
-  if(type === 'client') {
+  if(type === 'Client') {
     const result = await Client.findOne({client_username: name});
-
     if(!result) {
       return {worked: false, message: "Username not found: Please Try Again", response: result};
     } else {
@@ -44,7 +43,7 @@ async function authenticate(name, pass, type) {
       return {worked: true, message: "Successful Login", response: result};
     }
   }
-  if(type === 'employee') {
+  if(type === 'Employee') {
     const result = await Employee.findOne({emp_username: name});
     if(!result) {
       return {worked: false, message: "Username not found: Please Try Again", response: result};
@@ -77,6 +76,12 @@ app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
 })
 
+app.get("/reservations", (req,res) => {
+  const user_kind = req.session.user
+  const user_type = req.session.type
+  res.render("pages/reservations", {user: user_kind, type: user_type})
+})
+
 app.get("/client-dash", (req,res) => {
   const client = req.session.user
   res.render("pages/client_dash", {first: client.clientFN, last: client.clientLN})
@@ -88,14 +93,15 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     const result = await authenticate(username, password, user_type)
-    console.log(result)
     if(result.worked === true) {
-      if(user_type === 'client') {
+      if(user_type === 'Client') {
         req.session.user = result.response
         req.session.type = user_type
         res.render("pages/client_dash", {first: result.response.clientFN, last: result.response.clientLN});
-      } else if(user_type === 'employee') {
-        res.render("pages/emp_dash", {first: result.response.clientFN, last: result.response.clientLN})
+      } else if(user_type === 'Employee') {
+        req.session.user = result.response
+        req.session.type = user_type
+        res.render("pages/emp_dash", {first: result.response.empFN, last: result.response.empLN})
       }
     } else {
       res.render("pages/login", {message: result.message})
@@ -144,16 +150,8 @@ app.post("/employeesignup", async (req, res) => {
   }
 });
 
-app.get("/client_reservations", (req,res) => {
-  res.render("pages/client_reservation")
-})
-
 app.get("/emp_clients", (req,res) => {
   res.render("pages/emp_clients")
-})
-
-app.get("/emp_reservations", (req,res) => {
-  res.render("pages/emp_reservations")
 })
 
 app.get("/emp_pets", (req,res) => {
