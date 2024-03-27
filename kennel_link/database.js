@@ -13,9 +13,6 @@ mongoose.connect(DATABASE_URL, CONFIG);
 mongoose.connection
     .on("open", () => {
         console.log("Connected to Mongoose");
-
-        // Call the function with your collection name
-        const collectionName = 'client';
     })
     .on("close", () => console.log("Disconnected from Mongoose"))
     .on("error", (error) => console.log(error));

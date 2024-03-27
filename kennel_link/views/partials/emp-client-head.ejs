@@ -13,18 +13,18 @@
 </head>
 <header>
     <div class="navbar">
-        <% if(type == 'Client') { %>
-            <a class="brand" href="/client-dash">KennelLink <%= type %></a>
-            <a href="/client_reservations">Reservations</a>
-            <a href="/pets">Pets</a>
-            <a href="/transactions">Transactions</a>
-        <% } else {%>
+        <% if(type == 'Employee') { %>
             <a class="brand" href="/emp-dash">KennelLink <%= type %></a>
             <a href="/emp_clients">Clients</a>
-            <a href="/emp_reservations">Reservations</a>
+            <a href="/reservations">Reservations</a>
             <a href="/emp_pets">Pets</a>
             <a href="/emp_transactions">Transactions</a>
             <a href="/emp_employees">Other Employees</a>
+        <% } else {%>
+            <a class="brand" href="/client-dash">KennelLink <%= type %></a>
+            <a href="/reservations">Reservations</a>
+            <a href="/pets">Pets</a>
+            <a href="/transactions">Transactions</a>
         <% } %>
       </div>
 </header>
