@@ -3,3 +3,4 @@ kennel_link/node_modules
 node_modules
 *.env
 *.json
+kennel_link/*.json
