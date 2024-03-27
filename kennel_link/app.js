@@ -3,6 +3,7 @@ const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
+const session = require('express-session')
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
@@ -24,31 +25,41 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
-
+app.use(session({
+  secret: 'edliweflaiuehf389dixkxsozdj9w209228', 
+  resave: false,
+  saveUninitialized: false
+}));
 
 async function authenticate(name, pass, type) {
   if(type === 'client') {
+    console.log(await Client.find())
     const result = await Client.findOne({client_username: name});
     if(!result || result.length == 0) {
-      return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
+      console.log(result)
+      return {worked: false, message: "Username not found: Please Try Again", response: result};
     } else {
       if(result.client_password !== pass) {
-        return {worked: false, message: "Incorrect Password: Please Try Again", first: "", last: ""};
+        return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
       }
-      return {worked: true, message: "Successful Login", first: result.clientFN, last: result.clientLN};
+      return {worked: true, message: "Successful Login", response: result};
     }
   }
   if(type === 'employee') {
     const result = await Employee.findOne({emp_username: name});
     if(!result || result.length == 0) {
-      return {worked: false, message: "Username not found: Please Try Again", first: "", last: ""};
+      return {worked: false, message: "Username not found: Please Try Again", response: result};
     } else {
       if(result.emp_password !== pass) {
-        return {worked: false, message: "Incorrect Password: Please Try Again", first: "", last: ""};
+        return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
       }
-      return {worked: true, message: "Successful Login", first: result.empFN, last: result.empLN};
+      return {worked: true, message: "Successful Login", response: result};
     }
   }
+}
+
+async function getInfo(username, type) {
+  
 }
 
 app.get('/', (req, res) => {
@@ -68,7 +79,8 @@ app.get("/login", (req,res) => {
 })
 
 app.get("/client-dash", (req,res) => {
-  res.render("pages/client_dash")
+  const client = req.session.user
+  res.render("pages/client_dash", {first: client.clientFN, last: client.clientLN})
 })
 
 app.post("/login", async (req,res) => {
@@ -79,10 +91,10 @@ app.post("/login", async (req,res) => {
     const result = await authenticate(username, password, user_type)
     if(result.worked === true) {
       if(user_type === 'client') {
-        res.render("pages/client_dash", {first: result.first, last: result.last})
+        req.session.user = result.response
+        res.render("pages/client_dash", {first: result.response.clientFN, last: result.response.clientLN});
       } else if(user_type === 'employee') {
-        // TODO: change to employee once file is available
-        res.render("pages/emp_dash", {first: result.first, last: result.last})
+        res.render("pages/emp_dash", {first: result.response.clientFN, last: result.response.clientLN})
       }
     } else {
       res.render("pages/login", {message: result.message})
