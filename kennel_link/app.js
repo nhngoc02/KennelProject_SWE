@@ -166,9 +166,9 @@ app.get("/emp_employees", (req,res) => {
   res.render("pages/emp_employees")
 })
 
-// app.get("/emp_clients_search", (req,res) => {
-//   res.render("pages/emp_clients_search")
-// })
+app.get("/emp_clients_search", (req,res) => {
+  res.render("pages/emp_clients_search")
+})
 
 app.get("/emp_clients_edit", (req,res) => {
   res.render("pages/emp_clients_edit")
