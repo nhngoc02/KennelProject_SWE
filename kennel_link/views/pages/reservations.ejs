@@ -1,0 +1,15 @@
+<%- include('../partials/emp-client-head', {title: 'Reservations', type: type}) %>
+
+<body>
+    <div class="container"> 
+        <h2>Reservation Screen</h2>
+        <% if(type == 'Client') { %>
+            <a href="#" class="button">Search My Reservations</a>
+            <a href="#" class="button">Add a New Reservation</a>
+        <% } else { %>
+            <a href="/emp_reservation_search" class="button">Search Existing Reservations</a>
+            <a href="/emp_reservation_add" class="button">Add a New Reservation</a>
+        <% } %>
+    </div>
+  </body>
+  </html>

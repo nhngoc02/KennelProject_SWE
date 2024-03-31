@@ -1,0 +1,19 @@
+<%- include('../partials/emp-client-head', {title: 'Client Dashboard', type: type}) %>
+
+<body>
+    <div class="content">
+      <div class="info-box">
+        <h2><%= type %> Information</h2>
+        <% if(type == 'Employee') { %>
+            <p><strong>First Name:</strong> <%= user.empFN %></p>
+            <p><strong>Last Name:</strong> <%= user.empLN %></p>
+        <% } else if (type == 'Client') { %>
+            <p><strong>First Name:</strong> <%= user.clientFN %></p>
+            <p><strong>Last Name:</strong> <%= user.clientLN %></p>
+        <% } else { %>
+            <p> Error with accessing user data</p>
+        <% } %>
+      </div>
+    </div>
+</body>
+</html>
