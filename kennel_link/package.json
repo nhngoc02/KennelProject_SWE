@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node ./bin/www",
     "dev": "nodemon app.js",
     "serve": "node app.js"
@@ -12,6 +12,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/preset-env": "^7.24.3",
+    "@babel/preset-react": "^7.24.1",
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/react": "^14.2.2",
+    "@testing-library/user-event": "^14.5.2",
     "connect-livereload": "^0.6.1",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
@@ -23,5 +29,9 @@
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0"
   },
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
 }

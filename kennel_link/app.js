@@ -296,13 +296,14 @@ async function getPets(start, end){
     throw error;
   }
 }
-getPets(1, 5)
-  .then(pets => {
-    console.log("Fetched pets:", pets);
-  })
-  .catch(error => {
-    console.error("Error fetching pets:", error);
-  });
+
+//getPets(1, 5)
+//  .then(pets => {
+//    console.log("Fetched pets:", pets);
+//  })
+//  .catch(error => {
+//    console.error("Error fetching pets:", error);
+//  });
 // Define route to fetch all pets
 app.get('/all_pets', async (req, res) => {
   try {
