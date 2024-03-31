@@ -1,23 +1,26 @@
-import React from 'react';
-const { render }  = require( '@testing-library/react');
+const app = require('../app.js');
+const request = require('supertest');
 
-const app = require('../app');
+describe('App', () => {
+  let server;
 
-const PORT = 4000;
-let server;
-
-beforeAll(async () => {
-    server = app.listen(PORT, () => {
-        console.log('Now Listening on port ${PORT}');
+  beforeAll(done => {
+    server = app.listen(4000, () => {
+      console.log('Test server is running on port 4000');
+      done();
     });
   });
 
-// After running tests, close the server
-afterAll(done => {
-    server.close(() => {
-        console.log("server closed");
-    });
+  afterAll(done => {
+    server.close(done);
   });
-test('renders without crashing', async() => {
-  render(<App />);
+
+  it('should start without crashing', async () => {
+    // Send a GET request to the root URL ("/")
+    const response = await request(server).get('/');
+    
+    // Check if the response status is 200 (OK)
+    expect(response.status).toBe(200);
+  });
 });
+

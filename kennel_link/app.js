@@ -359,4 +359,5 @@ async function getNextID() {
 }
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
+module.exports = app;
+//app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
