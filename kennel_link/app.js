@@ -303,7 +303,19 @@ getPets(1, 5)
   .catch(error => {
     console.error("Error fetching pets:", error);
   });
+// Define route to fetch all pets
+app.get('/all_pets', async (req, res) => {
+  try {
+    // Fetch all pets from the database
+    const pets = await Pet.find();
 
+    // Send the pets as JSON response
+    res.json(pets);
+  } catch (error) {
+    console.error('Error fetching all pets:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 app.get("/emp_pets_search", async (req,res) => {
   try {
     const { searchQuery } = req.query; // Extract search query from request query parameters
