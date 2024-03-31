@@ -1,8 +1,9 @@
-const express = require('express')
+ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
+const Pet = require('./db_modules/pet')
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
@@ -176,10 +177,6 @@ app.get("/emp_reservation_search", (req,res) => {
   res.render("pages/emp_res_search")
 })
 
-app.get("/emp_pets_search", (req,res) => {
-  res.render("pages/emp_pets_search")
-})
-
 app.get("/emp_pets_edit", (req,res) => {
   res.render("pages/emp_pets_edit")
 })
@@ -290,6 +287,46 @@ async function getNextID() {
     }
 }
 */
+async function getPets(start, end){
+  try{
+    const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
+    return pets;
+  } catch(error){
+    console.error("Error returning pet information:", error);
+    throw error;
+  }
+}
+getPets(1, 5)
+  .then(pets => {
+    console.log("Fetched pets:", pets);
+  })
+  .catch(error => {
+    console.error("Error fetching pets:", error);
+  });
+
+app.get("/emp_pets_search", async (req,res) => {
+  try {
+    const { searchQuery } = req.query; // Extract search query from request query parameters
+    let pets = []; // Initialize pets array
+
+    if (searchQuery) {
+      // If there's a search query, fetch pets based on the query
+      pets = await Pet.find({
+        $or: [
+          { petName: { $regex: searchQuery, $options: "i" } }, // Search by pet name (case-insensitive)
+          { petBreed: { $regex: searchQuery, $options: "i" } }, // Search by pet breed (case-insensitive)
+        ],
+      }).sort({ petName: 1 }); // Sort pets by petName
+    }
+    // Render the page with the fetched pets
+    res.render("pages/emp_pets_search", { pets, searchQuery });
+  } catch (error) {
+    console.error("Error fetching pets:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
 async function getNextID() {
     try {
         // Find the maximum employee ID
