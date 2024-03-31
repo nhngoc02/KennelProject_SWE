@@ -101,7 +101,8 @@ app.post("/login", async (req,res) => {
     res.status(500).json({message: error.message});
   }
 })
-
+//Old code for 
+/* 
 app.post("/employeesignup", async (req, res) => {
   try {
       // Extract employee signup data from the request body
@@ -110,7 +111,6 @@ app.post("/employeesignup", async (req, res) => {
       empLN = req.body.last_name
       empEmail = req.body.email;
       empPhone = req.body.phone;
-      empStartDate = req.body.employee_start_date;
       emp_username = req.body.username;
       emp_password = req.body.password
       
@@ -121,7 +121,7 @@ app.post("/employeesignup", async (req, res) => {
           empLN,
           empEmail,
           empPhone,
-          empStartDate,
+          empStartDate: null,
           activeFlag: true,
           modifiedDate: 0,
           emp_username,
@@ -138,6 +138,146 @@ app.post("/employeesignup", async (req, res) => {
       // Handle any errors that occur during the signup process
       console.error("Error occurred during employee signup:", error);
       res.status(500).send("An error occurred during employee signup. Please try again later.");
+  }
+});
+*/
+
+//// NEW CODE
+/*
+app.post("/signup", async (req, res) => {
+  try {
+    // Extract employee signup data from the body
+    const empID = await getNextID(); // Await the result of getNextID()
+    const empFN = req.body.first_name;
+    const empLN = req.body.last_name;
+    const empEmail = req.body.email;
+    const empPhone = req.body.phone;
+    const emp_username = req.body.username;
+    const emp_password = req.body.password;
+
+    // Create a new instance of the Employee model with the signup data
+    const newEmployee = new Employee({
+      empID,
+      empFN,
+      empLN,
+      empEmail,
+      empPhone,
+      empStartDate: null,
+      activeFlag: true,
+      modifiedDate: 0,
+      emp_username,
+      emp_password,
+      createTime: new Date(),
+    });
+
+    // Save the new employee document to the database
+    await newEmployee.save();
+
+    // Respond with a success message
+    res.status(201).send("Employee signup successful!");
+  } catch (error) {
+    // Handle any errors that occur during the employee signup process
+    console.error("Error occurred during employee signup:", error);
+    res.status(500).send("An error occurred during employee signup. Please try again later.");
+  }
+
+  try {
+    // Extract client signup data from body of text
+    const clientID = await getNextID(); // Await the result of getNextID()
+    const clientFN = req.body.first_name;
+    const clientLN = req.body.last_name;
+    const clientEmail = req.body.email;
+    const clientPhone = req.body.phone;
+    const client_username = req.body.username;
+    const client_password = req.body.password;
+
+    // Create a new instance of the Client model with the signup data
+    const newClient = new Client({
+      clientID,
+      clientFN,
+      clientLN,
+      clientEmail,
+      clientPhone,
+      activeFlag: true,
+      modifiedDate: 0,
+      client_username,
+      client_password,
+      createTime: new Date(),
+    });
+
+    // Save the new client document to the database
+    await newClient.save();
+
+    // Respond with a success message
+    res.status(201).send("Client signup successful!");
+  } catch (error) {
+    // Handle any errors that occur during the client signup process
+    console.error("Error occurred during client signup:", error);
+    res.status(500).send("An error occurred during client signup. Please try again later.");
+  }
+});
+
+*/
+
+app.post("/signup", async (req, res) => {
+  try {
+    // Extract signup data from the request body
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const username = req.body.username;
+    const password = req.body.password;
+    const user_type = req.body.user_type;
+    
+    if (user_type === 'employee') {
+      // If the user type is employee
+      const empID = await getNextID(); // Generate ID for employee
+      const newEmployee = new Employee({
+        empID,
+        empFN: first_name,
+        empLN: last_name,
+        empEmail: email,
+        empPhone: phone,
+        empStartDate: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        emp_username: username,
+        emp_password: password,
+        //createTime: new Date(),
+      });
+
+      await newEmployee.save();
+      console.log("Employee saved:", newEmployee);
+      res.status(201).send("Employee signup successful!");
+    } else if (user_type === 'client') {
+      // If the user type is client
+      const clientID = await getNextID(); // Generate ID for client
+      const newClient = new Client({
+        clientID,
+        clientFN: first_name,
+        clientLN: last_name,
+        clientEmail: email,
+        clientPhone: phone,
+        createTime: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        client_username: username,
+        client_password: password,
+        
+      });
+
+      await newClient.save();
+      console.log("Client saved:", newClient);
+      res.status(201).send("Client signup successful!");
+    } else {
+      // If the user type is neither client nor employee
+      throw new Error("Invalid user type selected");
+    }
+  } catch (error) {
+    // Handle any errors that occur during the signup process
+    console.error("Error occurred during signup:", error);
+    res.status(500).send("An error occurred during signup. Please try again later.");
   }
 });
 
