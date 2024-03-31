@@ -1,0 +1,36 @@
+<%- include('../partials/emp-client-head', {title: 'Reservations Insert', type: 'Employee'}) %>
+
+<body>
+  <div class="container">
+      <h2>Add Reservation</h2>
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="client_name">Client Name:</label>
+          <input type="text" id="client_name" name="client_name" required>
+        </div>
+        <div class="form-group">
+          <label for="pet_name">Pet Name:</label>
+          <input type="text" id="pet_name" name="pet_name" required>
+        </div>
+        <div class="form-group">
+          <label for="arrival_date">Arrival Date and Time:</label>
+          <input type="datetime-local" id="arrival_date" name="arrival_date" required>
+        </div>
+        <div class="form-group">
+          <label for="end_date">End Date and Time:</label>
+          <input type="datetime-local" id="end_date" name="end_date" required>
+        </div>
+        <div class="form-group">
+          <label for="kennel_number">Kennel Number:</label>
+          <select id="kennel_number" name="kennel_number" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <!-- Add more kennel numbers as needed -->
+          </select>
+        </div>
+        <button class="button" type="submit">Add Reservation</button>
+      </form>
+    </div>
+  </body>
+  </html>

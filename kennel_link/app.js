@@ -3,6 +3,7 @@ const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
+const session = require('express-session')
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
@@ -24,28 +25,42 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static("static"));
 app.use('/styles', express.static('./styles'));
+app.use(session({
+  secret: 'edliweflaiuehf389dixkxsozdj9w209228', 
+  resave: false,
+  saveUninitialized: false
+}));
 
-async function authenticate(name, pass, user_type) {
-  if(user_type = 'client') {
-    const result = await Client.find({client_username: name, client_password: pass}).exec();
-    if(result.length == 0) {
-      console.log("Client not found")
-      return false;
+async function authenticate(name, pass, type) {
+  if(type === 'Client') {
+    const result = await Client.findOne({client_username: name});
+    if(!result) {
+      return {worked: false, message: "Username not found: Please Try Again", response: result};
     } else {
-      return true;
+      if(result.client_password !== pass) {
+        return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
+      }
+      return {worked: true, message: "Successful Login", response: result};
     }
-  } else if(user_type = 'employee') {
-    const result = await Employee.find({emp_username: name, emp_password: pass}).exec();
-    if(result.length == 0) {
-      return false;
+  }
+  if(type === 'Employee') {
+    const result = await Employee.findOne({emp_username: name});
+    if(!result) {
+      return {worked: false, message: "Username not found: Please Try Again", response: result};
     } else {
-      return true;
+      if(result.emp_password !== pass) {
+        return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
+      }
+      return {worked: true, message: "Successful Login", response: result};
     }
   }
 }
 
+async function getInfo(username, type) {
+  
+}
+
 app.get('/', (req, res) => {
-  console.log("Displaying homepage")
   res.render('pages/homepage')
 })
 
@@ -54,7 +69,19 @@ app.get("/signup", (req, res) => {
 })
 
 app.get("/login", (req,res) => {
-  res.render("pages/login");
+  res.render("pages/login", {message: ""});
+})
+
+app.get("/dashboard", (req,res) => {
+  const user = req.session.user
+  const type = req.session.type
+  res.render("pages/dashboard", {user: user, type: type})
+})
+
+app.get("/reservations", (req,res) => {
+  const user = req.session.user
+  const user_type = req.session.type
+  res.render("pages/reservations", {user: user, type: user_type})
 })
 
 app.post("/login", async (req,res) => {
@@ -62,11 +89,14 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    if(authenticate(username, password, user_type) && user_type === 'client') {
-      const person = await Client.findOne({client_username: username, client_password: password}, 'clientFN clientLN')
-      res.render("pages/client_dash", {first:person.clientFN, last:person.clientLN} )
+    const result = await authenticate(username, password, user_type)
+    if(result.worked === true) {
+      req.session.user = result.response
+      req.session.type = user_type
+      res.render("pages/dashboard", {user: result.response, type: user_type})
+    } else {
+      res.render("pages/login", {message: result.message})
     }
-    
   } catch (error) {
     res.status(500).json({message: error.message});
   }
@@ -111,105 +141,58 @@ app.post("/employeesignup", async (req, res) => {
   }
 });
 
-/*
-const { empID, empFN, empLN, empEmail, empPhone, empStartDate, emp_username, emp_password } = req.body;
+app.get("/emp_clients", (req,res) => {
+  res.render("pages/emp_clients")
+})
 
-// Connect to the MongoDB server
-MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-    if (err) {
-        console.error('Error connecting to MongoDB:', err);
-        res.status(500).send("An error occurred during employee signup. Please try again later.");
-        return;
-    }
+app.get("/emp_pets", (req,res) => {
+  res.render("pages/emp_pets")
+})
 
-    try {
-        // Access the database and the employee collection
-        const db = client.db('your_database_name'); // Replace 'your_database_name' with your actual database name
-        const employeeCollection = db.collection('employee'); // Replace 'employee' with your actual collection name
+app.get("/emp_transactions", (req,res) => {
+  res.render("pages/emp_transactions")
+})
 
-        // Insert a new document into the employee collection
-        employeeCollection.insertOne({
-            empID,
-            empFN,
-            empLN,
-            empEmail,
-            empPhone,
-            empStartDate,
-            emp_username,
-            emp_password,
-            activeFlag: true,
-            createTime: new Date()
-        }, (err, result) => {
-            if (err) {
-                console.error('Error inserting employee:', err);
-                res.status(500).send("An error occurred during employee signup. Please try again later.");
-                return;
-            }
-            console.log('New employee inserted with _id:', result.insertedId);
-            res.status(201).send("Employee signup successful!");
-        });
-    } finally {
-        // Close the connection
-        client.close();
-    }
-});
-*/
-//still needs further implementation
-/*
-app.post("/clientsignup", async (req, res) => {
-  try {
-      // Extract client signup data from the request body  ***Need to adjust to remove start date from dynamic html
-      clientID = 40;
-      clientFN = req.body.first_name;
-      clientLN = req.body.last_name
-      clientEmail = req.body.email;
-      clientPhone = req.body.phone;
-      client_username = req.body.username;
-      client_password = req.body.password
-      
-     // Create a new instance of the Employee model with the signup data
-      const newClient = new Client({
-          clientID,
-          clientFN,
-          clientLN,
-          clientEmail,
-          clientPhone,
-          activeFlag: true,
-          modifiedDate: 0,
-          client_username,
-          client_password,
-          createTime: new Date()
-      });
+app.get("/emp_employees", (req,res) => {
+  res.render("pages/emp_employees")
+})
 
-      // Save the new employee document to the database
-      await newClient.save();
+// app.get("/emp_clients_search", (req,res) => {
+//   res.render("pages/emp_clients_search")
+// })
 
-      // Respond with a success message
-      res.status(201).send("Client signup successful!");
-  } catch (error) {
-      // Handle any errors that occur during the signup process
-      console.error("Error occurred during client signup:", error);
-      res.status(500).send("An error occurred during employee signup. Please try again later.");
-  }
-});
-*/
+app.get("/emp_clients_edit", (req,res) => {
+  res.render("pages/emp_clients_edit")
+})
 
-// Function to calculate the next available empID
-/*
-async function getNextID() {
-    try {
-      const maxEmployee = await db.employee.find().sort({ empID: -1 }).limit(1).toArray();
-      const maxClient = await db.client.find().sort({ clientID: -1 }).limit(1).toArray();
-        // Determine the maximum ID from both collections
-        const maxID = Math.max(maxClient.clientID || 0, maxEmployee.empID || 0) + 1;
+app.get("/emp_reservation_add", (req,res) => {
+  res.render("pages/emp_res_add")
+})
 
-        return maxID;
-    } catch (error) {
-        console.error("Error calculating next empID:", error);
-        throw error;
-    }
-}
-*/
+app.get("/emp_reservation_edit", (req,res) => {
+  res.render("pages/emp_res_edit")
+})
+
+app.get("/emp_reservation_search", (req,res) => {
+  res.render("pages/emp_res_search")
+})
+
+app.get("/emp_pets_search", (req,res) => {
+  res.render("pages/emp_pets_search")
+})
+
+app.get("/emp_pets_edit", (req,res) => {
+  res.render("pages/emp_pets_edit")
+})
+
+app.get("/emp_transactions_search", (req,res) => {
+  res.render("pages/emp_transactions_search")
+})
+
+app.get("/emp_transactions_edit", (req,res) => {
+  res.render("pages/emp_transactions_edit")
+})
+
 async function getNextID() {
     try {
         // Find the maximum employee ID
@@ -228,17 +211,31 @@ async function getNextID() {
     }
 }
 
+async function getClients(start, end) {
+  try {
+    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
+    console.log(clients.length);
+    console.log(clients.type); // undefined
+    console.log(clients);
+    return clients;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
 
-
-
-
-
-
-
-app.get("/home", (req,res) => {
-  res.render("pages/client_dash")
+app.get("/emp_clients_search", async (req,res) => {
+  console.log("Entering search");
+  try {
+    const result = await getClients(1, 5);
+    // res.render("pages/emp_clients_search", {clients: result})
+    console.log(result);
+    res.render("pages/emp_clients_search", {clients: result})
+  } catch (error) {
+    res.status(500).json({message: error.message});
+    res.redirect('/emp_clients')
+  }
 })
-
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));

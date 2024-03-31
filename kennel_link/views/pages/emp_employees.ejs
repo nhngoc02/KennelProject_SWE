@@ -1,0 +1,30 @@
+<%- include('../partials/emp-client-head', {title: 'Other Employees', type: 'Employee'}) %>
+
+<body>
+    <div class="container">
+      <h2>Other Employees</h2>
+      <div class="bulk-search">
+        <h3>KennelLink Employee</h3>
+        <a class="button" href="#">View All Employees</a>
+      </div>
+      <div class="specific-search">
+        <h3>Search for Employees</h3>
+        <form action="#" method="post">
+          <div class="form-group">
+            <label for="employee_name">Employee Name:</label>
+            <input type="text" id="employee_name" name="employee_name" placeholder="Enter employee name">
+          </div>
+          <div class="form-group">
+            <label for="employee_email">Employee Email:</label>
+            <input type="text" id="employee_email" name="employee_email" placeholder="Enter employee email">
+          </div>
+          <div class="form-group">
+            <label for="employee_phone">Employee Phone:</label>
+            <input type="text" id="employee_phone" name="employee_phone" placeholder="Enter employee phone">
+          </div>
+          <button class="button" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </body>
+  </html>

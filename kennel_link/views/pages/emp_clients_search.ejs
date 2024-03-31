@@ -1,0 +1,35 @@
+<%- include('../partials/emp-client-head', {title: 'Client Search', type: 'Employee'}) %>
+
+<body>
+  
+    <div class="container">
+      <h2>Client Search</h2>
+
+      <table class="table table-inverse">
+        <thead>
+          <tr>
+            <th>Client Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Username</th>
+            <th></th>
+          </tr>
+        </thead>
+      
+        <tbody>
+          <% for(var i=0; i < clients.length; i++) { %>
+          <tr>
+            <td><%= clients[i].clientFN %> <%= clients[i].clientLN %></td>
+            <td><%= clients[i].clientEmail %></td>
+            <td><%= clients[i].clientPhone %></td>
+            <td><%= clients[i].client_username %></td>
+            <td><a href="/edit/<%= clients[i]._id %>">Edit</a></td>
+            
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    
+
+  </body>
+  </html>
