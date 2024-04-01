@@ -1,4 +1,4 @@
-const express = require('express')
+ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
@@ -99,7 +99,7 @@ app.post("/login", async (req,res) => {
     }
   } catch (error) {
     res.status(500).json({message: error.message});
-  }
+      }
 })
 
 app.post("/employeesignup", async (req, res) => {
@@ -158,7 +158,7 @@ app.get("/emp_employees", (req,res) => {
 })
 
 // app.get("/emp_clients_search", (req,res) => {
-//   res.render("pages/emp_clients_search")
+  //   res.render("pages/emp_clients_search")
 // })
 
 app.get("/emp_clients_edit", (req,res) => {
@@ -210,32 +210,6 @@ async function getNextID() {
         throw error;
     }
 }
-
-async function getClients(start, end) {
-  try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
-    console.log(clients.length);
-    console.log(clients.type); // undefined
-    console.log(clients);
-    return clients;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
-app.get("/emp_clients_search", async (req,res) => {
-  console.log("Entering search");
-  try {
-    const result = await getClients(1, 5);
-    // res.render("pages/emp_clients_search", {clients: result})
-    console.log(result);
-    res.render("pages/emp_clients_search", {clients: result})
-  } catch (error) {
-    res.status(500).json({message: error.message});
-    res.redirect('/emp_clients')
-  }
-})
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
