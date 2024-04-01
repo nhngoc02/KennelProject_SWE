@@ -98,13 +98,13 @@ app.post("/employeesignup", async (req, res) => {
   try {
       // Extract employee signup data from the request body
       const empID = await getNextID(); // Await the result of getNextID()
-      empFN = req.body.first_name;
-      empLN = req.body.last_name
-      empEmail = req.body.email;
-      empPhone = req.body.phone;
-      empStartDate = req.body.employee_start_date;
-      emp_username = req.body.username;
-      emp_password = req.body.password
+      const empFN = req.body.first_name;
+      const empLN = req.body.last_name
+      const empEmail = req.body.email;
+      const empPhone = req.body.phone;
+      const empStartDate = req.body.employee_start_date;
+      const emp_username = req.body.username;
+      const emp_password = req.body.password
       
      // Create a new instance of the Employee model with the signup data
       const newEmployee = new Employee({

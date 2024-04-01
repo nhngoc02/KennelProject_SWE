@@ -32,6 +32,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "livereload": "^0.9.3",
     "method-override": "^3.0.0",
+    "mongodb-memory-server": "^9.1.8",
     "mongoose": "^8.2.3",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0",
