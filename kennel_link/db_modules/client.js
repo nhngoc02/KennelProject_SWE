@@ -50,9 +50,10 @@ const client = new mongoose.Schema({
     clientPhone : String,
     createTime : Date,
     activeFlag : Boolean,
-    modifiedDate : {type: [Date, Number]},
+    modifiedDate : Number,
     client_username : String,
-    client_password : String
+    client_password : String,
+    
     },
     {
     timestamps : true,
@@ -60,7 +61,7 @@ const client = new mongoose.Schema({
     }
 )
 
-const Client = mongoose.model('client', client);
+const Client = mongoose.model("client", client);
 
 module.exports = Client;
 
