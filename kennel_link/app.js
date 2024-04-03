@@ -1,4 +1,4 @@
-const express = require('express')
+ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
@@ -64,24 +64,8 @@ app.get('/', (req, res) => {
   res.render('pages/homepage')
 })
 
-app.get("/signup", (req, res) => {
-  res.render("pages/signup");
-})
-
 app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
-})
-
-app.get("/dashboard", (req,res) => {
-  const user = req.session.user
-  const type = req.session.type
-  res.render("pages/dashboard", {user: user, type: type})
-})
-
-app.get("/reservations", (req,res) => {
-  const user = req.session.user
-  const user_type = req.session.type
-  res.render("pages/reservations", {user: user, type: user_type})
 })
 
 app.post("/login", async (req,res) => {
@@ -99,6 +83,35 @@ app.post("/login", async (req,res) => {
     }
   } catch (error) {
     res.status(500).json({message: error.message});
+      }
+})
+
+app.get("/signup", (req, res) => {
+  res.render("pages/signup");
+})
+
+app.get("/logout", (req,res) => {
+  req.session.destroy();
+  res.redirect("/login")
+})
+
+app.get("/dashboard", (req,res) => {
+  const user = req.session.user
+  const type = req.session.type
+  if(user) {
+    res.render("pages/dashboard", {user: user, type: type})
+  } else {
+    res.redirect("/login")
+  }
+})
+
+app.get("/reservations", (req,res) => {
+  const user = req.session.user
+  const user_type = req.session.type
+  if(user) {
+    res.render("pages/reservations", {user: user, type: user_type})
+  } else {
+    res.redirect("/login")
   }
 })
 
@@ -142,11 +155,23 @@ app.post("/employeesignup", async (req, res) => {
 });
 
 app.get("/emp_clients", (req,res) => {
-  res.render("pages/emp_clients")
+  res.render("pages/emp_clients");
+})
+
+app.get("/pets", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type; 
+  res.render("pages/pets", {user: user, type: user_type});
+})
+
+app.get("/add_pets", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type;
+  res.render("pages/add_pets", {user: user, type: user_type});
 })
 
 app.get("/emp_pets", (req,res) => {
-  res.render("pages/emp_pets")
+  res.render("pages/emp_pets");
 })
 
 app.get("/emp_transactions", (req,res) => {
@@ -158,7 +183,7 @@ app.get("/emp_employees", (req,res) => {
 })
 
 // app.get("/emp_clients_search", (req,res) => {
-//   res.render("pages/emp_clients_search")
+  //   res.render("pages/emp_clients_search")
 // })
 
 app.get("/emp_clients_edit", (req,res) => {
@@ -210,32 +235,6 @@ async function getNextID() {
         throw error;
     }
 }
-
-async function getClients(start, end) {
-  try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
-    console.log(clients.length);
-    console.log(clients.type); // undefined
-    console.log(clients);
-    return clients;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
-app.get("/emp_clients_search", async (req,res) => {
-  console.log("Entering search");
-  try {
-    const result = await getClients(1, 5);
-    // res.render("pages/emp_clients_search", {clients: result})
-    console.log(result);
-    res.render("pages/emp_clients_search", {clients: result})
-  } catch (error) {
-    res.status(500).json({message: error.message});
-    res.redirect('/emp_clients')
-  }
-})
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
