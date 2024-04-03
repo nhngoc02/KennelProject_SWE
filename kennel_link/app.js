@@ -68,23 +68,20 @@ app.get("/signup", (req, res) => {
   res.render("pages/signup");
 })
 
-app.get("/emp-dash", (req,res) => {
-  res.render("pages/emp_dash")
-})
-
 app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
 })
 
-app.get("/reservations", (req,res) => {
-  const user_kind = req.session.user
-  const user_type = req.session.type
-  res.render("pages/reservations", {user: user_kind, type: user_type})
+app.get("/dashboard", (req,res) => {
+  const user = req.session.user
+  const type = req.session.type
+  res.render("pages/dashboard", {user: user, type: type})
 })
 
-app.get("/client-dash", (req,res) => {
-  const client = req.session.user
-  res.render("pages/client_dash", {first: client.clientFN, last: client.clientLN})
+app.get("/reservations", (req,res) => {
+  const user = req.session.user
+  const user_type = req.session.type
+  res.render("pages/reservations", {user: user, type: user_type})
 })
 
 app.post("/login", async (req,res) => {
@@ -94,15 +91,9 @@ app.post("/login", async (req,res) => {
     const user_type = req.body.user_type;
     const result = await authenticate(username, password, user_type)
     if(result.worked === true) {
-      if(user_type === 'Client') {
-        req.session.user = result.response
-        req.session.type = user_type
-        res.render("pages/client_dash", {first: result.response.clientFN, last: result.response.clientLN});
-      } else if(user_type === 'Employee') {
-        req.session.user = result.response
-        req.session.type = user_type
-        res.render("pages/emp_dash", {first: result.response.empFN, last: result.response.empLN})
-      }
+      req.session.user = result.response
+      req.session.type = user_type
+      res.render("pages/dashboard", {user: result.response, type: user_type})
     } else {
       res.render("pages/login", {message: result.message})
     }
