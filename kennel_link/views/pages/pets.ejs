@@ -1,0 +1,19 @@
+<%- include('../partials/emp-client-head', {title: 'Pets', type: type }) %>
+
+
+<body>
+    <div class="container">
+        <h2>Pets</h2>
+        <% if(type == 'Client') { %>
+            <a class="button" href="#">Search for Pets</a>
+            <a class="button" href="#">Add Pets</a>
+        <% } else if(type == 'Employee') { %>
+            <a class="button" href="/emp_pets_search">Search for Pets</a>
+            <a class="button" href="/add_pets">Add Pets</a>
+        <% } else { %>
+            
+        <% } %>
+
+    </div>
+  </body>
+  </html>

@@ -64,24 +64,8 @@ app.get('/', (req, res) => {
   res.render('pages/homepage')
 })
 
-app.get("/signup", (req, res) => {
-  res.render("pages/signup");
-})
-
 app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
-})
-
-app.get("/dashboard", (req,res) => {
-  const user = req.session.user
-  const type = req.session.type
-  res.render("pages/dashboard", {user: user, type: type})
-})
-
-app.get("/reservations", (req,res) => {
-  const user = req.session.user
-  const user_type = req.session.type
-  res.render("pages/reservations", {user: user, type: user_type})
 })
 
 app.post("/login", async (req,res) => {
@@ -100,6 +84,35 @@ app.post("/login", async (req,res) => {
   } catch (error) {
     res.status(500).json({message: error.message});
       }
+})
+
+app.get("/signup", (req, res) => {
+  res.render("pages/signup");
+})
+
+app.get("/logout", (req,res) => {
+  req.session.destroy();
+  res.redirect("/login")
+})
+
+app.get("/dashboard", (req,res) => {
+  const user = req.session.user
+  const type = req.session.type
+  if(user) {
+    res.render("pages/dashboard", {user: user, type: type})
+  } else {
+    res.redirect("/login")
+  }
+})
+
+app.get("/reservations", (req,res) => {
+  const user = req.session.user
+  const user_type = req.session.type
+  if(user) {
+    res.render("pages/reservations", {user: user, type: user_type})
+  } else {
+    res.redirect("/login")
+  }
 })
 
 app.post("/employeesignup", async (req, res) => {
@@ -142,11 +155,23 @@ app.post("/employeesignup", async (req, res) => {
 });
 
 app.get("/emp_clients", (req,res) => {
-  res.render("pages/emp_clients")
+  res.render("pages/emp_clients");
+})
+
+app.get("/pets", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type; 
+  res.render("pages/pets", {user: user, type: user_type});
+})
+
+app.get("/add_pets", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type;
+  res.render("pages/add_pets", {user: user, type: user_type});
 })
 
 app.get("/emp_pets", (req,res) => {
-  res.render("pages/emp_pets")
+  res.render("pages/emp_pets");
 })
 
 app.get("/emp_transactions", (req,res) => {
