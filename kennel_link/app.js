@@ -208,9 +208,9 @@ app.get("/emp_employees", (req,res) => {
   //   res.render("pages/emp_clients_search")
 // })
 
-app.get("/emp_clients_edit", (req,res) => {
-  res.render("pages/emp_clients_edit")
-})
+// app.get("/emp_clients_edit", (req,res) => {
+//   res.render("pages/emp_clients_edit")
+// })
 
 app.get("/emp_reservation_add", (req,res) => {
   res.render("pages/emp_res_add")
@@ -253,6 +253,90 @@ async function getNextID() {
         throw error;
     }
 }
+
+async function getClients(start, end) {
+  try {
+    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
+    // console.log(clients.length);
+    // console.log(clients.type); // undefined
+    // console.log(clients);
+    return clients;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
+
+app.get("/emp_clients_search", async (req,res) => {
+  try {
+    const result = await getClients(1, 5);
+    // res.render("pages/emp_clients_search", {clients: result})
+    // console.log(result);
+    res.render("pages/emp_clients_search", {clients: result})
+  } catch (error) {
+    res.status(500).json({message: error.message});
+    res.redirect('/emp_clients')
+  }
+})
+
+async function getClientById(client_id) {
+  try {
+    //const client_record = await Client.findOne({clientID: client_id});
+    const client_record = await Client.find({clientID: client_id});
+    console.log(client_record);
+    return client_record;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
+
+app.get("/emp_clients_edit", async (req, res) => {
+  console.log("Entering client edit");
+  // const clientId = req.query.clientId;
+  const clientId = req.body.data_clientid;
+  console.log(clientId)
+  try {
+    // Fetch the client data based on the client ID
+    const result = await getClientById(clientId); // Assuming getClientById is a function to fetch client by ID
+    console.log(result)
+
+    if (!result) {
+      // If client is not found, render an error page or redirect to the clients list page
+      return res.status(404).send("Client not found");
+    }
+
+    // Render the edit page with the client data
+    res.render("pages/emp_clients_edit", { client: result});
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching client data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// app.get("/emp_clients_edit/:id", async (req, res) => {
+//   console.log("Entering client edit");
+//   const clientId = req.params.id;
+//   console.log(clientId)
+//   try {
+//     // Fetch the client data based on the client ID
+//     const result = await getClientById(clientId); // Assuming getClientById is a function to fetch client by ID
+//     console.log(result)
+
+//     if (!result) {
+//       // If client is not found, render an error page or redirect to the clients list page
+//       return res.status(404).send("Client not found");
+//     }
+
+//     // Render the edit page with the client data
+//     res.render("pages/emp_clients_edit", { client: result});
+//   } catch (error) {
+//     // Handle any errors
+//     console.error("Error fetching client data:", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
 const PORT = process.env.PORT;
 module.exports = app;

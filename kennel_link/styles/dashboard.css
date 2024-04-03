@@ -53,7 +53,7 @@ body {
 
 /*For Reservations*/
 .container {
-    max-width: 400px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 20px;
     background-color: #fff; /* White box background */
@@ -78,3 +78,54 @@ body {
     background-color: #2980b9; /* Darker shade of blue on hover */
 }
 
+/* Table styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid black; /* Border color is black */
+    background-color: #fff; /* Background color */
+  }
+  
+  .table th {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    background-color: #007bff; /* Blue background color */
+    color: #fff; /* White text color */
+  }
+
+  .table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  /* Specify the width of each column */
+.table td:nth-child(1) {
+    width: 30%;
+  }
+  
+  .table td:nth-child(2) {
+    width: 30%;
+  }
+  
+  .table td:nth-child(3) {
+    width: 30%;
+  }
+  
+  .table td:nth-child(4) {
+    width: 10%;
+  }
+  /* Alternating row colors */
+  .table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  /* Hover effect */
+  .table tbody tr:hover {
+    background-color: #ddd;
+  }
+  
+  /* Center align the "Edit" link */
+  .table td:last-child {
+    text-align: center;
+  }
