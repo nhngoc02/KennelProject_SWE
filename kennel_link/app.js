@@ -83,39 +83,13 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({message: error.message}); 
       }
 })
 
 app.get("/signup", (req, res) => {
   res.render("pages/signup");
 })
-
-app.get("/logout", (req,res) => {
-  req.session.destroy();
-  res.redirect("/login")
-})
-
-app.get("/dashboard", (req,res) => {
-  const user = req.session.user
-  const type = req.session.type
-  if(user) {
-    res.render("pages/dashboard", {user: user, type: type})
-  } else {
-    res.redirect("/login")
-  }
-})
-
-app.get("/reservations", (req,res) => {
-  const user = req.session.user
-  const user_type = req.session.type
-  if(user) {
-    res.render("pages/reservations", {user: user, type: user_type})
-  } else {
-    res.redirect("/login")
-  }
-})
-
 
 app.post("/signup", async (req, res) => {
   try {
@@ -176,6 +150,31 @@ app.post("/signup", async (req, res) => {
     res.status(500).send("An error occurred during signup. Please try again later.");
   }
 });
+
+app.get("/logout", (req,res) => {
+  req.session.destroy();
+  res.redirect("/login")
+})
+
+app.get("/dashboard", (req,res) => {
+  const user = req.session.user
+  const type = req.session.type
+  if(user) {
+    res.render("pages/dashboard", {user: user, type: type})
+  } else {
+    res.redirect("/login")
+  }
+})
+
+app.get("/reservations", (req,res) => {
+  const user = req.session.user
+  const user_type = req.session.type
+  if(user) {
+    res.render("pages/reservations", {user: user, type: user_type})
+  } else {
+    res.redirect("/login")
+  }
+})
 
 app.get("/emp_clients", (req,res) => {
   res.render("pages/emp_clients");
