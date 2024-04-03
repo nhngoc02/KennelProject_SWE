@@ -116,42 +116,64 @@ app.get("/reservations", (req,res) => {
   }
 })
 
-app.post("/employeesignup", async (req, res) => {
+
+app.post("/signup", async (req, res) => {
   try {
-      // Extract employee signup data from the request body
-      const empID = await getNextID(); // Await the result of getNextID()
-      const empFN = req.body.first_name;
-      const empLN = req.body.last_name
-      const empEmail = req.body.email;
-      const empPhone = req.body.phone;
-      const empStartDate = req.body.employee_start_date;
-      const emp_username = req.body.username;
-      const emp_password = req.body.password
-      
-     // Create a new instance of the Employee model with the signup data
+    // Extract signup data from the request body
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const username = req.body.username;
+    const password = req.body.password;
+    const user_type = req.body.user_type;
+    
+    if (user_type === 'employee') {
+      // If the user type is employee
+      const empID = await getNextID(); // Generate ID for employee
       const newEmployee = new Employee({
-          empID,
-          empFN,
-          empLN,
-          empEmail,
-          empPhone,
-          empStartDate,
-          activeFlag: true,
-          modifiedDate: 0,
-          emp_username,
-          emp_password,
-          createTime: new Date()
+        empID,
+        empFN: first_name,
+        empLN: last_name,
+        empEmail: email,
+        empPhone: phone,
+        empStartDate: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        emp_username: username,
+        emp_password: password,
+        //createTime: new Date(),
       });
 
-      // Save the new employee document to the database
       await newEmployee.save();
+      res.redirect('/login')
+    } else if (user_type === 'client') {
+      // If the user type is client
+      const clientID = await getNextID(); // Generate ID for client
+      const newClient = new Client({
+        clientID,
+        clientFN: first_name,
+        clientLN: last_name,
+        clientEmail: email,
+        clientPhone: phone,
+        createTime: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        client_username: username,
+        client_password: password,
+        
+      });
 
-      // Respond with a success message
-      res.status(201).send("Employee signup successful!");
+      await newClient.save();
+      res.redirect('/login');
+    } else {
+      // If the user type is neither client nor employee
+      throw new Error("Invalid user type selected");
+    }
   } catch (error) {
-      // Handle any errors that occur during the signup process
-      console.error("Error occurred during employee signup:", error);
-      res.status(500).send("An error occurred during employee signup. Please try again later.");
+    // Handle any errors that occur during the signup process
+    console.error("Error occurred during signup:", error);
+    res.status(500).send("An error occurred during signup. Please try again later.");
   }
 });
 
