@@ -1,4 +1,6 @@
 data.env
 kennel_link/node_modules
 node_modules
-.env
+*.env
+*.json
+kennel_link/*.json
