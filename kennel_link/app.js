@@ -1,8 +1,9 @@
- const express = require('express')
+  const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
+const Pet = require('./db_modules/pet')
 const session = require('express-session')
 
 let livereload = require("livereload");
@@ -119,13 +120,13 @@ app.post("/employeesignup", async (req, res) => {
   try {
       // Extract employee signup data from the request body
       const empID = await getNextID(); // Await the result of getNextID()
-      empFN = req.body.first_name;
-      empLN = req.body.last_name
-      empEmail = req.body.email;
-      empPhone = req.body.phone;
-      empStartDate = req.body.employee_start_date;
-      emp_username = req.body.username;
-      emp_password = req.body.password
+      const empFN = req.body.first_name;
+      const empLN = req.body.last_name
+      const empEmail = req.body.email;
+      const empPhone = req.body.phone;
+      const empStartDate = req.body.employee_start_date;
+      const emp_username = req.body.username;
+      const emp_password = req.body.password
       
      // Create a new instance of the Employee model with the signup data
       const newEmployee = new Employee({
@@ -202,10 +203,6 @@ app.get("/emp_reservation_search", (req,res) => {
   res.render("pages/emp_res_search")
 })
 
-app.get("/emp_pets_search", (req,res) => {
-  res.render("pages/emp_pets_search")
-})
-
 app.get("/emp_pets_edit", (req,res) => {
   res.render("pages/emp_pets_edit")
 })
@@ -237,4 +234,5 @@ async function getNextID() {
 }
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
+module.exports = app;
+//app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));

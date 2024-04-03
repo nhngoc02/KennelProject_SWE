@@ -37,8 +37,8 @@ fetch data from pet collection in database*/
 ]
 */
 const pet = new mongoose.Schema({
-    petID: Int32,
-    ownerID: Int32,
+    petID: Number,
+    ownerID: Number,
     petName: String,
     petType: String,
     petBreed: String,
@@ -46,7 +46,7 @@ const pet = new mongoose.Schema({
     petDOB: String,
     petWeight: String,
     activeFlag: Boolean,
-    modifiedDate : {type: [Date, Int32]},
+    modifiedDate : {type: [Date, Number]},
     createTime: Date
     },
     {
@@ -55,6 +55,6 @@ const pet = new mongoose.Schema({
     }
 )
 
-const Pet = mongoose.model("pet", pet);
+const Pet = mongoose.model('Pet', pet);
 
 module.exports = Pet;
