@@ -5,9 +5,9 @@
       <h2>Login</h2>
       <span> <%= message %> </span>
       <form action="/login" method="post">
-        <select name="user_type" id="user_type">
-          <option value="client">Client</option>
-          <option value="employee">Employee</option>
+        <select name="user_type">
+          <option value="Client">Client</option>
+          <option value="Employee">Employee</option>
         </select>
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>

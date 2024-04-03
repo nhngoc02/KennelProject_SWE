@@ -50,7 +50,8 @@ const pet = new mongoose.Schema({
     createTime: Date
     },
     {
-    timestamps : true
+    timestamps : true,
+    collection: 'pet' // Specify the collection name
     }
 )
 

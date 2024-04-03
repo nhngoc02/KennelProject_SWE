@@ -57,7 +57,8 @@ const reservation = new mongoose.Schema( {
     modifiedDate : {type: [Date, Int32]}
     },
     {
-        timestamps : true
+      timestamps : true,
+      collection: 'reservation' // Specify the collection name
     }
 )
 
