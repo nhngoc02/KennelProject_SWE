@@ -40,7 +40,8 @@ const kennel = new mongoose.Schema({
     createTime: Date
     },
     {
-    timestamps : true
+    timestamps : true,
+    collection: 'kennel' // Specify the collection name
     }
 )
 
