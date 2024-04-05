@@ -45,7 +45,8 @@ const transaction = new mongoose.Schema( {
     createTime: Date
     },
     {
-        timestamps : true
+      timestamps : true,
+      collection: 'transaction' // Specify the collection name
     }
 )
 
