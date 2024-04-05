@@ -2,6 +2,7 @@ const { Int32 } = require("mongodb");
 const mongoose = require("mongoose");
 require("dotenv").config({path:'../data.env'});
 
+
 const DATABASE_URL = process.env.DATABASE_URL;
 const CONFIG = {
     useNewUrlParser: true,

@@ -3,7 +3,7 @@
     <div class="signup-form">
       <h2>Sign Up</h2>
       <h3>Personal Information</h3>
-      <form action="/employeesignup" method="post">
+      <form action="/signup" method="post">
         <input type="text" name="first_name" placeholder="First Name" required>
         <input type="text" name="last_name" placeholder="Last Name" required>
         <input type="email" name="email" placeholder="Email" required>
@@ -12,11 +12,6 @@
           <option value="client">Client</option>
           <option value="employee">Employee</option>
         </select>
-        <div class="additional-box" id="additional_box">
-          <label for="employee_start_date">Employee Start Date:</label>
-          <input type="date" name="employee_start_date" id="employee_start_date" required>
-          <p id="date-error" class="error-message"></p> <!-- Display error message -->
-        </div>
         <h3>Account Information</h3>
         <div class="additional-box" id="account_info_box">
           <label for="username">Username:</label>
@@ -29,7 +24,7 @@
         <button type="submit">Sign Up</button>
       </form>
 
-      <span>Already have an account? Login <a href="/signup">here</a></span>
+      <span>Already have an account? Login <a href="/login">here</a></span>
     </div>
 </body>
 </html>

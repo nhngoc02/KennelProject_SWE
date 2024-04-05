@@ -1,8 +1,9 @@
-const express = require('express')
+  const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
+const Pet = require('./db_modules/pet')
 const session = require('express-session')
 
 let livereload = require("livereload");
@@ -64,24 +65,8 @@ app.get('/', (req, res) => {
   res.render('pages/homepage')
 })
 
-app.get("/signup", (req, res) => {
-  res.render("pages/signup");
-})
-
 app.get("/login", (req,res) => {
   res.render("pages/login", {message: ""});
-})
-
-app.get("/dashboard", (req,res) => {
-  const user = req.session.user
-  const type = req.session.type
-  res.render("pages/dashboard", {user: user, type: type})
-})
-
-app.get("/reservations", (req,res) => {
-  const user = req.session.user
-  const user_type = req.session.type
-  res.render("pages/reservations", {user: user, type: user_type})
 })
 
 app.post("/login", async (req,res) => {
@@ -98,55 +83,117 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
-    res.status(500).json({message: error.message});
-  }
+    res.status(500).json({message: error.message}); 
+      }
 })
 
-app.post("/employeesignup", async (req, res) => {
+app.get("/signup", (req, res) => {
+  res.render("pages/signup");
+})
+
+app.post("/signup", async (req, res) => {
   try {
-      // Extract employee signup data from the request body
-      const empID = await getNextID(); // Await the result of getNextID()
-      empFN = req.body.first_name;
-      empLN = req.body.last_name
-      empEmail = req.body.email;
-      empPhone = req.body.phone;
-      empStartDate = req.body.employee_start_date;
-      emp_username = req.body.username;
-      emp_password = req.body.password
-      
-     // Create a new instance of the Employee model with the signup data
+    // Extract signup data from the request body
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const username = req.body.username;
+    const password = req.body.password;
+    const user_type = req.body.user_type;
+    
+    if (user_type === 'employee') {
+      // If the user type is employee
+      const empID = await getNextID(); // Generate ID for employee
       const newEmployee = new Employee({
-          empID,
-          empFN,
-          empLN,
-          empEmail,
-          empPhone,
-          empStartDate,
-          activeFlag: true,
-          modifiedDate: 0,
-          emp_username,
-          emp_password,
-          createTime: new Date()
+        empID,
+        empFN: first_name,
+        empLN: last_name,
+        empEmail: email,
+        empPhone: phone,
+        empStartDate: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        emp_username: username,
+        emp_password: password,
+        //createTime: new Date(),
       });
 
-      // Save the new employee document to the database
       await newEmployee.save();
+      res.redirect('/login')
+    } else if (user_type === 'client') {
+      // If the user type is client
+      const clientID = await getNextID(); // Generate ID for client
+      const newClient = new Client({
+        clientID,
+        clientFN: first_name,
+        clientLN: last_name,
+        clientEmail: email,
+        clientPhone: phone,
+        createTime: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        client_username: username,
+        client_password: password,
+        
+      });
 
-      // Respond with a success message
-      res.status(201).send("Employee signup successful!");
+      await newClient.save();
+      res.redirect('/login');
+    } else {
+      // If the user type is neither client nor employee
+      throw new Error("Invalid user type selected");
+    }
   } catch (error) {
-      // Handle any errors that occur during the signup process
-      console.error("Error occurred during employee signup:", error);
-      res.status(500).send("An error occurred during employee signup. Please try again later.");
+    // Handle any errors that occur during the signup process
+    console.error("Error occurred during signup:", error);
+    res.status(500).send("An error occurred during signup. Please try again later.");
   }
 });
 
+app.get("/logout", (req,res) => {
+  req.session.destroy();
+  res.redirect("/login")
+})
+
+app.get("/dashboard", (req,res) => {
+  const user = req.session.user
+  const type = req.session.type
+  if(user) {
+    res.render("pages/dashboard", {user: user, type: type})
+  } else {
+    res.redirect("/login")
+  }
+})
+
+app.get("/reservations", (req,res) => {
+  const user = req.session.user
+  const user_type = req.session.type
+  if(user) {
+    res.render("pages/reservations", {user: user, type: user_type})
+  } else {
+    res.redirect("/login")
+  }
+})
+
 app.get("/emp_clients", (req,res) => {
-  res.render("pages/emp_clients")
+  res.render("pages/emp_clients");
+})
+
+app.get("/pets", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type; 
+  res.render("pages/pets", {user: user, type: user_type});
+})
+
+app.get("/add_pets", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type;
+  res.render("pages/add_pets", {user: user, type: user_type});
 })
 
 app.get("/emp_pets", (req,res) => {
-  res.render("pages/emp_pets")
+  res.render("pages/emp_pets");
 })
 
 app.get("/emp_transactions", (req,res) => {
@@ -158,7 +205,7 @@ app.get("/emp_employees", (req,res) => {
 })
 
 // app.get("/emp_clients_search", (req,res) => {
-//   res.render("pages/emp_clients_search")
+  //   res.render("pages/emp_clients_search")
 // })
 
 // app.get("/emp_clients_edit", (req,res) => {
@@ -175,10 +222,6 @@ app.get("/emp_reservation_edit", (req,res) => {
 
 app.get("/emp_reservation_search", (req,res) => {
   res.render("pages/emp_res_search")
-})
-
-app.get("/emp_pets_search", (req,res) => {
-  res.render("pages/emp_pets_search")
 })
 
 app.get("/emp_pets_edit", (req,res) => {
@@ -296,4 +339,5 @@ app.get("/emp_clients_edit", async (req, res) => {
 // });
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
+module.exports = app;
+//app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
