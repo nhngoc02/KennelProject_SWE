@@ -267,22 +267,50 @@ async function getClients(start, end) {
   }
 }
 
+// app.get("/emp_clients_search", async (req,res) => {
+//   try {
+//     const result = await getClients(1, 5);
+//     // res.render("pages/emp_clients_search", {clients: result})
+//     // console.log(result);
+//     res.render("pages/emp_clients_search", {clients: result})
+//   } catch (error) {
+//     res.status(500).json({message: error.message});
+//     res.redirect('/emp_clients')
+//   }
+// })
+
+let currentPage = 1;
+const pageSize = 10;
+
 app.get("/emp_clients_search", async (req,res) => {
   try {
-    const result = await getClients(1, 5);
-    // res.render("pages/emp_clients_search", {clients: result})
-    // console.log(result);
-    res.render("pages/emp_clients_search", {clients: result})
+    const result = await getClients(currentPage, pageSize);
+    res.render("pages/emp_clients_search", { clients: result, currentPage });
   } catch (error) {
-    res.status(500).json({message: error.message});
-    res.redirect('/emp_clients')
+    res.status(500).json({ message: error.message });
+    res.redirect('/emp_clients');
   }
-})
+});
+
+app.get("/emp_clients_search/next", async (req, res) => {
+  currentPage+=pageSize;
+  res.redirect('/emp_clients_search');
+});
+
+app.get("/emp_clients_search/previous", async (req, res) => {
+  if (currentPage > 1) {
+    currentPage-=pageSize;
+  }
+  res.redirect('/emp_clients_search');
+});
 
 async function getClientById(client_id) {
   try {
-    //const client_record = await Client.findOne({clientID: client_id});
-    const client_record = await Client.find({clientID: client_id});
+    const client_record = await Client.findOne({clientID: client_id});
+    if (!client_record) {
+      console.log("clientID undefined");
+    }
+    // const client_record = await Client.find({clientID: client_id});
     console.log(client_record);
     return client_record;
   } catch(error) {
@@ -291,15 +319,42 @@ async function getClientById(client_id) {
   }
 }
 
+// app.get("/emp_clients_edit", (req,res) => {
+//   console.log(req.query)
+//   // const client = req.session.client;
+//   // console.log(client)
+//   const clientId = req.query.clientId;
+//   // const clientId = req.body.clientId;
+//   res.render("pages/emp_clients_edit", {message: "", clientId: clientId});
+// })
+
 app.get("/emp_clients_edit", async (req, res) => {
+  console.log(req.query);
+  const clientId = req.query.clientId;
+  try {
+    const client = await getClientById(parseInt(clientId)); // Fetch the client data
+    if (!client) {
+      return res.status(404).send("Client not found");
+    }
+    res.render("pages/emp_clients_edit", { client: client, clientId: clientId }); // Pass the client data to the template
+  } catch (error) {
+    console.error("Error fetching client data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/emp_clients_edit", async (req, res) => {
   console.log("Entering client edit");
   // const clientId = req.query.clientId;
-  const clientId = req.body.data_clientid;
+  const clientId = req.body.clientId;
+  // const clientId = req.body.data_clientid;
   console.log(clientId)
   try {
     // Fetch the client data based on the client ID
-    const result = await getClientById(clientId); // Assuming getClientById is a function to fetch client by ID
+    // const result = await getClientById(clientId); // Assuming getClientById is a function to fetch client by ID
+    const result = await getClientById(parseInt(clientId))
     console.log(result)
+    req.session.client = result
 
     if (!result) {
       // If client is not found, render an error page or redirect to the clients list page
