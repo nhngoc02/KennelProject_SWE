@@ -11,7 +11,8 @@
             <th>Client Name</th>
             <th>Email</th>
             <th>Phone</th>
-            <th>Username</th>
+            <!-- <th>Username</th> -->
+            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -22,13 +23,20 @@
             <td><%= clients[i].clientFN %> <%= clients[i].clientLN %></td>
             <td><%= clients[i].clientEmail %></td>
             <td><%= clients[i].clientPhone %></td>
-            <td><%= clients[i].client_username %></td>
-            <td><a href="/edit/<%= clients[i]._id %>">Edit</a></td>
+            
+            <td><a href="/emp_clients_edit?clientId=<%= clients[i].clientID %>">Edit</a></td>
+            
+            <td style="display: none;" name="clientId"><%= clients[i].clientID %></td>
             
           </tr>
           <% } %>
         </tbody>
+
+        
       </table>
+    
+      <a href="/emp_clients_search/previous" class="previous round">&#8249;</a>
+      <a href="/emp_clients_search/next" class="next round">&#8250;</a>
     
 
   </body>

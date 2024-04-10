@@ -83,13 +83,73 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({message: error.message}); 
       }
 })
 
 app.get("/signup", (req, res) => {
   res.render("pages/signup");
 })
+
+app.post("/signup", async (req, res) => {
+  try {
+    // Extract signup data from the request body
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const username = req.body.username;
+    const password = req.body.password;
+    const user_type = req.body.user_type;
+    
+    if (user_type === 'employee') {
+      // If the user type is employee
+      const empID = await getNextID(); // Generate ID for employee
+      const newEmployee = new Employee({
+        empID,
+        empFN: first_name,
+        empLN: last_name,
+        empEmail: email,
+        empPhone: phone,
+        empStartDate: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        emp_username: username,
+        emp_password: password,
+        //createTime: new Date(),
+      });
+
+      await newEmployee.save();
+      res.redirect('/login')
+    } else if (user_type === 'client') {
+      // If the user type is client
+      const clientID = await getNextID(); // Generate ID for client
+      const newClient = new Client({
+        clientID,
+        clientFN: first_name,
+        clientLN: last_name,
+        clientEmail: email,
+        clientPhone: phone,
+        createTime: new Date(),
+        activeFlag: true,
+        modifiedDate: 0,
+        client_username: username,
+        client_password: password,
+        
+      });
+
+      await newClient.save();
+      res.redirect('/login');
+    } else {
+      // If the user type is neither client nor employee
+      throw new Error("Invalid user type selected");
+    }
+  } catch (error) {
+    // Handle any errors that occur during the signup process
+    console.error("Error occurred during signup:", error);
+    res.status(500).send("An error occurred during signup. Please try again later.");
+  }
+});
 
 app.get("/logout", (req,res) => {
   req.session.destroy();
@@ -115,45 +175,6 @@ app.get("/reservations", (req,res) => {
     res.redirect("/login")
   }
 })
-
-app.post("/employeesignup", async (req, res) => {
-  try {
-      // Extract employee signup data from the request body
-      const empID = await getNextID(); // Await the result of getNextID()
-      const empFN = req.body.first_name;
-      const empLN = req.body.last_name
-      const empEmail = req.body.email;
-      const empPhone = req.body.phone;
-      const empStartDate = req.body.employee_start_date;
-      const emp_username = req.body.username;
-      const emp_password = req.body.password
-      
-     // Create a new instance of the Employee model with the signup data
-      const newEmployee = new Employee({
-          empID,
-          empFN,
-          empLN,
-          empEmail,
-          empPhone,
-          empStartDate,
-          activeFlag: true,
-          modifiedDate: 0,
-          emp_username,
-          emp_password,
-          createTime: new Date()
-      });
-
-      // Save the new employee document to the database
-      await newEmployee.save();
-
-      // Respond with a success message
-      res.status(201).send("Employee signup successful!");
-  } catch (error) {
-      // Handle any errors that occur during the signup process
-      console.error("Error occurred during employee signup:", error);
-      res.status(500).send("An error occurred during employee signup. Please try again later.");
-  }
-});
 
 app.get("/emp_clients", (req,res) => {
   res.render("pages/emp_clients");
@@ -187,9 +208,9 @@ app.get("/emp_employees", (req,res) => {
   //   res.render("pages/emp_clients_search")
 // })
 
-app.get("/emp_clients_edit", (req,res) => {
-  res.render("pages/emp_clients_edit")
-})
+// app.get("/emp_clients_edit", (req,res) => {
+//   res.render("pages/emp_clients_edit")
+// })
 
 app.get("/emp_reservation_add", (req,res) => {
   res.render("pages/emp_res_add")
@@ -232,6 +253,145 @@ async function getNextID() {
         throw error;
     }
 }
+
+async function getClients(start, end) {
+  try {
+    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
+    // console.log(clients.length);
+    // console.log(clients.type); // undefined
+    // console.log(clients);
+    return clients;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
+
+// app.get("/emp_clients_search", async (req,res) => {
+//   try {
+//     const result = await getClients(1, 5);
+//     // res.render("pages/emp_clients_search", {clients: result})
+//     // console.log(result);
+//     res.render("pages/emp_clients_search", {clients: result})
+//   } catch (error) {
+//     res.status(500).json({message: error.message});
+//     res.redirect('/emp_clients')
+//   }
+// })
+
+let currentPage = 1;
+const pageSize = 10;
+
+app.get("/emp_clients_search", async (req,res) => {
+  try {
+    const result = await getClients(currentPage, pageSize);
+    res.render("pages/emp_clients_search", { clients: result, currentPage });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    res.redirect('/emp_clients');
+  }
+});
+
+app.get("/emp_clients_search/next", async (req, res) => {
+  currentPage+=pageSize;
+  res.redirect('/emp_clients_search');
+});
+
+app.get("/emp_clients_search/previous", async (req, res) => {
+  if (currentPage > 1) {
+    currentPage-=pageSize;
+  }
+  res.redirect('/emp_clients_search');
+});
+
+async function getClientById(client_id) {
+  try {
+    const client_record = await Client.findOne({clientID: client_id});
+    if (!client_record) {
+      console.log("clientID undefined");
+    }
+    // const client_record = await Client.find({clientID: client_id});
+    console.log(client_record);
+    return client_record;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
+
+// app.get("/emp_clients_edit", (req,res) => {
+//   console.log(req.query)
+//   // const client = req.session.client;
+//   // console.log(client)
+//   const clientId = req.query.clientId;
+//   // const clientId = req.body.clientId;
+//   res.render("pages/emp_clients_edit", {message: "", clientId: clientId});
+// })
+
+app.get("/emp_clients_edit", async (req, res) => {
+  console.log(req.query);
+  const clientId = req.query.clientId;
+  try {
+    const client = await getClientById(parseInt(clientId)); // Fetch the client data
+    if (!client) {
+      return res.status(404).send("Client not found");
+    }
+    res.render("pages/emp_clients_edit", { client: client, clientId: clientId }); // Pass the client data to the template
+  } catch (error) {
+    console.error("Error fetching client data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/emp_clients_edit", async (req, res) => {
+  console.log("Entering client edit");
+  // const clientId = req.query.clientId;
+  const clientId = req.body.clientId;
+  // const clientId = req.body.data_clientid;
+  console.log(clientId)
+  try {
+    // Fetch the client data based on the client ID
+    // const result = await getClientById(clientId); // Assuming getClientById is a function to fetch client by ID
+    const result = await getClientById(parseInt(clientId))
+    console.log(result)
+    req.session.client = result
+
+    if (!result) {
+      // If client is not found, render an error page or redirect to the clients list page
+      return res.status(404).send("Client not found");
+    }
+
+    // Render the edit page with the client data
+    res.render("pages/emp_clients_edit", { client: result});
+  } catch (error) {
+    // Handle any errors
+    console.error("Error fetching client data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// app.get("/emp_clients_edit/:id", async (req, res) => {
+//   console.log("Entering client edit");
+//   const clientId = req.params.id;
+//   console.log(clientId)
+//   try {
+//     // Fetch the client data based on the client ID
+//     const result = await getClientById(clientId); // Assuming getClientById is a function to fetch client by ID
+//     console.log(result)
+
+//     if (!result) {
+//       // If client is not found, render an error page or redirect to the clients list page
+//       return res.status(404).send("Client not found");
+//     }
+
+//     // Render the edit page with the client data
+//     res.render("pages/emp_clients_edit", { client: result});
+//   } catch (error) {
+//     // Handle any errors
+//     console.error("Error fetching client data:", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
 const PORT = process.env.PORT;
 module.exports = app;
