@@ -5,15 +5,15 @@
     <div class="container">
       <h2>Client Information:</h2>
 
-      <form action="/update_client/<%= client %>" method="post">
+      <form class="form-group" action="/update_client/<%= found_client.clientID %>" method="post">
         <label for="clientFN">First Name:</label>
-        <input type="text" id="clientFN" name="clientFN" value="<%= client.clientFN %>" required><br>
+        <input type="text" id="clientFN" name="clientFN" value="<%= found_client.clientFN %>" required><br>
         <label for="clientLN">Last Name:</label>
-        <input type="text" id="clientLN" name="clientLN" value="<%= client.clientLN %>" required><br>
+        <input type="text" id="clientLN" name="clientLN" value="<%= found_client.clientLN %>" required><br>
         <label for="clientEmail">Email:</label>
-        <input type="email" id="clientEmail" name="clientEmail" value="<%= client.clientEmail %>" required><br>
+        <input type="email" id="clientEmail" name="clientEmail" value="<%= found_client.clientEmail %>" required><br>
         <label for="clientPhone">Phone:</label>
-        <input type="tel" id="clientPhone" name="clientPhone" value="<%= client.clientPhone %>" required><br>
+        <input type="tel" id="clientPhone" name="clientPhone" value="<%= found_client.clientPhone %>" required><br>
         <input type="submit" value="Update">
       </form>
       
