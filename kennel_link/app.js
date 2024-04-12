@@ -393,6 +393,60 @@ app.post("/emp_clients_edit", async (req, res) => {
 //   }
 // });
 
+async function getPets(start, end){
+  try{
+    const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
+    return pets;
+  } catch(error){
+    console.error("Error returning pet information:", error);
+    throw error;
+  }
+}
+
+getPets(1, 5)
+  .then(pets => {
+    console.log("Fetched pets:", pets);
+  })
+  .catch(error => {
+    console.error("Error fetching pets:", error);
+  });
+
+  
+app.get('/all_pets', async (req, res) => {
+  try {
+    // Fetch all pets from the database
+    const pets = await Pet.find();
+
+    // Send the pets as JSON response
+    res.json(pets);
+  } catch (error) {
+    console.error('Error fetching all pets:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get("/emp_pets_search", async (req,res) => {
+  try {
+    const { searchQuery } = req.query; // Extract search query from request query parameters
+    let pets = []; // Initialize pets array
+
+    if (searchQuery) {
+      // If there's a search query, fetch pets based on the query
+      pets = await Pet.find({
+        $or: [
+          { petName: { $regex: searchQuery, $options: "i" } }, // Search by pet name (case-insensitive)
+          { petBreed: { $regex: searchQuery, $options: "i" } }, // Search by pet breed (case-insensitive)
+        ],
+      }).sort({ petName: 1 }); // Sort pets by petName
+    }
+    // Render the page with the fetched pets
+    res.render("pages/emp_pets_search", { pets, searchQuery });
+  } catch (error) {
+    console.error("Error fetching pets:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 const PORT = process.env.PORT;
 module.exports = app;
-//app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
