@@ -340,6 +340,78 @@ app.get("/emp_clients_edit", async (req, res) => {
   }
 });
 
+async function deleteClientById(client_id) {
+  try {
+    const result = await Client.deleteOne({ clientID: client_id });
+    if (result.deletedCount === 0) {
+      throw new Error("Client not found");
+    }
+    return { message: "Client deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting client:", error);
+    throw error;
+  }
+}
+
+async function updateClientById(client_id, newFirstName, newLastName, newEmail, newPhone) {
+  try {
+    const result = await Client.updateOne(
+      { clientID: client_id },
+      { $set: { clientFN: newFirstName, clientLN: newLastName, clientEmail: newEmail, clientPhone: newPhone } }
+    );
+    if (result.nModified === 0) {
+      throw new Error("Client not found");
+    }
+    return { message: "Client updated successfully" };
+  } catch (error) {
+    console.error("Error updating client:", error);
+    throw error;
+  }
+}
+
+// Delete client
+app.post("/delete_client/:clientID", async (req, res) => {
+  const clientID = req.params.clientID;
+
+  try {
+    // Delete the client from the database
+    const result = await Client.deleteOne({ clientID });
+
+    if (result.deletedCount === 0) {
+      // If no records were deleted, the client was not found
+      return res.status(404).send("Client not found");
+    }
+
+    // Client deleted successfully
+    res.status(200).send("Client deleted successfully");
+  } catch (error) {
+    console.error("Error deleting client:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Update client information
+app.post("/update_client/:clientID", async (req, res) => {
+  const clientID = req.params.clientID;
+  const { clientFN, clientLN, clientEmail, clientPhone } = req.body;
+
+  try {
+    // Update the client information in the database
+    const result = await Client.updateOne({ clientID }, { clientFN, clientLN, clientEmail, clientPhone });
+
+    if (result.nModified === 0) {
+      // If no records were modified, the client was not found
+      return res.status(404).send("Client not found");
+    }
+
+    // Client updated successfully
+    res.status(200).send("Client updated successfully");
+  } catch (error) {
+    console.error("Error updating client:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 async function getPets(start, end){
   try{
     const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
@@ -350,13 +422,13 @@ async function getPets(start, end){
   }
 }
 
-getPets(1, 5)
-  .then(pets => {
-    console.log("Fetched pets");
-  })
-  .catch(error => {
-    console.error("Error fetching pets:", error);
-  });
+// getPets(1, 5)
+//   .then(pets => {
+//     console.log("Fetched pets");
+//   })
+//   .catch(error => {
+//     console.error("Error fetching pets:", error);
+//   });
 
   
 app.get('/all_pets', async (req, res) => {
