@@ -340,35 +340,6 @@ app.get("/emp_clients_edit", async (req, res) => {
   }
 });
 
-async function deleteClientById(client_id) {
-  try {
-    const result = await Client.deleteOne({ clientID: client_id });
-    if (result.deletedCount === 0) {
-      throw new Error("Client not found");
-    }
-    return { message: "Client deleted successfully" };
-  } catch (error) {
-    console.error("Error deleting client:", error);
-    throw error;
-  }
-}
-
-async function updateClientById(client_id, newFirstName, newLastName, newEmail, newPhone) {
-  try {
-    const result = await Client.updateOne(
-      { clientID: client_id },
-      { $set: { clientFN: newFirstName, clientLN: newLastName, clientEmail: newEmail, clientPhone: newPhone } }
-    );
-    if (result.nModified === 0) {
-      throw new Error("Client not found");
-    }
-    return { message: "Client updated successfully" };
-  } catch (error) {
-    console.error("Error updating client:", error);
-    throw error;
-  }
-}
-
 // Delete client
 app.post("/delete_client/:clientID", async (req, res) => {
   const clientID = req.params.clientID;
