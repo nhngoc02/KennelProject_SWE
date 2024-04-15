@@ -445,6 +445,77 @@ app.get("/pets_search/previous", async (req, res) => {
   res.redirect('/pets_search');
 });
 
+async function getPetById(pet_id) {
+  try {
+    const pet_record = await Pet.findOne({petID: pet_id});
+    if (!pet_record) {
+      console.log("petID undefined");
+    }
+    return pet_record;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
+
+app.get("/pets_edit", async (req, res) => {
+  const petId = req.query.petId;
+  try {
+    const found_pet = await getPetById(parseInt(petId)); // Fetch the client data
+    if (!found_pet) {
+      return res.status(404).send("Pet not found");
+    }
+    res.render("pages/pets_edit", { found_pet: found_pet }); // Pass the client data to the template
+  } catch (error) {
+    console.error("Error fetching pet data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
+// Delete client
+app.post("/delete_pet/:petID", async (req, res) => {
+  const petID = req.params.petID;
+
+  try {
+    // Delete the client from the database
+    const result = await Pet.deleteOne({ petID });
+
+    if (result.deletedCount === 0) {
+      // If no records were deleted, the client was not found
+      return res.status(404).send("Pet not found");
+    }
+
+    // Client deleted successfully
+    res.status(200).send("Pet deleted successfully");
+  } catch (error) {
+    console.error("Error deleting pet:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Update client information
+app.post("/update_pet/:petID", async (req, res) => {
+  const petID = req.params.petID;
+  const { petName, petType, petBreed, petSex, petDOB, petWeight } = req.body;
+
+  try {
+    // Update the pet information in the database
+    const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
+
+    if (result.nModified === 0) {
+      // If no records were modified, the client was not found
+      return res.status(404).send("Pet not found");
+    }
+
+    // Pet updated successfully
+    res.status(200).send("Pet updated successfully");
+  } catch (error) {
+    console.error("Error updating pet:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 const PORT = process.env.PORT;
 module.exports = app;
 app.listen(PORT, () => console.log(`Now Listening on port ${PORT}`));
