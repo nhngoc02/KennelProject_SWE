@@ -4,6 +4,7 @@ const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
 const Pet = require('./db_modules/pet')
+const Kennel = require('./db_modules/kennel')
 const session = require('express-session')
 
 let livereload = require("livereload");
@@ -166,9 +167,26 @@ app.get("/dashboard", (req,res) => {
 app.get("/reservations", (req,res) => {
   const user = req.session.user
   const user_type = req.session.type
+  
   if(user) {
     res.render("pages/reservations", {user: user, type: user_type})
   } else {
+    res.redirect("/login")
+  }
+})
+
+app.get("/res_add", async (req,res) => {
+  try {
+    const user = req.session.user
+    const user_type = req.session.type
+    const kennels =  Kennel.find({occupiedFlag: false})
+    if(user) {
+    res.render("pages/res_add", {user: user, type: user_type, kennels: kennels})
+  } else {
+    res.redirect("/login")
+  }
+  } catch (error) {
+    console.log("The error is: " + error)
     res.redirect("/login")
   }
 })
