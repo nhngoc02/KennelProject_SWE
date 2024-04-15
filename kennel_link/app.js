@@ -194,15 +194,15 @@ app.get("/pets", (req,res) => {
   
 })
 
-app.get("/add_pets", (req,res) => {
-  const user = req.session.user;
-  const user_type = req.session.type;
-  res.render("pages/add_pets", {user: user, type: user_type});
-})
+// app.get("/add_pets", (req,res) => {
+//   const user = req.session.user;
+//   const user_type = req.session.type;
+//   res.render("pages/add_pets", {user: user, type: user_type});
+// })
 
-app.get("/emp_pets", (req,res) => {
-  res.render("pages/emp_pets");
-})
+// app.get("/emp_pets", (req,res) => {
+//   res.render("pages/emp_pets");
+// })
 
 app.get("/emp_transactions", (req,res) => {
   res.render("pages/emp_transactions")
@@ -383,58 +383,66 @@ app.post("/update_client/:clientID", async (req, res) => {
   }
 });
 
-async function getPets(start, end){
-  try{
-    const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
-    return pets;
-  } catch(error){
-    console.error("Error returning pet information:", error);
-    throw error;
+async function getPets(start, end, user_type, owner_id) {
+  if(user_type=='Client') {
+    try {
+      const pet_records = await Pet.find({ownerID: owner_id}).sort({petName:1}).skip(start-1).limit(end-start+1);
+      return pet_records;
+    } catch(error) {
+        console.error("Error returning client information:", error);
+        throw error;
+    }
   }
-}
-
-// getPets(1, 5)
-//   .then(pets => {
-//     console.log("Fetched pets");
-//   })
-//   .catch(error => {
-//     console.error("Error fetching pets:", error);
-//   });
-
-  
-app.get('/all_pets', async (req, res) => {
-  try {
-    // Fetch all pets from the database
-    const pets = await Pet.find();
-
-    // Send the pets as JSON response
-    res.json(pets);
-  } catch (error) {
-    console.error('Error fetching all pets:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+  if(user_type=='Employee') {
+    try {
+      const pet_records = await Pet.find().sort({petName:1}).skip(start-1).limit(end-start+1);
+      return pet_records;
+    } catch(error) {
+        console.error("Error returning client information:", error);
+        throw error;
+    }
   }
+
+};
+
+let currentPage_pets = 1;
+const pageSize_pets = 10;
+
+app.get("/pets_search", async (req,res) => {
+  const user_type = req.session.type;
+
+  if(user_type == 'Employee') {
+    try {
+    const pet_records = await getPets(currentPage_pets, pageSize_pets, user_type, '');
+    const ownerIDs = pet_records.map(pet => pet.ownerID);
+    const pet_owners = await Client.find({ clientID: { $in: ownerIDs } });
+    const pet_owners_name = pet_owners.map(pet_owner => `${pet_owner.clientFN} ${pet_owner.clientLN}`);
+
+    res.render("pages/pets_search", { pets: pet_records, owner_names: pet_owners_name, currentPage_pets, type: user_type});
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+      res.redirect('/pets');
+    }
+  }
+  else if(user_type == 'Client') {
+    const owner_id = parseInt(req.session.user.clientID);
+    const pet_records = await getPets(currentPage_pets, pageSize_pets, user_type, owner_id);
+    res.render("pages/pets_search", { pets: pet_records, currentPage_pets, type: user_type});
+
+  }
+  else {}
 });
 
-app.get("/emp_pets_search", async (req,res) => {
-  try {
-    const { searchQuery } = req.query; // Extract search query from request query parameters
-    let pets = []; // Initialize pets array
+app.get("/pets_search/next", async (req, res) => {
+  currentPage_pets+=pageSize_pets;
+  res.redirect('/pets_search');
+});
 
-    if (searchQuery) {
-      // If there's a search query, fetch pets based on the query
-      pets = await Pet.find({
-        $or: [
-          { petName: { $regex: searchQuery, $options: "i" } }, // Search by pet name (case-insensitive)
-          { petBreed: { $regex: searchQuery, $options: "i" } }, // Search by pet breed (case-insensitive)
-        ],
-      }).sort({ petName: 1 }); // Sort pets by petName
-    }
-    // Render the page with the fetched pets
-    res.render("pages/emp_pets_search", { pets, searchQuery });
-  } catch (error) {
-    console.error("Error fetching pets:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+app.get("/pets_search/previous", async (req, res) => {
+  if (currentPage_pets > 1) {
+    currentPage_pets-=pageSize_pets;
   }
+  res.redirect('/pets_search');
 });
 
 const PORT = process.env.PORT;
