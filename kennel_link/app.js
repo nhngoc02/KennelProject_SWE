@@ -494,7 +494,7 @@ app.post("/delete_pet/:petID", async (req, res) => {
   }
 });
 
-// Update client information
+// Update pet information
 app.post("/update_pet/:petID", async (req, res) => {
   const petID = req.params.petID;
   const { petName, petType, petBreed, petSex, petDOB, petWeight } = req.body;
