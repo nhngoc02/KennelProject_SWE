@@ -4,6 +4,7 @@ const mongoose = require("./database");
 const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
 const Pet = require('./db_modules/pet')
+const Transaction = require('./db_modules/transaction')
 const session = require('express-session')
 
 let livereload = require("livereload");
@@ -192,7 +193,18 @@ app.get("/pets", (req,res) => {
     res.redirect("/login")
   }
   
-})
+});
+
+app.get("/transactions", (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type; 
+  if(user) {
+    res.render("pages/transactions", {user: user, type: user_type});
+  } else {
+    res.redirect("/login")
+  }
+  
+});
 
 // app.get("/add_pets", (req,res) => {
 //   const user = req.session.user;
@@ -204,9 +216,9 @@ app.get("/pets", (req,res) => {
 //   res.render("pages/emp_pets");
 // })
 
-app.get("/emp_transactions", (req,res) => {
-  res.render("pages/emp_transactions")
-})
+// app.get("/emp_transactions", (req,res) => {
+//   res.render("pages/emp_transactions")
+// })
 
 app.get("/emp_employees", (req,res) => {
   res.render("pages/emp_employees")
@@ -264,7 +276,7 @@ async function getNextID() {
 
 async function getClients(start, end) {
   try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
+    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end);
     // console.log(clients.length);
     // console.log(clients.type); // undefined
     // console.log(clients);
@@ -386,7 +398,7 @@ app.post("/update_client/:clientID", async (req, res) => {
 async function getPets(start, end, user_type, owner_id) {
   if(user_type=='Client') {
     try {
-      const pet_records = await Pet.find({ownerID: owner_id}).sort({petName:1}).skip(start-1).limit(end-start+1);
+      const pet_records = await Pet.find({ownerID: owner_id}).sort({petName:1}).skip(start-1).limit(end);
       return pet_records;
     } catch(error) {
         console.error("Error returning client information:", error);
@@ -395,7 +407,7 @@ async function getPets(start, end, user_type, owner_id) {
   }
   if(user_type=='Employee') {
     try {
-      const pet_records = await Pet.find().sort({petName:1}).skip(start-1).limit(end-start+1);
+      const pet_records = await Pet.find().sort({petName:1}).skip(start-1).limit(end);
       return pet_records;
     } catch(error) {
         console.error("Error returning client information:", error);
@@ -514,6 +526,74 @@ app.post("/update_pet/:petID", async (req, res) => {
     console.error("Error updating pet:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+
+
+async function getTrans(start, end, user_type, client_id) {
+  if(user_type=='Client') {
+    try {
+      const trans_records = await Transaction.find({clientID: client_id}).sort({transactionDate: -1}).skip(start-1).limit(end);
+      return trans_records;
+    } catch(error) {
+        console.error("Error returning transaction information:", error);
+        throw error;
+    }
+  }
+  if(user_type=='Employee') {
+    try {
+      const trans_records = await Transaction.find().sort({transactionDate: -1}).skip(start-1).limit(end);
+      return trans_records;
+    } catch(error) {
+        console.error("Error returning transactioin information:", error);
+        throw error;
+    }
+  }
+
+};
+
+let currentPage_trans = 1;
+const pageSize_trans = 10;
+
+app.get("/transactions_search", async (req,res) => {
+  const user_type = req.session.type;
+
+  if(user_type == 'Employee') {
+    try {
+    const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
+    const clientIDs = trans_records.map(tran => tran.clientID);
+    const trans_clients = await Client.find({ clientID: { $in: clientIDs } });
+    const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
+
+    res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+      res.redirect('/transactions');
+    }
+  }
+  else if(user_type == 'Client') {
+    try {
+      const client_id = parseInt(req.session.user.clientID);
+      const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, client_id);
+
+      res.render("pages/transactions_search", { trans: trans_records, currentPage_trans, type: user_type});
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+        res.redirect('/transactions');
+      }
+    }
+  // else {}
+});
+
+app.get("/transactions_search/next", async (req, res) => {
+  currentPage_trans+=pageSize_trans;
+  res.redirect('/transactions_search');
+});
+
+app.get("/transactions_search/previous", async (req, res) => {
+  if (currentPage_trans > 1) {
+    currentPage_trans-=pageSize_trans;
+  }
+  res.redirect('/transactions_search');
 });
 
 const PORT = process.env.PORT;
