@@ -1,20 +1,23 @@
-<%- include('../partials/emp-client-head', {title: 'Reservations Insert', type: 'Employee'}) %>
+<%- include('../partials/emp-client-head', {title: 'Reservations Insert', type: type}) %>
 
 <body>
   <div class="container">
+      <h2><%= message %></h2>
       <h2>Add Reservation</h2>
-      <form action="#" method="post">
+      <form action="/res_add" method="post">
         <div class="form-group">
           <% if(type == 'Client') { %>
             <label for="client_fn">Owner First Name:</label>
-            <input type="text" id="client_fn" name="client_firstname" required>
+            <input type="text" id="client_fn" name="client_fn" required>
+            <br>
             <label for="client_fn">Owner Last Name:</label>
-            <input type="text" id="client_ln" name="client_lastname" required>
+            <input type="text" id="client_ln" name="client_ln" required>
           <% } else { %>
             <label for="client_fn">Client First Name:</label>
-            <input type="text" id="client_fn" name="client_firstname" required>
+            <input type="text" id="client_fn" name="client_fn" required>
+            <br>
             <label for="client_fn">Client Last Name:</label>
-            <input type="text" id="client_ln" name="client_lastname" required>
+            <input type="text" id="client_ln" name="client_ln" required>
           <% } %>
         </div>
         <div class="form-group">
@@ -29,22 +32,16 @@
           <label for="end_date">End Date and Time:</label>
           <input type="datetime-local" id="end_date" name="end_date" required>
         </div>
-        <div class="form-group">
-          <% if(type == 'Client') { %>
-            <label for="kennel_number">Kennel Number:</label>
-            <select id="kennel_number" name="kennel_number" required>
-              <% for(let i=0; i < ) %>
-            </select>
-          <% } else { %>
-            <label for="kennel_number">Kennel Number:</label>
-            <select id="kennel_number" name="kennel_number" required>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          <% } %>
-          
-        </div>
+        <% if(type == 'Employee') { %>
+          <div>
+            <input type="hidden" name="emp_id" value="<%= user.emp_id %>">
+          </div>
+        <% } else { %>
+          <div>
+            <input type="hidden" name="emp_id" value="-1">
+          </div>
+        <% }%>
+        
         <button class="button" type="submit">Add Reservation</button>
       </form>
     </div>

@@ -36,7 +36,7 @@ const kennel = new mongoose.Schema({
     occupiedFlag : Boolean,
     areaSF : Number,
     activeFlag : Boolean,
-    modifiedDate : {type: [Date, Int32]},
+    modifiedDate : {type: [Date, Number]},
     createTime: Date
     },
     {
