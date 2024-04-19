@@ -1,11 +1,13 @@
-  const express = require('express')
+const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
-const Client = require('./db_modules/client')
+const client = require('./scripts/clientModel')
 const Employee = require('./db_modules/employee')
-const Pet = require('./db_modules/pet')
+const pet = require('./scripts/petModel')
 const Transaction = require('./db_modules/transaction')
 const session = require('express-session')
+const reservation = require("./scripts/reservationModel")
+const signup_login = require("./scripts/signupLoginModel")
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
@@ -33,32 +35,6 @@ app.use(session({
   saveUninitialized: false
 }));
 
-async function authenticate(name, pass, type) {
-  if(type === 'Client') {
-    const result = await Client.findOne({client_username: name});
-    if(!result) {
-      return {worked: false, message: "Username not found: Please Try Again", response: result};
-    } else {
-      if(result.client_password !== pass) {
-        return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
-      }
-      return {worked: true, message: "Successful Login", response: result};
-    }
-  }
-  if(type === 'Employee') {
-    const result = await Employee.findOne({emp_username: name});
-    if(!result) {
-      return {worked: false, message: "Username not found: Please Try Again", response: result};
-    } else {
-      if(result.emp_password !== pass) {
-        return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
-      }
-      return {worked: true, message: "Successful Login", response: result};
-    }
-  }
-}
-
-
 app.get('/', (req, res) => {
   res.render('pages/homepage')
 })
@@ -72,7 +48,7 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    const result = await authenticate(username, password, user_type)
+    const result = await signup_login.authenticateLogin(username, password, user_type)
     if(result.worked === true) {
       req.session.user = result.response
       req.session.type = user_type
@@ -102,41 +78,11 @@ app.post("/signup", async (req, res) => {
     
     if (user_type === 'employee') {
       // If the user type is employee
-      const empID = await getNextID(); // Generate ID for employee
-      const newEmployee = new Employee({
-        empID,
-        empFN: first_name,
-        empLN: last_name,
-        empEmail: email,
-        empPhone: phone,
-        empStartDate: new Date(),
-        activeFlag: true,
-        modifiedDate: 0,
-        emp_username: username,
-        emp_password: password,
-        //createTime: new Date(),
-      });
-
-      await newEmployee.save();
+      signup_login.addEmployee(first_name, last_name, email, phone, username, password);
       res.redirect('/login')
     } else if (user_type === 'client') {
       // If the user type is client
-      const clientID = await getNextID(); // Generate ID for client
-      const newClient = new Client({
-        clientID,
-        clientFN: first_name,
-        clientLN: last_name,
-        clientEmail: email,
-        clientPhone: phone,
-        createTime: new Date(),
-        activeFlag: true,
-        modifiedDate: 0,
-        client_username: username,
-        client_password: password,
-        
-      });
-
-      await newClient.save();
+      signup_login.addClient(first_name, last_name, email, phone, username, password);
       res.redirect('/login');
     } else {
       // If the user type is neither client nor employee
@@ -167,12 +113,49 @@ app.get("/dashboard", (req,res) => {
 app.get("/reservations", (req,res) => {
   const user = req.session.user
   const user_type = req.session.type
+  
   if(user) {
     res.render("pages/reservations", {user: user, type: user_type})
   } else {
     res.redirect("/login")
   }
 })
+
+app.get("/res_add", (req,res) => {
+  try {
+    const user = req.session.user
+    const user_type = req.session.type
+    if(user) {
+    res.render("pages/res_add", {user: user, type: user_type, message: ""})
+    } else {
+    res.redirect("/login") 
+    }
+  } catch (error) {
+    console.log("The error is: " + error)
+    res.redirect("/login")
+  }
+})
+
+app.post("/res_add", async (req,res) => {
+  const user = req.session.user;
+  const user_type = req.session.type;
+  if(user) {
+    const first = req.body.client_fn;
+    const last = req.body.client_ln;
+    const pet = req.body.pet_name;
+    const arrival = req.body.arrival_date;
+    const departure = req.body.end_date;
+    const emp_id = req.body.emp_id;
+    const worked = await reservation.addReservationWithCheck(first, last, pet, arrival, departure, emp_id)
+    if(worked) {
+      res.render("pages/res_add", {user: user, type: user_type, message: "Reservation Added"})
+    } else {
+      res.render("pages/res_add", {user: user, type: user_type, message: "Error: Unable to add Reservation"})
+    }
+  } else {
+    res.redirect("/login")
+  }
+});
 
 app.get("/clients", (req,res) => {
   const user = req.session.user
@@ -256,6 +239,18 @@ app.get("/emp_transactions_edit", (req,res) => {
   res.render("pages/emp_transactions_edit")
 })
 
+// app.get("/emp_clients_search", async (req,res) => {
+//   try {
+//     const result = await getClients(1, 5);
+//     // res.render("pages/emp_clients_search", {clients: result})
+//     // console.log(result);
+//     res.render("pages/emp_clients_search", {clients: result})
+//   } catch (error) {
+//     res.status(500).json({message: error.message});
+//     res.redirect('/emp_clients')
+//   }
+// })
+
 async function getNextID() {
     try {
         // Find the maximum employee ID
@@ -289,7 +284,7 @@ const pageSize = 10;
 
 app.get("/emp_clients_search", async (req,res) => {
   try {
-    const result = await getClients(currentPage, pageSize);
+    const result = await client.getClients(currentPage, pageSize);
     res.render("pages/emp_clients_search", { clients: result, currentPage });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -309,24 +304,10 @@ app.get("/emp_clients_search/previous", async (req, res) => {
   res.redirect('/emp_clients_search');
 });
 
-async function getClientById(client_id) {
-  try {
-    const client_record = await Client.findOne({clientID: client_id});
-    if (!client_record) {
-      console.log("clientID undefined");
-    }
-    // const client_record = await Client.find({clientID: client_id});
-    return client_record;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
 app.get("/emp_clients_edit", async (req, res) => {
   const clientId = req.query.clientId;
   try {
-    const found_client = await getClientById(parseInt(clientId)); // Fetch the client data
+    const found_client = await client.getClientById(parseInt(clientId)); // Fetch the client data
     if (!found_client) {
       return res.status(404).send("Client not found");
     }
@@ -337,6 +318,13 @@ app.get("/emp_clients_edit", async (req, res) => {
   }
 });
 
+pet.getPets(1, 5)
+  .then(pets => {
+    console.log("Fetched pets");
+  })
+  .catch(error => {
+    console.error("Error fetching pets:", error);
+  });
 // Delete client
 app.post("/delete_client/:clientID", async (req, res) => {
   const clientID = req.params.clientID;
@@ -515,6 +503,16 @@ app.post("/update_pet/:petID", async (req, res) => {
   }
 });
 
+app.get("/emp_pets_search", async (req,res) => {
+  try {
+    const { searchQuery } = req.query; // Extract search query from request query parameters
+    let pets = []
+    if (searchQuery) {
+      // If there's a search query, fetch pets based on the query
+      pets = pet.petSearch(searchQuery)
+    }
+    // Render the page with the fetched pets
+    res.render("pages/emp_pets_search", { pets, searchQuery });
 
 async function getTrans(start, end, user_type, client_id) {
   if(user_type=='Client') {
