@@ -1,15 +1,14 @@
-async function getPetById(pet_id) {
-  try {
-    const pet_record = await Pet.findOne({petID: pet_id});
-    if (!pet_record) {
-      console.log("petID undefined");
-    }
-    return pet_record;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
+const Pet = require("../db_modules/pet")
+async function getPets(start, end){
+  try{
+    const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
+    return pets;
+  } catch(error){
+    console.error("Error returning pet information:", error);
+    throw error;
   }
 }
+
 
 async function petSearch(searchQuery) {
   let pets = []; // Initialize pets array
@@ -22,30 +21,7 @@ async function petSearch(searchQuery) {
   return pets;
 }
 
-async function getPets(start, end, user_type, owner_id) {
-  if(user_type=='Client') {
-    try {
-      const pet_records = await Pet.find({ownerID: owner_id, activeFlag: true}).sort({petName:1}).skip(start-1).limit(end);
-      return pet_records;
-    } catch(error) {
-        console.error("Error returning client information:", error);
-        throw error;
-    }
-  }
-  if(user_type=='Employee') {
-    try {
-      const pet_records = await Pet.find({activeFlag: true}).sort({petName:1}).skip(start-1).limit(end);
-      return pet_records;
-    } catch(error) {
-        console.error("Error returning client information:", error);
-        throw error;
-    }
-  }
-
-};
-
 module.exports = {
   petSearch,
-  getPetById,
   getPets
 }
