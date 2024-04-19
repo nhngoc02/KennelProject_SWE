@@ -1,0 +1,49 @@
+<%- include('../partials/emp-client-head', {title: 'Reservations Insert', type: type}) %>
+
+<body>
+  <div class="container">
+      <h2><%= message %></h2>
+      <h2>Add Reservation</h2>
+      <form action="/res_add" method="post">
+        <div class="form-group">
+          <% if(type == 'Client') { %>
+            <label for="client_fn">Owner First Name:</label>
+            <input type="text" id="client_fn" name="client_fn" required>
+            <br>
+            <label for="client_fn">Owner Last Name:</label>
+            <input type="text" id="client_ln" name="client_ln" required>
+          <% } else { %>
+            <label for="client_fn">Client First Name:</label>
+            <input type="text" id="client_fn" name="client_fn" required>
+            <br>
+            <label for="client_fn">Client Last Name:</label>
+            <input type="text" id="client_ln" name="client_ln" required>
+          <% } %>
+        </div>
+        <div class="form-group">
+          <label for="pet_name">Pet Name:</label>
+          <input type="text" id="pet_name" name="pet_name" required>
+        </div>
+        <div class="form-group">
+          <label for="arrival_date">Arrival Date and Time:</label>
+          <input type="datetime-local" id="arrival_date" name="arrival_date" required>
+        </div>
+        <div class="form-group">
+          <label for="end_date">End Date and Time:</label>
+          <input type="datetime-local" id="end_date" name="end_date" required>
+        </div>
+        <% if(type == 'Employee') { %>
+          <div>
+            <input type="hidden" name="emp_id" value="<%= user.emp_id %>">
+          </div>
+        <% } else { %>
+          <div>
+            <input type="hidden" name="emp_id" value="-1">
+          </div>
+        <% }%>
+        
+        <button class="button" type="submit">Add Reservation</button>
+      </form>
+    </div>
+  </body>
+  </html>

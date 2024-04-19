@@ -44,17 +44,17 @@ fetch data from reservation collection in database*/
 */
 
 const reservation = new mongoose.Schema( {
-    RID : Int32,
-    clientID : Int32,
-    petID : Int32,
+    RID : Number,
+    clientID : Number,
+    petID : Number,
     arrivalDate : Date,
     departureDate : Date,
-    kennelID : Int32,
-    empID : Int32,
+    kennelID : Number,
+    empID : Number,
     // createTime : { type: Date, default: Date.now },
     createTime : Date,
     activeFlag : Boolean,
-    modifiedDate : {type: [Date, Int32]}
+    modifiedDate : Number
     },
     {
       timestamps : true,

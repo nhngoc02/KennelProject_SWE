@@ -5,11 +5,10 @@
     <div class="container">
         <h2>Pets</h2>
         <% if(type == 'Client') { %>
-            <a class="button" href="#">Search for Pets</a>
-            <a class="button" href="#">Add a New Pet</a>
+            <a class="button" href="#" method="post">Add a New Pet</a>
+            <a class="button" href="/pets_search" method="post">Show Your Pet(s)</a>
         <% } else if(type == 'Employee') { %>
-            <a class="button" href="/emp_pets_search">Search for Pets</a>
-            <a class="button" href="/add_pets">Add Pets</a>
+            <a class="button" href="/pets_search" method="post">Show a list of All Pets</a>
         <% } else { %>
             
         <% } %>
