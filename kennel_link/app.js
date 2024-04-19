@@ -218,12 +218,45 @@ app.get("/transactions", (req,res) => {
   
 });
 
-// app.get("/add_pets", (req,res) => {
-//   const user = req.session.user;
-//   const user_type = req.session.type;
-//   res.render("pages/add_pets", {user: user, type: user_type});
-// })
+ app.get("/add_pets", async (req,res) => {
+  try {
+    // Fetch clients for populating owner options in the form
+    const clients = await Client.find();
+    const user = req.session.user;
+    const user_type = req.session.type;
+    res.render("pages/add_pets", { user, type: user_type, clients });
+} catch (error) {
+    console.error("Error fetching clients:", error);
+    res.status(500).send("Internal Server Error");
+}
+});
 
+app.post("/add_pets", async (req, res) => {
+  try {
+    // Extract pet data from the request body
+    const { petName, petType, petBreed, petSex, petDOB, petWeight, ownerID } = req.body;
+    
+    // Create a new pet document
+    const newPet = new Pet({
+        petName,
+        petType,
+        petBreed,
+        petSex,
+        petDOB,
+        petWeight,
+        ownerID
+    });
+
+    // Save the new pet to the database
+    await newPet.save();
+
+    // Redirect to a success page or render a success message
+    res.render("pages/add_pet_success", { pet: newPet });
+} catch (error) {
+    console.error("Error adding pet:", error);
+    res.status(500).send("Internal Server Error");
+}
+});
 // app.get("/emp_pets", (req,res) => {
 //   res.render("pages/emp_pets");
 // })
@@ -542,6 +575,7 @@ app.get("/emp_pets_search", async (req,res) => {
     res.render("pages/emp_pets_search", { pets, searchQuery });
   } catch (error){}});
 
+
 async function getTrans(start, end, user_type, client_id) {
   if(user_type=='Client') {
     try {
@@ -562,7 +596,8 @@ async function getTrans(start, end, user_type, client_id) {
     }
   }
 
-};
+  }});
+
 
 let currentPage_trans = 1;
 const pageSize_trans = 10;
