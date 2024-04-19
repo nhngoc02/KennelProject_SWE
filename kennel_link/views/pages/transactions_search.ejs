@@ -1,0 +1,70 @@
+<%- include('../partials/emp-client-head', {title: 'Transaction Search', type: type}) %>
+
+<body>
+    <div class="container">
+      <h2>Transaction Search</h2>
+      <% if(type == 'Employee') { %>
+
+        <table class="table table-inverse">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Transaction Date</th>
+              <th>Total Amount ($)</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+        
+          <tbody>
+            <% for(var i=0; i < trans.length; i++) { %>
+            <tr>
+              <td><%= client_names[i] %></td>
+              <td><%= trans[i].transactionDate.toLocaleDateString('en-CA') %></td>
+              <td><%= trans[i].totalAmount_usd %></td>
+              
+              <td><a href="/transactions_edit?TID=<%= trans[i].TID %>&client=<%= client_names[i] %>">Edit</a></td>
+              
+              <td style="display: none;" name="transID"><%= trans[i].TID %></td>
+              
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      
+        <a href="/transactions_search/previous" class="previous round">&#8249;</a>
+        <a href="/transactions_search/next" class="next round">&#8250;</a>
+        <% } else if (type == 'Client') { %>
+            <table class="table table-inverse">
+                <thead>
+                  <tr>
+                    <th>Transaction Date</th>
+                    <th>Total Amount ($)</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+              
+                <tbody>
+                  <% for(var i=0; i < trans.length; i++) { %>
+                  <tr>
+                    <td><%= trans[i].transactionDate.toLocaleDateString('en-CA') %></td>
+                    <td><%= trans[i].totalAmount_usd %></td>
+                    
+                    <td><a href="/transactions_edit?TID=<%= trans[i].TID %>&client=<%= client_name %>">Edit</a></td>
+                    
+                    <td style="display: none;" name="transID"><%= trans[i].TID %></td>
+                    
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            
+              <a href="/transactions_search/previous" class="previous round">&#8249;</a>
+              <a href="/transactions_search/next" class="next round">&#8250;</a>
+        <% } else { %>
+          <p> Error with accessing user data</p>
+      <% } %>
+    </div>
+</body>
+</html>
