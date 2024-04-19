@@ -91,8 +91,21 @@ async function getNextID() {
     }
 }
 
+async function getClients(start, end) {
+  try {
+    const clients = await Client.find({activeFlag: true}).sort({clientLN:1}).skip(start-1).limit(end);
+    return clients;
+  } catch(error) {
+      console.error("Error returning client information:", error);
+      throw error;
+  }
+}
+
+// TODO : add deleting a client and/or an employee
+
 module.exports = {
     addClient,
     addEmployee,
-    authenticateLogin
+    authenticateLogin,
+    getClients
 }
