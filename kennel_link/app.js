@@ -1,9 +1,9 @@
 const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
-const Client = require('./db_modules/client')
+const client = require('./scripts/clientModel')
 const Employee = require('./db_modules/employee')
-const Pet = require('./db_modules/pet')
+const pet = require('./scripts/petModel')
 const session = require('express-session')
 const reservation = require("./scripts/reservationModel")
 const signup_login = require("./scripts/signupLoginModel")
@@ -227,19 +227,6 @@ app.get("/emp_transactions_edit", (req,res) => {
   res.render("pages/emp_transactions_edit")
 })
 
-async function getClients(start, end) {
-  try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
-    // console.log(clients.length);
-    // console.log(clients.type); // undefined
-    // console.log(clients);
-    return clients;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
 // app.get("/emp_clients_search", async (req,res) => {
 //   try {
 //     const result = await getClients(1, 5);
@@ -257,7 +244,7 @@ const pageSize = 10;
 
 app.get("/emp_clients_search", async (req,res) => {
   try {
-    const result = await getClients(currentPage, pageSize);
+    const result = await client.getClients(currentPage, pageSize);
     res.render("pages/emp_clients_search", { clients: result, currentPage });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -277,24 +264,10 @@ app.get("/emp_clients_search/previous", async (req, res) => {
   res.redirect('/emp_clients_search');
 });
 
-async function getClientById(client_id) {
-  try {
-    const client_record = await Client.findOne({clientID: client_id});
-    if (!client_record) {
-      console.log("clientID undefined");
-    }
-    // const client_record = await Client.find({clientID: client_id});
-    return client_record;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
 app.get("/emp_clients_edit", async (req, res) => {
   const clientId = req.query.clientId;
   try {
-    const found_client = await getClientById(parseInt(clientId)); // Fetch the client data
+    const found_client = await client.getClientById(parseInt(clientId)); // Fetch the client data
     if (!found_client) {
       return res.status(404).send("Client not found");
     }
@@ -305,17 +278,7 @@ app.get("/emp_clients_edit", async (req, res) => {
   }
 });
 
-async function getPets(start, end){
-  try{
-    const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
-    return pets;
-  } catch(error){
-    console.error("Error returning pet information:", error);
-    throw error;
-  }
-}
-
-getPets(1, 5)
+pet.getPets(1, 5)
   .then(pets => {
     console.log("Fetched pets");
   })
@@ -340,16 +303,10 @@ app.get('/all_pets', async (req, res) => {
 app.get("/emp_pets_search", async (req,res) => {
   try {
     const { searchQuery } = req.query; // Extract search query from request query parameters
-    let pets = []; // Initialize pets array
-
+    let pets = []
     if (searchQuery) {
       // If there's a search query, fetch pets based on the query
-      pets = await Pet.find({
-        $or: [
-          { petName: { $regex: searchQuery, $options: "i" } }, // Search by pet name (case-insensitive)
-          { petBreed: { $regex: searchQuery, $options: "i" } }, // Search by pet breed (case-insensitive)
-        ],
-      }).sort({ petName: 1 }); // Sort pets by petName
+      pets = pet.petSearch(searchQuery)
     }
     // Render the page with the fetched pets
     res.render("pages/emp_pets_search", { pets, searchQuery });
