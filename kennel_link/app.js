@@ -276,7 +276,7 @@ async function getNextID() {
 
 async function getClients(start, end) {
   try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end);
+    const clients = await Client.find({activeFlag: true}).sort({clientLN:1}).skip(start-1).limit(end);
     return clients;
   } catch(error) {
       console.error("Error returning client information:", error);
@@ -383,7 +383,7 @@ app.post("/update_client/:clientID", async (req, res) => {
 async function getPets(start, end, user_type, owner_id) {
   if(user_type=='Client') {
     try {
-      const pet_records = await Pet.find({ownerID: owner_id}).sort({petName:1}).skip(start-1).limit(end);
+      const pet_records = await Pet.find({ownerID: owner_id, activeFlag: true}).sort({petName:1}).skip(start-1).limit(end);
       return pet_records;
     } catch(error) {
         console.error("Error returning client information:", error);
@@ -392,7 +392,7 @@ async function getPets(start, end, user_type, owner_id) {
   }
   if(user_type=='Employee') {
     try {
-      const pet_records = await Pet.find().sort({petName:1}).skip(start-1).limit(end);
+      const pet_records = await Pet.find({activeFlag: true}).sort({petName:1}).skip(start-1).limit(end);
       return pet_records;
     } catch(error) {
         console.error("Error returning client information:", error);
@@ -476,9 +476,11 @@ app.post("/delete_pet/:petID", async (req, res) => {
 
   try {
     // Delete the client from the database
-    const result = await Pet.deleteOne({ petID });
+    const result = await Pet.updateOne({petID: petID},{$set: {activeFlag: false}});
+    // const result = await Pet.deleteOne({ petID });
 
-    if (result.deletedCount === 0) {
+    // if (result.deletedCount === 0) {
+    if (!result) {
       // If no records were deleted, the client was not found
       return res.status(404).send("Pet not found");
     }
@@ -517,7 +519,7 @@ app.post("/update_pet/:petID", async (req, res) => {
 async function getTrans(start, end, user_type, client_id) {
   if(user_type=='Client') {
     try {
-      const trans_records = await Transaction.find({clientID: client_id}).sort({transactionDate: -1}).skip(start-1).limit(end);
+      const trans_records = await Transaction.find({clientID: client_id, activeFlag: true}).sort({transactionDate: -1}).skip(start-1).limit(end);
       return trans_records;
     } catch(error) {
         console.error("Error returning transaction information:", error);
@@ -526,7 +528,7 @@ async function getTrans(start, end, user_type, client_id) {
   }
   if(user_type=='Employee') {
     try {
-      const trans_records = await Transaction.find().sort({transactionDate: -1}).skip(start-1).limit(end);
+      const trans_records = await Transaction.find({activeFlag: true}).sort({transactionDate: -1}).skip(start-1).limit(end);
       return trans_records;
     } catch(error) {
         console.error("Error returning transactioin information:", error);
@@ -546,7 +548,7 @@ app.get("/transactions_search", async (req,res) => {
     try {
     const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
     const clientIDs = trans_records.map(tran => tran.clientID);
-    const trans_clients = await Client.find({ clientID: { $in: clientIDs } });
+    const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
     const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
 
     res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
@@ -610,6 +612,26 @@ app.get("/transactions_edit", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+// Update transaction information
+app.post("/update_transaction/:TID", async (req, res) => {
+  const tranID = req.params.TID;
+  const transAmount = req.body.totalAmount_usd;
+
+  try {
+    const result = await Transaction.updateOne({TID:tranID},{$set: {totalAmount_usd: transAmount}});
+    if (!result) {
+      return res.status(404).send("Transaction not found");
+    }
+
+    res.status(200).send("Transaction updated successfully");
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
 
 const PORT = process.env.PORT;
 module.exports = app;
