@@ -18,10 +18,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
