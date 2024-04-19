@@ -11,6 +11,7 @@ const signup_login = require("./scripts/signupLoginModel")
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
+const Client = require('./db_modules/client');
 
 const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
@@ -75,18 +76,33 @@ app.post("/signup", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    
-    if (user_type === 'employee') {
-      // If the user type is employee
-      signup_login.addEmployee(first_name, last_name, email, phone, username, password);
-      res.redirect('/login')
-    } else if (user_type === 'client') {
-      // If the user type is client
-      signup_login.addClient(first_name, last_name, email, phone, username, password);
-      res.redirect('/login');
+
+    const uniqueEmpUsernameCheck = await Employee.findOne({ emp_username: username });
+    const uniqueClientUsernameCheck = await Client.findOne({ client_username: username });
+    const uniqueEmpEmailCheck = await Employee.findOne({ empEmail: email });
+    const uniqueClientEmailCheck = await Client.findOne({ clientEmail: email });
+
+    if ((!uniqueEmpUsernameCheck) && (!uniqueClientUsernameCheck) && (!uniqueEmpEmailCheck) && (!uniqueClientEmailCheck)) {
+      if (user_type === 'employee') {
+        // If the user type is employee
+        signup_login.addEmployee(first_name, last_name, email, phone, username, password);
+        res.redirect('/login');
+      } else if (user_type === 'client') {
+        // If the user type is client
+        signup_login.addClient(first_name, last_name, email, phone, username, password);
+        res.redirect('/login');
+      } else {
+        // If the user type is neither client nor employee
+        throw new Error("Invalid user type selected");
+      }
     } else {
-      // If the user type is neither client nor employee
-      throw new Error("Invalid user type selected");
+      // If any of the data points are not unique, throw an error
+      if (uniqueClientEmailCheck || uniqueEmpEmailCheck !== null){
+        throw new Error ("Email is already in use")
+      }
+      else{
+        throw new Error("Username is already in use");
+      }
     }
   } catch (error) {
     // Handle any errors that occur during the signup process
@@ -94,6 +110,7 @@ app.post("/signup", async (req, res) => {
     res.status(500).send("An error occurred during signup. Please try again later.");
   }
 });
+
 
 app.get("/logout", (req,res) => {
   req.session.destroy();
@@ -511,6 +528,7 @@ app.get("/emp_pets_search", async (req,res) => {
     }
     // Render the page with the fetched pets
     res.render("pages/emp_pets_search", { pets, searchQuery });
+  } catch (error){}});
 
 async function getTrans(start, end, user_type, client_id) {
   if(user_type=='Client') {
