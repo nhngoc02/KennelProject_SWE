@@ -1,110 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Client Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
-<style>
-    body {
-        margin: 0;
-        font-family: 'Urbanist', sans-serif;
-        background-color: #40826d; /* Viridian green */
-    }
-    .calendar {
-        max-width: 700px;
-        margin: 20px auto;
-        background-color: #f9f9f9; /* Light gray */
-        border-radius: 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        overflow: hidden;
-    }
-    .calendar-header {
-        text-align: center;
-        font-weight: bold;
-        padding: 20px 0;
-        background-color: #5d9cec; /* Dodger blue */
-        color: #fff; /* White */
-    }
-    .days {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        padding: 10px;
-        text-align: center;
-    }
-    .day {
-        padding: 10px;
-        font-size: 14px;
-    }
-    .day-header {
-        color: #757575; /* Dark gray color for day names */
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    .occupied {
-        background-color: #ffcc80; /* Light orange */
-    }
-    .today {
-        background-color: #ff6f61; /* Coral */
-        color: #fff; /* White */
-        border-radius: 50%;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Urbanist', sans-serif;
+            background-color: #40826d; /* Viridian green */
+        }
+        #calendar-container {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: flex-start; /* Align items at the top */
+        }
+        
+        #legend {
+            padding: 10px;
+            background-color: #fff; /* White background */
+            border-radius: 10px;
+            height: 55px;
+            margin-right: -181.75px; /* Add margin to create space between legend and calendar */
+        }
+        
+        #calendar {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        .legend-item {
+            margin-bottom: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .month {
+            margin-bottom: 20px;
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            padding: 10px;
+            text-align: center;
+            color: #333; /* Dark gray text */
+            position: relative;
+        }
+
+        .month-nav {
+            position: absolute;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        .month-nav.left {
+            left: 10px;
+        }
+
+        .month-nav.right {
+            right: 10px;
+        }
+
+        .weekdays {
+            display: flex;
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            margin-bottom: 10px; /* Added margin bottom for better spacing */
+        }
+
+        .weekdays div {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: #333; /* Dark gray text */
+        }
+
+        .days {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            padding: 10px;
+        }
+
+        .days div {
+            flex-basis: calc(100% / 7);
+            box-sizing: border-box;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            color: #333; /* Dark gray text */
+        }
+
+        .personal-reserved {
+            background-color: #ff5252; /* Red */
+        }
+
+        .private-reserved {
+            background-color: #8e918f; /* Dark grey */
+            color: #fff; /* White text */
+        }
+    </style>
 </head>
 <body>
-<div class="calendar">
-    <div class="calendar-header" id="monthYear"></div>
-    <div class="days">
-        <div class="day day-header">Mon</div>
-        <div class="day day-header">Tue</div>
-        <div class="day day-header">Wed</div>
-        <div class="day day-header">Thu</div>
-        <div class="day day-header">Fri</div>
-        <div class="day day-header">Sat</div>
-        <div class="day day-header">Sun</div>
+    <div id="calendar-container">
+        <div id="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff5252;"></div>
+                Personal Reserved
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #8e918f;"></div>
+                Private Reserved
+            </div>
+        </div>
+        <div id="calendar"></div>
     </div>
-</div>
+    <script>
+        let currentYear, currentMonth;
 
-<script>
-    // Function to generate calendar
-    function generateCalendar(year, month) {
-        var calendarHeader = document.getElementById('monthYear');
-        calendarHeader.textContent = `${getMonthName(month)} ${year}`;
-        
-        var firstDay = new Date(year, month - 1, 1).getDay(); // Day of the week (0 - 6)
-        var daysInMonth = new Date(year, month, 0).getDate(); // Number of days in the month
-        
-        var calendar = document.querySelector('.calendar');
-        var daysContainer = calendar.querySelector('.days');
-        daysContainer.innerHTML = '';
-        
-        for (var i = 0; i < firstDay; i++) {
-            daysContainer.innerHTML += '<div class="day"></div>'; // Empty boxes for days before the 1st of the month
-        }
-        
-        for (var i = 1; i <= daysInMonth; i++) {
-            var dayElement = document.createElement('div');
-            dayElement.classList.add('day');
-            dayElement.textContent = i;
-            if (i === new Date().getDate() && year === new Date().getFullYear() && month === new Date().getMonth() + 1) {
-                dayElement.classList.add('today');
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendar = document.getElementById('calendar');
+            
+            function renderCalendar(year, month) {
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                    "July", "August", "September", "October", "November", "December"];
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                
+                let html = '<div class="month">' + 
+                           '<div class="month-nav left" onclick="prevMonth()">&#10094;</div>' +
+                           monthNames[month] + ' ' + year + 
+                           '<div class="month-nav right" onclick="nextMonth()">&#10095;</div></div>';
+                html += '<div class="weekdays">';
+                html += '<div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>';
+                html += '</div><div class="days">';
+                
+                for (let i = 0; i < firstDayOfMonth; i++) {
+                    html += '<div></div>';
+                }
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let classes = [];
+                    // Example: Check if day 10 is personal reserved
+                    if (year === 2024 && month === 3 && day === 10) {
+                        classes.push('personal-reserved');
+                    }
+                    // Example: Check if day 15 is private reserved
+                    if (year === 2024 && month === 3 && day === 15) {
+                        classes.push('private-reserved');
+                    }
+                    html += '<div class="' + classes.join(' ') + '">' + day + '</div>';
+                }
+                
+                html += '</div>';
+                
+                calendar.innerHTML = html;
+                currentYear = year;
+                currentMonth = month;
             }
-            daysContainer.appendChild(dayElement);
-        }
-    }
-    
-    // Function to get month name
-    function getMonthName(month) {
-        var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        return months[month - 1];
-    }
-    
-    // Call generateCalendar function with current year and month
-    var currentDate = new Date();
-    generateCalendar(currentDate.getFullYear(), currentDate.getMonth() + 1);
-</script>
 
+            // Function to navigate to the previous month
+            window.prevMonth = function() {
+                currentMonth -= 1;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear -= 1;
+                }
+                renderCalendar(currentYear, currentMonth);
+            }
+
+            // Function to navigate to the next month
+            window.nextMonth = function() {
+                currentMonth += 1;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear += 1;
+                }
+                renderCalendar(currentYear, currentMonth);
+            }
+
+            // Initial render
+            const isoDate = new Date();
+            const year = isoDate.getFullYear();
+            const month = isoDate.getMonth();
+            renderCalendar(year, month);
+        });
+    </script>
 </body>
 </html>
