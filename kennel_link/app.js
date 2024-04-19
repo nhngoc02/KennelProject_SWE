@@ -277,27 +277,12 @@ async function getNextID() {
 async function getClients(start, end) {
   try {
     const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end);
-    // console.log(clients.length);
-    // console.log(clients.type); // undefined
-    // console.log(clients);
     return clients;
   } catch(error) {
       console.error("Error returning client information:", error);
       throw error;
   }
 }
-
-// app.get("/emp_clients_search", async (req,res) => {
-//   try {
-//     const result = await getClients(1, 5);
-//     // res.render("pages/emp_clients_search", {clients: result})
-//     // console.log(result);
-//     res.render("pages/emp_clients_search", {clients: result})
-//   } catch (error) {
-//     res.status(500).json({message: error.message});
-//     res.redirect('/emp_clients')
-//   }
-// })
 
 let currentPage = 1;
 const pageSize = 10;
@@ -573,9 +558,11 @@ app.get("/transactions_search", async (req,res) => {
   else if(user_type == 'Client') {
     try {
       const client_id = parseInt(req.session.user.clientID);
+      const client_record = await getClientById(client_id);
+      const clientName = `${client_record.clientFN} ${client_record.clientLN}`;
       const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, client_id);
 
-      res.render("pages/transactions_search", { trans: trans_records, currentPage_trans, type: user_type});
+      res.render("pages/transactions_search", { trans: trans_records, client_name: clientName, currentPage_trans, type: user_type});
       } catch (error) {
         res.status(500).json({ message: error.message });
         res.redirect('/transactions');
@@ -594,6 +581,34 @@ app.get("/transactions_search/previous", async (req, res) => {
     currentPage_trans-=pageSize_trans;
   }
   res.redirect('/transactions_search');
+});
+
+async function getTranById(trans_id) {
+  try {
+    const trans_record = await Transaction.findOne({TID: trans_id});
+    if (!trans_record) {
+      console.log("Transaction ID undefined");
+    }
+    return trans_record;
+  } catch(error) {
+      console.error("Error returning transaction information:", error);
+      throw error;
+  }
+}
+
+app.get("/transactions_edit", async (req, res) => {
+  const transId = req.query.TID;
+  try {
+    const found_trans = await getTranById(parseInt(transId)); // Fetch the client data
+    const clientName = req.query.client;
+    if (!found_trans) {
+      return res.status(404).send("Transaction not found");
+    }
+    res.render("pages/transactions_edit", { found_trans: found_trans , client_name: clientName}); // Pass the client data to the template
+  } catch (error) {
+    console.error("Error fetching transaction data:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 const PORT = process.env.PORT;
