@@ -1,15 +1,48 @@
-async function getPetById(pet_id) {
-  try {
-    const pet_record = await Pet.findOne({petID: pet_id});
-    if (!pet_record) {
-      console.log("petID undefined");
+
+const showAllPetsBtn = document.getElementById('showAllPetsBtn');
+
+showAllPetsBtn.addEventListener('click', async () => {
+    try {
+      // Fetch all pets from the server
+      const response = await fetch('/all_pets');
+      const pets = await response.json();
+
+      // Get the table body element
+      const tbody = document.querySelector('#petsTable tbody');
+
+      // Clear existing table rows
+      tbody.innerHTML = '';
+
+      // Populate the table with pet data
+      pets.forEach(pet => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${pet.petName}</td>
+          <td>${pet.clientName}</td>
+          <td>${pet.petType}</td>
+          <td>${pet.petBreed}</td>
+          <td><a href="/emp_pets_edit">Edit</a></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Show the table
+      document.getElementById('petsTable').style.display = 'block';
+    } catch (error) {
+      console.error('Error fetching all pets:', error);
     }
-    return pet_record;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
+});
+
+async function getPets(start, end){
+  try{
+    const pets = await Pet.find().sort({petName: 1}).skip(start -1).limit(end - start+1);
+    return pets;
+  } catch(error){
+    console.error("Error returning pet information:", error);
+    throw error;
   }
 }
+
 
 async function petSearch(searchQuery) {
   let pets = []; // Initialize pets array
@@ -22,30 +55,7 @@ async function petSearch(searchQuery) {
   return pets;
 }
 
-async function getPets(start, end, user_type, owner_id) {
-  if(user_type=='Client') {
-    try {
-      const pet_records = await Pet.find({ownerID: owner_id, activeFlag: true}).sort({petName:1}).skip(start-1).limit(end);
-      return pet_records;
-    } catch(error) {
-        console.error("Error returning client information:", error);
-        throw error;
-    }
-  }
-  if(user_type=='Employee') {
-    try {
-      const pet_records = await Pet.find({activeFlag: true}).sort({petName:1}).skip(start-1).limit(end);
-      return pet_records;
-    } catch(error) {
-        console.error("Error returning client information:", error);
-        throw error;
-    }
-  }
-
-};
-
 module.exports = {
   petSearch,
-  getPetById,
   getPets
 }
