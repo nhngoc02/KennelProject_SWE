@@ -596,7 +596,7 @@ async function getTrans(start, end, user_type, client_id) {
     }
   }
 
-  }});
+  };
 
 
 let currentPage_trans = 1;
