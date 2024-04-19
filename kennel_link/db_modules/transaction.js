@@ -35,13 +35,13 @@ fetch data from transaction collection in database*/
 */
 
 const transaction = new mongoose.Schema( {
-    TID : Int32,
-    clientID : Int32,
-    reservationID : Int32,
-    totalAmount_usd : Int32,
+    TID : Number,
+    clientID : Number,
+    reservationID : Number,
+    totalAmount_usd : Number,
     transactionDate : Date,
     activeFlag : Boolean,
-    modifiedDate : {type: [Date, Int32]},
+    modifiedDate : {type: [Date, Number]},
     createTime: Date
     },
     {
@@ -53,5 +53,3 @@ const transaction = new mongoose.Schema( {
 const Transaction = mongoose.model("transaction", transaction);
 
 module.exports = Transaction;
-
-db.pet.updateMany({}, { $set: { createTime: new Date() } } );

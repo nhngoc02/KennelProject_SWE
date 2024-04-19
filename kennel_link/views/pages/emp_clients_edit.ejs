@@ -14,9 +14,20 @@
         <input type="email" id="clientEmail" name="clientEmail" value="<%= found_client.clientEmail %>" required><br>
         <label for="clientPhone">Phone:</label>
         <input type="tel" id="clientPhone" name="clientPhone" value="<%= found_client.clientPhone %>" required><br>
-        <input type="submit" value="Update">
+
+        <div style="margin-top: 10px;"></div>
+
+        <input type="submit" value="Update this client's information">
       </form>
       
+    </div>
+
+    <div style="margin-top: 20px;"></div>
+
+    <div class="container">
+      <form class="form-group" action="/delete_client/<%= found_client.clientID %>" method="post">
+        <input type="submit" value="Delete this client's information">
+      </form>
     </div>
   </body>
   </html>
