@@ -1,3 +1,5 @@
+const Transaction = require('../db_modules/transaction')
+
 async function getTrans(start, end, user_type, client_id) {
     if(user_type=='Client') {
       try {

@@ -2,6 +2,7 @@ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const client = require('./scripts/clientModel')
+const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
 const pet = require('./scripts/petModel')
 const Transaction = require('./scripts/transactionModel')
@@ -417,35 +418,29 @@ let currentPage_trans = 1;
 const pageSize_trans = 10;
 
 app.get("/transactions_search", async (req,res) => {
-  const user_type = req.session.type;
-
-  if(user_type == 'Employee') {
-    try {
-    const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
-    const clientIDs = trans_records.map(tran => tran.clientID);
-    const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
-    const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
-
-    res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-      res.redirect('pages/transactions');
-      // res.render("pages/transactions", {user: user, type: user_type});
+  try {
+    const user_type = req.session.type;
+    const user = req.session.user
+    if(user_type == 'Employee') {
+      const trans_records = await Transaction.getTrans(currentPage_trans, pageSize_trans, user_type, '');
+      const clientIDs = trans_records.map(tran => tran.clientID);
+      const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
+      const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
+  
+      res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
     }
-  }
-  else if(user_type == 'Client') {
-    try {
+    else if(user_type == 'Client') {
+
       const client_id = parseInt(req.session.user.clientID);
       const client_record = await getClientById(client_id);
       const clientName = `${client_record.clientFN} ${client_record.clientLN}`;
       const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, client_id);
-
+  
       res.render("pages/transactions_search", { trans: trans_records, client_name: clientName, currentPage_trans, type: user_type});
-      } catch (error) {
-        res.status(500).json({ message: error.message });
-        res.redirect('pages/transactions');
-      }
-    }
+    } 
+  }catch(error) {
+    res.status(500).json({ message: error.message });
+  }
   // else {}
 });
 
