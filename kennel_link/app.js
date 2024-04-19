@@ -63,7 +63,7 @@ app.post("/login", async (req,res) => {
 })
 
 app.get("/signup", (req, res) => {
-  res.render("pages/signup");
+  res.render("pages/signup", {message: ""});
 })
 
 app.post("/signup", async (req, res) => {
@@ -81,8 +81,10 @@ app.post("/signup", async (req, res) => {
     const uniqueClientUsernameCheck = await Client.findOne({ client_username: username });
     const uniqueEmpEmailCheck = await Employee.findOne({ empEmail: email });
     const uniqueClientEmailCheck = await Client.findOne({ clientEmail: email });
+    const uniqueEmpPhoneCheck = await Employee.findOne({empPhone: phone});
+    const uniqueClientPhoneCheck = await Employee.findOne({clientPhone: phone});
 
-    if ((!uniqueEmpUsernameCheck) && (!uniqueClientUsernameCheck) && (!uniqueEmpEmailCheck) && (!uniqueClientEmailCheck)) {
+    if ((!uniqueEmpUsernameCheck) && (!uniqueClientUsernameCheck) && (!uniqueEmpEmailCheck) && (!uniqueClientEmailCheck) && (!uniqueClientPhoneCheck) && (!uniqueEmpPhoneCheck)) {
       if (user_type === 'employee') {
         // If the user type is employee
         signup_login.addEmployee(first_name, last_name, email, phone, username, password);
@@ -98,16 +100,26 @@ app.post("/signup", async (req, res) => {
     } else {
       // If any of the data points are not unique, throw an error
       if (uniqueClientEmailCheck || uniqueEmpEmailCheck !== null){
-        throw new Error ("Email is already in use")
+        errorMsg = "Email is already in use";
+        throw new Error (errorMsg);
+       
+        /*res.render("pages/signup",{message: "Email is already in use"})*/
+      }
+      else if (uniqueClientPhoneCheck || uniqueEmpPhoneCheck !== null){
+        errorMsg = "Phone is already in use";
+        throw new Error (errorMsg);
       }
       else{
-        throw new Error("Username is already in use");
+        errorMsg = "Username is already in use";
+        throw new Error(errorMsg);
+        /*res.render("pages/signup",{message: "Username is already in use"})*/
       }
     }
   } catch (error) {
     // Handle any errors that occur during the signup process
-    console.error("Error occurred during signup:", error);
-    res.status(500).send("An error occurred during signup. Please try again later.");
+    console.error(errorMsg, error);
+    /*res.status(500).send(errorMsg);*/
+    res.render("pages/signup",{message: errorMsg})
   }
 });
 
