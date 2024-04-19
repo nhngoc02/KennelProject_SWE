@@ -32,11 +32,11 @@ fetch data from kennel collection in database*/
 ]
 */
 const kennel = new mongoose.Schema({
-    KID : Int32,
+    KID : Number,
     occupiedFlag : Boolean,
-    areaSF : Double,
+    areaSF : Number,
     activeFlag : Boolean,
-    modifiedDate : {type: [Date, Int32]},
+    modifiedDate : {type: [Date, Number]},
     createTime: Date
     },
     {
