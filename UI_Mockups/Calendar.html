@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+<style>
+    body {
+        margin: 0;
+        font-family: 'Urbanist', sans-serif;
+        background-color: #40826d; /* Viridian green */
+    }
+    .calendar {
+        max-width: 700px;
+        margin: 20px auto;
+        background-color: #f9f9f9; /* Light gray */
+        border-radius: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .calendar-header {
+        text-align: center;
+        font-weight: bold;
+        padding: 20px 0;
+        background-color: #5d9cec; /* Dodger blue */
+        color: #fff; /* White */
+    }
+    .days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        padding: 10px;
+        text-align: center;
+    }
+    .day {
+        padding: 10px;
+        font-size: 14px;
+    }
+    .day-header {
+        color: #757575; /* Dark gray color for day names */
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .occupied {
+        background-color: #ffcc80; /* Light orange */
+    }
+    .today {
+        background-color: #ff6f61; /* Coral */
+        color: #fff; /* White */
+        border-radius: 50%;
+    }
+</style>
+</head>
+<body>
+<div class="calendar">
+    <div class="calendar-header" id="monthYear"></div>
+    <div class="days">
+        <div class="day day-header">Mon</div>
+        <div class="day day-header">Tue</div>
+        <div class="day day-header">Wed</div>
+        <div class="day day-header">Thu</div>
+        <div class="day day-header">Fri</div>
+        <div class="day day-header">Sat</div>
+        <div class="day day-header">Sun</div>
+    </div>
+</div>
+
+<script>
+    // Function to generate calendar
+    function generateCalendar(year, month) {
+        var calendarHeader = document.getElementById('monthYear');
+        calendarHeader.textContent = `${getMonthName(month)} ${year}`;
+        
+        var firstDay = new Date(year, month - 1, 1).getDay(); // Day of the week (0 - 6)
+        var daysInMonth = new Date(year, month, 0).getDate(); // Number of days in the month
+        
+        var calendar = document.querySelector('.calendar');
+        var daysContainer = calendar.querySelector('.days');
+        daysContainer.innerHTML = '';
+        
+        for (var i = 0; i < firstDay; i++) {
+            daysContainer.innerHTML += '<div class="day"></div>'; // Empty boxes for days before the 1st of the month
+        }
+        
+        for (var i = 1; i <= daysInMonth; i++) {
+            var dayElement = document.createElement('div');
+            dayElement.classList.add('day');
+            dayElement.textContent = i;
+            if (i === new Date().getDate() && year === new Date().getFullYear() && month === new Date().getMonth() + 1) {
+                dayElement.classList.add('today');
+            }
+            daysContainer.appendChild(dayElement);
+        }
+    }
+    
+    // Function to get month name
+    function getMonthName(month) {
+        var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[month - 1];
+    }
+    
+    // Call generateCalendar function with current year and month
+    var currentDate = new Date();
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth() + 1);
+</script>
+
+</body>
+</html>
