@@ -429,7 +429,8 @@ app.get("/transactions_search", async (req,res) => {
     res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
     } catch (error) {
       res.status(500).json({ message: error.message });
-      res.redirect('/transactions');
+      res.redirect('pages/transactions');
+      // res.render("pages/transactions", {user: user, type: user_type});
     }
   }
   else if(user_type == 'Client') {
@@ -442,7 +443,7 @@ app.get("/transactions_search", async (req,res) => {
       res.render("pages/transactions_search", { trans: trans_records, client_name: clientName, currentPage_trans, type: user_type});
       } catch (error) {
         res.status(500).json({ message: error.message });
-        res.redirect('/transactions');
+        res.redirect('pages/transactions');
       }
     }
   // else {}
@@ -451,6 +452,11 @@ app.get("/transactions_search", async (req,res) => {
 app.get("/transactions_search/next", async (req, res) => {
   currentPage_trans+=pageSize_trans;
   res.redirect('/transactions_search');
+  // const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
+  // const clientIDs = trans_records.map(tran => tran.clientID);
+  // const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
+  // const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
+  // res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
 });
 
 app.get("/transactions_search/previous", async (req, res) => {
@@ -458,6 +464,11 @@ app.get("/transactions_search/previous", async (req, res) => {
     currentPage_trans-=pageSize_trans;
   }
   res.redirect('/transactions_search');
+  // const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
+  // const clientIDs = trans_records.map(tran => tran.clientID);
+  // const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
+  // const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
+  // res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
 });
 
 
