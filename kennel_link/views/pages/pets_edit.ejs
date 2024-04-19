@@ -1,0 +1,40 @@
+<%- include('../partials/emp-client-head', {title: 'Pet Edit', type: 'Employee'}) %>
+
+
+<body>
+    <div class="container">
+      <h2>Pet Information:</h2>
+
+      <form class="form-group" action="/update_pet/<%= found_pet.petID %>" method="post">
+        <label for="petName">Pet Name:</label>
+        <input type="text" id="petName" name="petName" value="<%= found_pet.petName %>" required><br>
+        <label for="petType">Pet Type:</label>
+        <input type="text" id="petType" name="petType" value="<%= found_pet.petType %>" required><br>
+        <label for="petBreed">Pet Breed:</label>
+        <input type="text" id="petBreed" name="petBreed" value="<%= found_pet.petBreed %>" required><br>
+        <label for="petSex">Pet Sex:</label>
+        <input type="text" id="petSex" name="petSex" value="<%= found_pet.petSex %>" required><br>
+        <label for="petDOB">Pet Date of Birth:</label>
+        <input type="text" id="petDOB" name="petDOB" value="<%= found_pet.petDOB %>" required><br>
+        <label for="petWeight">Pet Weight:</label>
+        <input type="text" id="petWeight" name="petWeight" value="<%= found_pet.petWeight %>" required><br>
+
+        <div style="margin-top: 10px;"></div>
+
+        <input type="submit" value="Update this pet's information">
+      </form>
+      
+    </div>
+
+    <div style="margin-top: 20px;"></div>
+
+    <div class="container">
+      <form class="form-group" action="/delete_pet/<%= found_pet.petID %>" method="post">
+        <input type="submit" value="Delete this pet's information">
+      </form>
+    </div>
+
+  </body>
+  </html>
+  
+  
