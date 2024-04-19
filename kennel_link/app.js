@@ -544,6 +544,10 @@ app.get("/emp_pets_search", async (req,res) => {
     }
     // Render the page with the fetched pets
     res.render("pages/emp_pets_search", { pets, searchQuery });
+  } catch(error) {
+
+  }
+});
 
 async function getTrans(start, end, user_type, client_id) {
   if(user_type=='Client') {
