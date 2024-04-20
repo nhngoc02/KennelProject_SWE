@@ -1,3 +1,5 @@
+const Pet = require("../db_modules/pet")
+
 async function getPetById(pet_id) {
   try {
     const pet_record = await Pet.findOne({petID: pet_id});
