@@ -17,7 +17,7 @@ async function getClientById(client_id) {
 
 async function getAllClients(start, end) {
   try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end-start+1);
+    const clients = await Client.find({activeFlag: true}).sort({clientLN:1}).skip(start-1).limit(end-start+1);
     return clients;
   } catch(error) {
       console.error("Error returning client information:", error);
@@ -31,8 +31,43 @@ async function getClientsByID(clientIDs) {
   return clients;
 }
 
+
+async function removeClient(clientID) {
+  try {
+    const result = Client.updateOne({clientID: clientID},{$set: {activeFlag: false}});
+    if (result.nModified === 0) {
+      console.log("Client Not Found")
+      return false;
+    } else {
+      return true;
+    }
+  } catch(error) {
+    console.log(error);
+    return false;
+  }
+}
+
+async function editClient(ID, first, last, phone, email) {
+  try {
+    const result = await Client.updateOne({ ID }, { first, last, phone, email });
+    if (result.nModified === 0) {
+      // If no records were modified, the client was not found
+      console.log("Client Not Found");
+      return false;
+    } else {
+      console.log("Client Updated Successfully")
+      return true;
+    }
+  } catch(error) {
+    console.log("Client Not Found");
+    return false;
+  }
+}
+
 module.exports = {
   getClientById,
   getClientsByID,
-  getAllClients
+  getAllClients,
+  removeClient,
+  editClient
 }

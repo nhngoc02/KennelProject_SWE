@@ -2,8 +2,6 @@ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const client = require('./scripts/clientModel')
-const Client = require('./db_modules/client')
-const Employee = require('./db_modules/employee')
 const pet = require('./scripts/petModel')
 const transaction = require('./scripts/transactionModel')
 const session = require('express-session')
@@ -17,7 +15,7 @@ const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
     liveReloadServer.refresh("/");
-  }, 100);
+  }, 100000000);
 });
 
 require("dotenv").config({path:'../data.env'});
@@ -50,7 +48,7 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     const result = await signup_login.authenticateLogin(username, password, user_type)
-    if(result.worked === true) {
+    if(result.status === 200) {
       req.session.user = result.response
       req.session.type = user_type
       res.render("pages/dashboard", {user: result.response, type: user_type})
@@ -58,12 +56,13 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
+    console.error("Error occurred during login:", error);
     res.status(500).json({message: error.message}); 
       }
 })
 
 app.get("/signup", (req, res) => {
-  res.render("pages/signup");
+  res.render("pages/signup", {message: ""});
 })
 
 app.post("/signup", async (req, res) => {
@@ -76,25 +75,27 @@ app.post("/signup", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    
-    if (user_type === 'employee') {
-      // If the user type is employee
-      signup_login.addEmployee(first_name, last_name, email, phone, username, password);
-      res.redirect('/login')
-    } else if (user_type === 'client') {
-      // If the user type is client
-      signup_login.addClient(first_name, last_name, email, phone, username, password);
-      res.redirect('/login');
+
+    let result = await signup_login.uniqueUser(user_type, username, email, phone);
+
+    if(user_type === 'Client' && result.unique === true) {
+      await signup_login.addClient(first_name, last_name, email, phone, username, password);
+      res.redirect("/login");
+    } else if (user_type === 'Employee' && result.unique === true) {
+      await signup_login.addEmployee(first_name, last_name, email, phone, username, password);
+      res.redirect("/login");
     } else {
-      // If the user type is neither client nor employee
-      throw new Error("Invalid user type selected");
+      res.render("pages/signup", {message: result.message});
     }
+
   } catch (error) {
     // Handle any errors that occur during the signup process
-    console.error("Error occurred during signup:", error);
-    res.status(500).send("An error occurred during signup. Please try again later.");
+    console.error(error);
+    /*res.status(500).send(errorMsg);*/
+    res.render("pages/signup",{message: error})
   }
 });
+
 
 app.get("/logout", (req,res) => {
   req.session.destroy();
@@ -190,34 +191,77 @@ app.get("/transactions", (req,res) => {
   
 });
 
+ app.get("/add_pets", async (req,res) => {
+  try {
+    const user = req.session.user;
+    const user_type = req.session.type;
+    if(user) {
+      res.render("pages/add_pets", { type: user_type, user: user });
+    }
+} catch (error) {
+    console.error("Error fetching pets:", error);
+    res.status(500).send("Internal Server Error");
+}
+});
+
+app.post("/add_pets", async (req, res) => {
+  try {
+    // Extract pet data from the request body
+    const { petName, petType, petBreed, petSex, petDOB, petWeight, ownerFN, ownerLN } = req.body;
+    const result = pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFN, ownerLN);
+    if(result) {
+      console.log("Pet added successfully")
+      res.render("pages/add_pets", { pet: newPet })
+    }
+
+    // Redirect to a success page or render a success message
+    res.render("pages/add_pet_success", { pet: newPet });
+} catch (error) {
+    console.error("Error adding pet:", error);
+    res.status(500).send("Internal Server Error");
+}
+});
+// app.get("/emp_pets", (req,res) => {
+//   res.render("pages/emp_pets");
+// })
+
+// app.get("/emp_transactions", (req,res) => {
+//   res.render("pages/emp_transactions")
+// })
+
 app.get("/emp_employees", (req,res) => {
   res.render("pages/emp_employees")
 })
 
-app.get("/emp_reservation_add", (req,res) => {
-  res.render("pages/emp_res_add")
-})
+// app.get("/emp_clients_search", (req,res) => {
+  //   res.render("pages/emp_clients_search")
+// })
 
-app.get("/emp_reservation_edit", (req,res) => {
-  res.render("pages/emp_res_edit")
-})
+// app.get("/emp_clients_edit", (req,res) => {
+//   res.render("pages/emp_clients_edit")
+// })
 
-app.get("/emp_reservation_search", (req,res) => {
+app.get("/res_search", (req,res) => {
+  const user = req.session.user;
+  const type = req.session.user_type;
+  if(user) {
+
+  }
   res.render("pages/emp_res_search")
 })
 
-app.get("/emp_pets_edit", (req,res) => {
-  res.render("pages/emp_pets_edit")
-})
 
-app.get("/emp_transactions_search", (req,res) => {
-  res.render("pages/emp_transactions_search")
-})
-
-app.get("/emp_transactions_edit", (req,res) => {
-  res.render("pages/emp_transactions_edit")
-})
-
+// app.get("/emp_clients_search", async (req,res) => {
+//   try {
+//     const result = await getClients(1, 5);
+//     // res.render("pages/emp_clients_search", {clients: result})
+//     // console.log(result);
+//     res.render("pages/emp_clients_search", {clients: result})
+//   } catch (error) {
+//     res.status(500).json({message: error.message});
+//     res.redirect('/emp_clients')
+//   }
+// })
 let currentPage = 1;
 const pageSize = 10;
 
@@ -263,15 +307,13 @@ app.post("/delete_client/:clientID", async (req, res) => {
 
   try {
     // Delete the client from the database
-    const result = await Client.deleteOne({ clientID });
-
-    if (result.deletedCount === 0) {
-      // If no records were deleted, the client was not found
-      return res.status(404).send("Client not found");
-    }
-
+    const result = await client.removeClient(clientID)
     // Client deleted successfully
-    res.status(200).send("Client deleted successfully");
+    if(result) {
+      res.status(200).send("Client deleted successfully");
+    } else {
+      console.log("Error")
+    }
   } catch (error) {
     console.error("Error deleting client:", error);
     res.status(500).send("Internal Server Error");
@@ -285,15 +327,12 @@ app.post("/update_client/:clientID", async (req, res) => {
 
   try {
     // Update the client information in the database
-    const result = await Client.updateOne({ clientID }, { clientFN, clientLN, clientEmail, clientPhone });
-
-    if (result.nModified === 0) {
-      // If no records were modified, the client was not found
-      return res.status(404).send("Client not found");
+    const result = client.editClient(clientID, clientFN, clientLN, clientEmail, clientPhone)
+    if(result) {
+      res.status(200).send("Client updated successfully");
+    } else {
+      console.log("Error Updating Client")
     }
-
-    // Client updated successfully
-    res.status(200).send("Client updated successfully");
   } catch (error) {
     console.error("Error updating client:", error);
     res.status(500).send("Internal Server Error");
@@ -310,13 +349,12 @@ app.get("/pets_search", async (req,res) => {
     try {
     const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, '');
     const ownerIDs = pet_records.map(pet => pet.ownerID);
-    const pet_owners = await Client.find({ clientID: { $in: ownerIDs } });
+    const pet_owners = await pet.getClients(ownerIDs);
     const pet_owners_name = pet_owners.map(pet_owner => `${pet_owner.clientFN} ${pet_owner.clientLN}`);
 
     res.render("pages/pets_search", { pets: pet_records, owner_names: pet_owners_name, currentPage_pets, type: user_type});
     } catch (error) {
       res.status(500).json({ message: error.message });
-      res.redirect('/pets');
     }
   }
   else if(user_type == 'Client') {
@@ -355,23 +393,18 @@ app.get("/pets_edit", async (req, res) => {
 });
 
 
-// Delete client
+// Delete pet
 app.post("/delete_pet/:petID", async (req, res) => {
   const petID = req.params.petID;
 
   try {
     // Delete the client from the database
-    const result = await pet.updateOne({petID: petID},{$set: {activeFlag: false}});
-    // const result = await Pet.deleteOne({ petID });
-
-    // if (result.deletedCount === 0) {
-    if (!result) {
-      // If no records were deleted, the client was not found
-      return res.status(404).send("Pet not found");
+    const result = await pet.removePet(petID);
+    if(result) {
+      res.status(200).send("Pet deleted successfully");
+    } else {
+      res.status(200).send("Unsuccessful pet deletion");
     }
-
-    // Client deleted successfully
-    res.status(200).send("Pet deleted successfully");
   } catch (error) {
     console.error("Error deleting pet:", error);
     res.status(500).send("Internal Server Error");
@@ -385,15 +418,12 @@ app.post("/update_pet/:petID", async (req, res) => {
 
   try {
     // Update the pet information in the database
-    const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
-
-    if (result.nModified === 0) {
-      // If no records were modified, the client was not found
-      return res.status(404).send("Pet not found");
+    const result = pet.editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
+    if(result){
+      res.status(200).send("Pet updated successfully");
+    } else {
+      res.status(200).send("Unsuccessful pat update");
     }
-
-    // Pet updated successfully
-    res.status(200).send("Pet updated successfully");
   } catch (error) {
     console.error("Error updating pet:", error);
     res.status(500).send("Internal Server Error");
@@ -410,9 +440,9 @@ app.get("/emp_pets_search", async (req,res) => {
     }
     // Render the page with the fetched pets
     res.render("pages/emp_pets_search", { pets, searchQuery });
-  } catch(error) {
+  } catch (error){}
+});
 
-  }});
 
 let currentPage_trans = 1;
 const pageSize_trans = 10;
@@ -459,11 +489,7 @@ app.get("/transactions_search/previous", async (req, res) => {
     currentPage_trans-=pageSize_trans;
   }
   res.redirect('/transactions_search');
-  // const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
-  // const clientIDs = trans_records.map(tran => tran.clientID);
-  // const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
-  // const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
-  // res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
+
 });
 
 
@@ -488,7 +514,7 @@ app.post("/update_transaction/:TID", async (req, res) => {
   const transAmount = req.body.totalAmount_usd;
 
   try {
-    const result = await transaction.update_transaction(tranID, transAmount);
+    const result = await transaction.updateTransaction(tranID, transAmount);
     if (!result) {
       return res.status(404).send("Transaction not found");
     }

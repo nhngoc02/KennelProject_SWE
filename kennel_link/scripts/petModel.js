@@ -1,3 +1,4 @@
+const Client = require("../db_modules/client");
 const Pet = require("../db_modules/pet")
 
 async function getPetById(pet_id) {
@@ -12,6 +13,7 @@ async function getPetById(pet_id) {
       throw error;
   }
 }
+
 
 async function petSearch(searchQuery) {
   let pets = []; // Initialize pets array
@@ -46,8 +48,108 @@ async function getPets(start, end, user_type, owner_id) {
 
 };
 
+async function removePet(petID) {
+  try {
+    const result = Pet.updateOne({petID: petID},{$set: {activeFlag: false}});
+    if (result.nModified === 0) {
+      console.log("Pet Not Found")
+      return false;
+    } else {
+      return true;
+    }
+  } catch(error) {
+    console.log(error);
+    return false;
+  }
+}
+
+async function editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight) {
+  try {
+    const result = await Pet.updateOne({ ID }, { petID, petName, petType, petBreed, petSex, petDOB, petWeight });
+    if (result.nModified === 0) {
+      // If no records were modified, the client was not found
+      console.log("Pet Not Found");
+      return false;
+    } else {
+      console.log("Pet Updated Successfully")
+      return true;
+    }
+  } catch(error) {
+    console.log("Pet Not Found");
+    return false;
+  }
+}
+
+// returns true if pet is unique and false if not
+async function checkForDuplicates(petName, ownerID, DOB) {
+  try {
+    const result = await Pet.findOne({petName: petName, ownerID: ownerID, petDOB: DOB}) 
+    if(!result) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch(error) {
+    console.log(error);
+    return false;;
+  }
+}
+
+// tries to add a pet: if pet is unique will add it and return true, else will not add it and return false
+async function addPet(name, type, breed, sex, DOB, weight, ownerFN) {
+  try {
+    const ownerID = findOwnerID()
+    const unique = checkForDuplicates(name, ownerID, DOB);
+    if(unique) {
+      const newPet = new Pet({
+        name,
+        type,
+        breed,
+        sex,
+        DOB,
+        weight,
+        ownerID
+      });
+      await newPet.save();
+      return true;
+    } else {
+      console.log("Pet is a duplicate")
+      return false;
+    }
+
+   } catch(error) {
+    console.log("Unable to add pet")
+    return false;
+   }
+   
+}
+
+async function getClients(ownerIDs) {
+  const pet_owners = await Client.find({ clientID: { $in: ownerIDs } });
+  return pet_owners;
+}
+
+// returns ID if client is found or zero if not
+async function findOwnerID(ownerFN, ownerLN) {
+  try {
+    const client = Client.findOne({clientFN: ownerFN, clientLN: ownerLN});
+    if(client) {
+      const id = client.clientID;
+      return id;
+    } else {
+      return 0;
+    }
+  } catch(error) {
+    console.log(error)
+  }
+}
+
 module.exports = {
   petSearch,
   getPetById,
-  getPets
+  getPets,
+  editPet,
+  removePet,
+  addPet,
+  getClients
 }

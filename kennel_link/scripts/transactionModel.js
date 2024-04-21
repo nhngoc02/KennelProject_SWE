@@ -36,7 +36,7 @@ async function getTranById(trans_id) {
 };
 
 // Updates transaction --> if successfule will return True else False
-async function update_transaction(tranID, new_amount) {
+async function updateTransaction(tranID, new_amount) {
   try {
   const result = await Transaction.updateOne({TID:tranID},{$set: {totalAmount_usd: new_amount}});
   if(!result) {
@@ -53,6 +53,6 @@ async function update_transaction(tranID, new_amount) {
 module.exports = {
     getTrans,
     getTranById,
-    update_transaction
+    updateTransaction
   
 }
