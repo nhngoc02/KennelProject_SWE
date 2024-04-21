@@ -13,6 +13,7 @@ async function getPetById(pet_id) {
   }
 }
 
+
 async function petSearch(searchQuery) {
   let pets = []; // Initialize pets array
   pets = await Pet.find({
