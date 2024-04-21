@@ -49,7 +49,7 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     const result = await signup_login.authenticateLogin(username, password, user_type)
-    if(result.worked === true) {
+    if(result.status === 200) {
       req.session.user = result.response
       req.session.type = user_type
       res.render("pages/dashboard", {user: result.response, type: user_type})
@@ -57,6 +57,7 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
+    console.error("Error occurred during login:", error);
     res.status(500).json({message: error.message}); 
       }
 })
@@ -197,7 +198,7 @@ app.get("/transactions", (req,res) => {
     const user_type = req.session.type;
     res.render("pages/add_pets", { user, type: user_type, clients });
 } catch (error) {
-    console.error("Error fetching clients:", error);
+    console.error("Error fetching pets:", error);
     res.status(500).send("Internal Server Error");
 }
 });
@@ -481,7 +482,7 @@ async function getTrans(start, end, user_type, client_id) {
     }
   }
 
-  }});
+  };
 
 let currentPage_trans = 1;
 const pageSize_trans = 10;

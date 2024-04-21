@@ -5,23 +5,29 @@ async function authenticateLogin(name, pass, type) {
     if(type === 'Client') {
       const result = await Client.findOne({client_username: name});
       if(!result) {
+        //return {status: 500, message: "Username not found: Please Try Again"};
         return {worked: false, message: "Username not found: Please Try Again", response: result};
       } else {
         if(result.client_password !== pass) {
+          //return {status: 500, message: "Incorrect Password: Please Try Again"};
           return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
         }
+        //return {status: 200, message: "Successful Login", response: result};
         return {worked: true, message: "Successful Login", response: result};
       }
     }
     if(type === 'Employee') {
       const result = await Employee.findOne({emp_username: name});
       if(!result) {
+        //return {status: 500, message: "Username not found: Please Try Again"};
         return {worked: false, message: "Username not found: Please Try Again", response: result};
       } else {
         if(result.emp_password !== pass) {
+          //return {status: 500, message: "Incorrect Password: Please Try Again"};
           return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
         }
         return {worked: true, message: "Successful Login", response: result};
+        //return {status: 200, message: "Successful Login", response: result};
       }
     }
 }
@@ -43,6 +49,7 @@ async function addEmployee(first, last, email, phone, username, pass) {
         });
 
         await newEmployee.save();
+        //res.status(200).send("Employee added successfully");
     } catch (error) {
         console.error("Error occurred during signup:", error);
         res.status(500).send("An error occurred during signup. Please try again later.");
@@ -67,6 +74,7 @@ async function addClient(first, last, email, phone, username, pass) {
         });
   
         await newClient.save();
+        //res.status(200).send("Client added successfully");
     } catch (error) {
         console.error("Error occurred during signup:", error);
         res.status(500).send("An error occurred during signup. Please try again later.");
