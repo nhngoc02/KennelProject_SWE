@@ -47,8 +47,8 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    const result = await signup_login.authenticateLogin(username, password, user_type);
-    if(result.worked === true) {
+    const result = await signup_login.authenticateLogin(username, password, user_type)
+    if(result.status === 200) {
       req.session.user = result.response
       req.session.type = user_type
       res.render("pages/dashboard", {user: result.response, type: user_type})
@@ -56,6 +56,7 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
+    console.error("Error occurred during login:", error);
     res.status(500).json({message: error.message}); 
       }
 })
@@ -198,7 +199,7 @@ app.get("/transactions", (req,res) => {
       res.render("pages/add_pets", { type: user_type, user: user });
     }
 } catch (error) {
-    console.error("Error fetching clients:", error);
+    console.error("Error fetching pets:", error);
     res.status(500).send("Internal Server Error");
 }
 });
@@ -441,6 +442,7 @@ app.get("/emp_pets_search", async (req,res) => {
     res.render("pages/emp_pets_search", { pets, searchQuery });
   } catch (error){}
 });
+
 
 let currentPage_trans = 1;
 const pageSize_trans = 10;
