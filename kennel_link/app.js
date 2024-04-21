@@ -2,7 +2,6 @@ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const client = require('./scripts/clientModel')
-const Employee = require('./db_modules/employee')
 const pet = require('./scripts/petModel')
 const transaction = require('./scripts/transactionModel')
 const session = require('express-session')
@@ -16,7 +15,7 @@ const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
     liveReloadServer.refresh("/");
-  }, 100);
+  }, 100000000);
 });
 
 require("dotenv").config({path:'../data.env'});
@@ -349,13 +348,12 @@ app.get("/pets_search", async (req,res) => {
     try {
     const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, '');
     const ownerIDs = pet_records.map(pet => pet.ownerID);
-    const pet_owners = await Client.find({ clientID: { $in: ownerIDs } });
+    const pet_owners = await pet.getClients(ownerIDs);
     const pet_owners_name = pet_owners.map(pet_owner => `${pet_owner.clientFN} ${pet_owner.clientLN}`);
 
     res.render("pages/pets_search", { pets: pet_records, owner_names: pet_owners_name, currentPage_pets, type: user_type});
     } catch (error) {
       res.status(500).json({ message: error.message });
-      res.redirect('/pets');
     }
   }
   else if(user_type == 'Client') {
