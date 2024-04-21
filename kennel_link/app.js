@@ -385,13 +385,10 @@ app.post("/update_pet/:petID", async (req, res) => {
 
   try {
     // Update the pet information in the database
-    const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
-
-    if (result.nModified === 0) {
-      // If no records were modified, the client was not found
-      return res.status(404).send("Pet not found");
+    const result = pet.updatePet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
+    if(!result){
+      res.status(200).send("Unsuccessful pat update");
     }
-
     // Pet updated successfully
     res.status(200).send("Pet updated successfully");
   } catch (error) {

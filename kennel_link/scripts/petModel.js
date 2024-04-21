@@ -46,8 +46,19 @@ async function getPets(start, end, user_type, owner_id) {
 
 };
 
+async function updatePet(petID, petName, petType, petBreed, petSex, petDOB, petWeight) {
+  const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
+
+  if (result.nModified === 0) {
+    // If no records were modified, the client was not found
+    console.log("Update unsuccessful");
+  }
+  return result;
+}
+
 module.exports = {
   petSearch,
   getPetById,
-  getPets
+  getPets,
+  updatePet
 }
