@@ -2,6 +2,7 @@
 <body>
     <div class="signup-form">
       <h2>Sign Up</h2>
+      <span> <%= message %> </span>
       <h3>Personal Information</h3>
       <form action="/signup" method="post">
         <input type="text" name="first_name" placeholder="First Name" required>
@@ -9,8 +10,8 @@
         <input type="email" name="email" placeholder="Email" required>
         <input type="text" name="phone" placeholder="Phone Number" required> <!-- Reverted type to "text" -->
         <select name="user_type" id="user_type" onchange="toggleAdditionalBox()">
-          <option value="client">Client</option>
-          <option value="employee">Employee</option>
+          <option value="Client">Client</option>
+          <option value="Employee">Employee</option>
         </select>
         <h3>Account Information</h3>
         <div class="additional-box" id="account_info_box">

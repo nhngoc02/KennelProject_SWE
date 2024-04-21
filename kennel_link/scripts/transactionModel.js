@@ -1,3 +1,5 @@
+const Transaction = require('../db_modules/transaction')
+
 async function getTrans(start, end, user_type, client_id) {
     if(user_type=='Client') {
       try {
@@ -18,7 +20,7 @@ async function getTrans(start, end, user_type, client_id) {
       }
     }
   
-  };
+};
 
 async function getTranById(trans_id) {
   try {
@@ -31,9 +33,26 @@ async function getTranById(trans_id) {
       console.error("Error returning transaction information:", error);
       throw error;
   }
+};
+
+// Updates transaction --> if successfule will return True else False
+async function updateTransaction(tranID, new_amount) {
+  try {
+  const result = await Transaction.updateOne({TID:tranID},{$set: {totalAmount_usd: new_amount}});
+  if(!result) {
+    return false;
+  }
+  return true;
+  } catch(error) {
+    console.log(error)
+    return false;
+  }
 }
+
 
 module.exports = {
     getTrans,
-    getTranById
+    getTranById,
+    updateTransaction
+  
 }
