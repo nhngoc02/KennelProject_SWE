@@ -47,19 +47,43 @@ async function getPets(start, end, user_type, owner_id) {
 
 };
 
-async function updatePet(petID, petName, petType, petBreed, petSex, petDOB, petWeight) {
-  const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
-
-  if (result.nModified === 0) {
-    // If no records were modified, the client was not found
-    console.log("Update unsuccessful");
+async function removePet(petID) {
+  try {
+    const result = Pet.updateOne({petID: petID},{$set: {activeFlag: false}});
+    if (result.nModified === 0) {
+      console.log("Pet Not Found")
+      return false;
+    } else {
+      return true;
+    }
+  } catch(error) {
+    console.log(error);
+    return false;
   }
-  return result;
 }
+
+async function editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight) {
+  try {
+    const result = await Pet.updateOne({ ID }, { petID, petName, petType, petBreed, petSex, petDOB, petWeight });
+    if (result.nModified === 0) {
+      // If no records were modified, the client was not found
+      console.log("Pet Not Found");
+      return false;
+    } else {
+      console.log("Pet Updated Successfully")
+      return true;
+    }
+  } catch(error) {
+    console.log("Pet Not Found");
+    return false;
+  }
+}
+
 
 module.exports = {
   petSearch,
   getPetById,
   getPets,
-  updatePet
+  editPet,
+  removePet
 }

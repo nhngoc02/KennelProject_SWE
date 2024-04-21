@@ -26,51 +26,87 @@ async function authenticateLogin(name, pass, type) {
     }
 }
 
-async function addEmployee(first, last, email, phone, username, pass) {
-    try {
-        const empID = await getNextID(); // Generate ID for employee
-        const newEmployee = new Employee({
-            empID,
-            empFN: first,
-            empLN: last,
-            empEmail: email,
-            empPhone: phone,
-            empStartDate: new Date(),
-            activeFlag: true,
-            modifiedDate: 0,
-            emp_username: username,
-            emp_password: pass,
-        });
-
-        await newEmployee.save();
-    } catch (error) {
-        console.error("Error occurred during signup:", error);
-        res.status(500).send("An error occurred during signup. Please try again later.");
+// When given the user type, email, phone, and username will return a boolean value on if the user is unique or a message 
+async function uniqueUser(type, username, email, phone) {
+  let unique = true;
+  let message = "User is unique"
+  console.log("Type is:", type)
+  if(type === 'Client') {
+    uniqueClientUsernameCheck = await Client.findOne({ client_username: username });
+    uniqueClientEmailCheck = await Client.findOne({ clientEmail: email });
+    uniqueClientPhoneCheck = await Employee.findOne({clientPhone: phone});
+    if(uniqueClientUsernameCheck || uniqueClientPhoneCheck !== null) {
+      unique = false;
+      message = "Username already in Use"
+    } else if(uniqueClientEmailCheck || uniqueClientEmailCheck !== null) {
+      unique = false;
+      message = "Email is already in use"
+    } else if(uniqueClientPhoneCheck || uniqueClientPhoneCheck !== null) {
+      unique = false
+      message = "Phone is already in use"
     }
+  } else if(type === 'Employee') {
+    uniqueEmpUsernameCheck = await Employee.findOne({ emp_username: username });
+    uniqueEmpEmailCheck = await Employee.findOne({ empEmail: email });
+    uniqueEmpPhoneCheck = await Employee.findOne({empPhone: phone});
+    if(uniqueEmpUsernameCheck || uniqueEmpPhoneCheck !== null) {
+      unique = false;
+      message = "Username already in Use"
+    } else if(uniqueEmpEmailCheck || uniqueEmpEmailCheck !== null) {
+      unique = false;
+      message = "Email is already in use"
+    } else if(uniqueEmpPhoneCheck || uniqueEmpPhoneCheck !== null) {
+      unique = false
+      message = "Phone is already in use"
+    }
+  } else {
+    message = "Invalid User Type Selected"
+  }
+  return {unique: unique, message: message}
+}
+
+async function addEmployee(first, last, email, phone, username, pass) {
+  try {
+    const empID = await getNextID(); // Generate ID for employee
+    const newEmployee = new Employee({
+      empID,
+      empFN: first,
+      empLN: last,
+      empEmail: email,
+      empPhone: phone,
+      empStartDate: new Date(),
+      activeFlag: true,
+      modifiedDate: 0,
+      emp_username: username,
+      emp_password: pass,
+    });
+
+    await newEmployee.save();
+  } catch (error) {
+    console.error("Error occurred during signup:", error);
+  }
 }
 
 async function addClient(first, last, email, phone, username, pass) {
-    try {
-        const clientID = await getNextID(); // Generate ID for client
-        const newClient = new Client({
-          clientID,
-          clientFN: first,
-          clientLN: last,
-          clientEmail: email,
-          clientPhone: phone,
-          createTime: new Date(),
-          activeFlag: true,
-          modifiedDate: 0,
-          client_username: username,
-          client_password: pass,
-          
-        });
+  try {
+    const clientID = await getNextID(); // Generate ID for client
+    const newClient = new Client({
+      clientID,
+      clientFN: first,
+      clientLN: last,
+      clientEmail: email,
+      clientPhone: phone,
+      createTime: new Date(),
+      activeFlag: true,
+      modifiedDate: 0,
+      client_username: username,
+      client_password: pass,    
+    });
   
-        await newClient.save();
-    } catch (error) {
-        console.error("Error occurred during signup:", error);
-        res.status(500).send("An error occurred during signup. Please try again later.");
-    }
+    await newClient.save();
+  } catch (error) {
+    console.error("Error occurred during signup:", error);
+  }
 }
 
 async function getNextID() {
@@ -94,5 +130,6 @@ async function getNextID() {
 module.exports = {
     addClient,
     addEmployee,
-    authenticateLogin
+    authenticateLogin,
+    uniqueUser
 }
