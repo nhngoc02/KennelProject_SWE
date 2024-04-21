@@ -2,7 +2,6 @@ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const client = require('./scripts/clientModel')
-const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
 const pet = require('./scripts/petModel')
 const transaction = require('./scripts/transactionModel')
@@ -194,11 +193,11 @@ app.get("/transactions", (req,res) => {
 
  app.get("/add_pets", async (req,res) => {
   try {
-    // Fetch clients for populating owner options in the form
-    const clients = await Client.find();
     const user = req.session.user;
     const user_type = req.session.type;
-    res.render("pages/add_pets", { user, type: user_type, clients });
+    if(user) {
+      res.render("pages/add_pets", { type: user_type, user: user });
+    }
 } catch (error) {
     console.error("Error fetching clients:", error);
     res.status(500).send("Internal Server Error");
@@ -208,21 +207,12 @@ app.get("/transactions", (req,res) => {
 app.post("/add_pets", async (req, res) => {
   try {
     // Extract pet data from the request body
-    const { petName, petType, petBreed, petSex, petDOB, petWeight, ownerID } = req.body;
-    
-    // Create a new pet document
-    const newPet = new Pet({
-        petName,
-        petType,
-        petBreed,
-        petSex,
-        petDOB,
-        petWeight,
-        ownerID
-    });
-
-    // Save the new pet to the database
-    await newPet.save();
+    const { petName, petType, petBreed, petSex, petDOB, petWeight, ownerFN, ownerLN } = req.body;
+    const result = pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFN, ownerLN);
+    if(result) {
+      console.log("Pet added successfully")
+      res.render("pages/add_pets", { pet: newPet })
+    }
 
     // Redirect to a success page or render a success message
     res.render("pages/add_pet_success", { pet: newPet });
@@ -260,17 +250,6 @@ app.get("/res_search", (req,res) => {
   res.render("pages/emp_res_search")
 })
 
-app.get("/emp_pets_edit", (req,res) => {
-  res.render("pages/emp_pets_edit")
-})
-
-app.get("/emp_transactions_search", (req,res) => {
-  res.render("pages/emp_transactions_search")
-})
-
-app.get("/emp_transactions_edit", (req,res) => {
-  res.render("pages/emp_transactions_edit")
-})
 
 // app.get("/emp_clients_search", async (req,res) => {
 //   try {
