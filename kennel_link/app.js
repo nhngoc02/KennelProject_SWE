@@ -2,9 +2,10 @@ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const client = require('./scripts/clientModel')
+const Client = require('./db_modules/client')
 const Employee = require('./db_modules/employee')
 const pet = require('./scripts/petModel')
-const Transaction = require('./db_modules/transaction')
+const transaction = require('./scripts/transactionModel')
 const session = require('express-session')
 const reservation = require("./scripts/reservationModel")
 const signup_login = require("./scripts/signupLoginModel")
@@ -346,7 +347,7 @@ const pageSize = 10;
 
 app.get("/emp_clients_search", async (req,res) => {
   try {
-    const result = await client.getClients(currentPage, pageSize);
+    const result = await client.getAllClients(currentPage, pageSize);
     res.render("pages/emp_clients_search", { clients: result, currentPage });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -526,7 +527,8 @@ app.post("/delete_pet/:petID", async (req, res) => {
 
   try {
     // Delete the client from the database
-    const result = await Pet.deleteOne({ petID });
+    const result = await pet.updateOne({petID: petID},{$set: {activeFlag: false}});
+    // const result = await Pet.deleteOne({ petID });
 
     if (result.deletedCount === 0) {
       // If no records were deleted, the client was not found
@@ -548,13 +550,10 @@ app.post("/update_pet/:petID", async (req, res) => {
 
   try {
     // Update the pet information in the database
-    const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
-
-    if (result.nModified === 0) {
-      // If no records were modified, the client was not found
-      return res.status(404).send("Pet not found");
+    const result = pet.updatePet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
+    if(!result){
+      res.status(200).send("Unsuccessful pat update");
     }
-
     // Pet updated successfully
     res.status(200).send("Pet updated successfully");
   } catch (error) {
@@ -603,40 +602,40 @@ let currentPage_trans = 1;
 const pageSize_trans = 10;
 
 app.get("/transactions_search", async (req,res) => {
-  const user_type = req.session.type;
-
-  if(user_type == 'Employee') {
-    try {
-    const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
-    const clientIDs = trans_records.map(tran => tran.clientID);
-    const trans_clients = await Client.find({ clientID: { $in: clientIDs } });
-    const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
-
-    res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-      res.redirect('/transactions');
+  try {
+    const user_type = req.session.type;
+    const user = req.session.user
+    if(user_type == 'Employee') {
+      const trans_records = await transaction.getTrans(currentPage_trans, pageSize_trans, user_type, '');
+      const clientIDs = trans_records.map(tran => tran.clientID);
+      const trans_clients = await client.getClientsByID(clientIDs);
+      const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
+  
+      res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
     }
-  }
-  else if(user_type == 'Client') {
-    try {
+    else if(user_type == 'Client') {
+
       const client_id = parseInt(req.session.user.clientID);
-      const client_record = await getClientById(client_id);
+      const client_record = await client.getClientById(client_id);
       const clientName = `${client_record.clientFN} ${client_record.clientLN}`;
-      const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, client_id);
-
+      const trans_records = await transaction.getTrans(currentPage_trans, pageSize_trans, user_type, client_id);
+  
       res.render("pages/transactions_search", { trans: trans_records, client_name: clientName, currentPage_trans, type: user_type});
-      } catch (error) {
-        res.status(500).json({ message: error.message });
-        res.redirect('/transactions');
-      }
-    }
+    } 
+  }catch(error) {
+    res.status(500).json({ message: error.message });
+  }
   // else {}
 });
 
 app.get("/transactions_search/next", async (req, res) => {
-  currentPage_trans+=pageSize_trans;
+  currentPage_trans += pageSize_trans;
   res.redirect('/transactions_search');
+  // const trans_records = await getTrans(currentPage_trans, pageSize_trans, user_type, '');
+  // const clientIDs = trans_records.map(tran => tran.clientID);
+  // const trans_clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
+  // const trans_clients_name = trans_clients.map(trans_client => `${trans_client.clientFN} ${trans_client.clientLN}`);
+  // res.render("pages/transactions_search", { trans: trans_records, client_names: trans_clients_name, currentPage_trans, type: user_type});
 });
 
 app.get("/transactions_search/previous", async (req, res) => {
@@ -644,25 +643,14 @@ app.get("/transactions_search/previous", async (req, res) => {
     currentPage_trans-=pageSize_trans;
   }
   res.redirect('/transactions_search');
+
 });
 
-async function getTranById(trans_id) {
-  try {
-    const trans_record = await Transaction.findOne({TID: trans_id});
-    if (!trans_record) {
-      console.log("Transaction ID undefined");
-    }
-    return trans_record;
-  } catch(error) {
-      console.error("Error returning transaction information:", error);
-      throw error;
-  }
-}
 
 app.get("/transactions_edit", async (req, res) => {
   const transId = req.query.TID;
   try {
-    const found_trans = await getTranById(parseInt(transId)); // Fetch the client data
+    const found_trans = await transaction.getTranById(parseInt(transId)); // Fetch the client data
     const clientName = req.query.client;
     if (!found_trans) {
       return res.status(404).send("Transaction not found");
@@ -673,6 +661,26 @@ app.get("/transactions_edit", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+// Update transaction information
+app.post("/update_transaction/:TID", async (req, res) => {
+  const tranID = req.params.TID;
+  const transAmount = req.body.totalAmount_usd;
+
+  try {
+    const result = await transaction.update_transaction(tranID, transAmount);
+    if (!result) {
+      return res.status(404).send("Transaction not found");
+    }
+
+    res.status(200).send("Transaction updated successfully");
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
 
 const PORT = process.env.PORT;
 module.exports = app;
