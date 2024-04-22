@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: 'Urbanist', sans-serif;
-    background-color: #40826d; /* Viridian green */
+    background-color: #D8EBF1; /* Viridian green */
     padding: 20px;
   }
 
@@ -118,3 +118,10 @@ body {
   .error-message {
     color: #ff0000;
   }
+
+.logo {
+    position: fixed;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
