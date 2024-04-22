@@ -46,7 +46,7 @@ const pet = new mongoose.Schema({
     petDOB: String,
     petWeight: String,
     activeFlag: Boolean,
-    modifiedDate : {type: [Date, Number]},
+    modifiedDate : /*{type: [Date, Number]},*/ Number,
     createTime: Date
     },
     {
