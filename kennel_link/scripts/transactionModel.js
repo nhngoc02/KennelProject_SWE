@@ -81,7 +81,7 @@ async function makeTransFromRes(clientFN, clientLN, res_id, arrival, departure) 
     const newTrans = new Transaction({
       TID: newTID,
       clientID: client_ID,
-      reservationID: res_id,
+      reservationID: Number(res_id),
       totalAmount_usd: total,
       transactionDate: new Date(),
       activeFlag: true,
@@ -89,7 +89,8 @@ async function makeTransFromRes(clientFN, clientLN, res_id, arrival, departure) 
       createTime: new Date(),
     });
     console.log("Made new Trans: ", newTrans);
-    await newTrans.save();
+    await newTrans.save()
+    
     return true;
   } catch(error) {
     console.log("An Error Occurred: ", error)

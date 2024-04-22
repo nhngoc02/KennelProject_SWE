@@ -25,10 +25,20 @@ async function getAllClients(start, end) {
   }
 }
 
-// gets a list of clients when given a list of IDs
+// gets a list of clients when given a list of IDs --> will get duplicates if they exist
 async function getClientsByID(clientIDs) {
-  const clients = await Client.find({ clientID: { $in: clientIDs } , activeFlag:true});
-  return clients;
+  try {
+    let clients = []
+    for(let i =0; i<clientIDs.length; i++) {
+      let ID = parseInt(clientIDs[i]);
+      let result = await Client.findOne({clientID: ID});
+      clients.push(result);
+    }
+    return clients;
+  } catch(error){
+    console.log("issues")
+    return null
+  }
 }
 
 
@@ -63,22 +73,11 @@ async function editClient(ID, first, last, phone, email) {
     return false;
   }
 }
-async function findOwningClients(ownerIDs){
-  try {
-    const result = await Client.find({ clientID: { $in: ownerIDs } });
-    return result
-  }
-  catch(error){
-    console.log("issues")
-    return null
-  }
-}
 
 module.exports = {
   getClientById,
   getClientsByID,
   getAllClients,
   removeClient,
-  editClient,
-  findOwningClients,
+  editClient
 }

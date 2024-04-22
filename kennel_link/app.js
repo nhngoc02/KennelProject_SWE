@@ -153,7 +153,7 @@ app.post("/res_add", async (req,res) => {
     const result = await reservation.addReservationWithCheck(first, last, pet, arrival, departure, emp_id)
     if(result.worked) {
       // create new transaction
-      await transaction.makeTransFromRes(first, last, result.RID, arrival, departure);
+      //await transaction.makeTransFromRes(first, last, result.RID, arrival, departure);
       res.render("pages/res_add", {user: user, type: user_type, message: "Reservation Added"})
     } else {
       res.render("pages/res_add", {user: user, type: user_type, message: "Error: Unable to add Reservation"})
@@ -403,7 +403,7 @@ app.get("/pets_search", async (req,res) => {
     try {
     const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, '');
     const ownerIDs = pet_records.map(pet => pet.ownerID);
-    const pet_owners = await client.findOwningClients(ownerIDs);
+    const pet_owners = await client.getClientsByID(ownerIDs);
     const pet_owners_name = pet_owners.map(pet_owner => `${pet_owner.clientFN} ${pet_owner.clientLN}`);
     res.render("pages/pets_search", { pets: pet_records, owner_names: pet_owners_name, currentPage_pets, type: user_type});
     } catch (error) {

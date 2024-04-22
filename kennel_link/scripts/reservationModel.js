@@ -119,23 +119,6 @@ async function addReservationWithCheck(ownerFN, ownerLN, pet_name, arrival, depa
     }
 }
 
-async function editRes(ID, arrival, depart) {
-    try {
-      const result = await Reservation.updateOne({ RID: ID }, { arrivalDate: arrival, departureDate: depart });
-      if (result.nModified === 0) {
-        // If no records were modified, the client was not found
-        console.log("Reservation Not Found");
-        return false;
-      } else {
-        console.log("Reservation Updated Successfully")
-        return true;
-      }
-    } catch(error) {
-      console.log("Reservation Not Found", error);
-      return false;
-    }
-}
-
 async function cancelRes(ID) {
     try {
         const result = await Reservation.updateOne({ RID: ID }, {$set: {activeFlag: false} });
@@ -169,24 +152,6 @@ async function editRes(ID, arrival, depart) {
       console.log("Reservation Not Found", error);
       return false;
     }
-}
-
-async function cancelRes(ID) {
-  try {
-    console.log("Tried to modify reservation")
-    const result = await Reservation.updateOne({ RID: ID }, {$set: {activeFlag: false} });
-    console.log("Maybe succeded")
-    if (result.nModified === 0) {
-      console.log("Reservation Not Found");
-      return false;
-    } else {
-      console.log("Reservation Deleted Successfully")
-      return true;
-    }
-  } catch(error) {
-    console.log("Reservation Not Found", error);
-    return false;
-  }
 }
 
 async function getRes(start, end, user_type, client_id) {
