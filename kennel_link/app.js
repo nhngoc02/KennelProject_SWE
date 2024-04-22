@@ -48,7 +48,8 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     const result = await signup_login.authenticateLogin(username, password, user_type)
-    if(result.status === 200) {
+    console.log(result.worked)
+    if(result.worked === true) {
       req.session.user = result.response
       req.session.type = user_type
       res.render("pages/dashboard", {user: result.response, type: user_type})
@@ -159,6 +160,53 @@ app.post("/res_add", async (req,res) => {
   }
 });
 
+app.get("/res_edit", async (req,res) => {
+  const resID = req.query.resID;
+  try {
+    const found_res = await reservation.getReservationById(parseInt(resId));
+    if (!found_res) {
+      return res.status(404).send("Reservation not found");
+    }
+    res.render("pages/res_edit", { found_res: found_res });
+  } catch (error) {
+    console.error("Error fetching client data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/update_res/:RID", async (req,res) => {
+  const res_ID = req.params.RID;
+  const { new_arrival_date, new_depart_date } = req.body;
+  try {
+    // Update the client information in the database
+    const result = reservation.editRes(res_id, new_arrival_date, new_depart_date)
+    if(result) {
+      res.status(200).send("Reservation updated successfully");
+    } else {
+      console.log("Error Updating Reservation")
+    }
+  } catch (error) {
+    console.error("Error updating reservation:", error);
+  }
+});
+
+app.post("/cancel_res/:RID", async (req,res) => {
+  const res_ID = req.params.RID;
+  const entered = req.body.cancel_res_id
+  try {
+    if(res_ID == entered) {
+      const result = await reservation.cancelRes(res_ID)
+      if(result) {
+        res.status(200).send("Reservation deleted successfully");
+      } else {
+        console.log("Error")
+      }
+    }
+  } catch (error) {
+    console.error("Error deleting Reservation:", error);
+  }
+});
+
 app.get("/clients", (req,res) => {
   const user = req.session.user
   const user_type = req.session.type
@@ -221,25 +269,10 @@ app.post("/add_pets", async (req, res) => {
     res.status(500).send("Internal Server Error");
 }
 });
-// app.get("/emp_pets", (req,res) => {
-//   res.render("pages/emp_pets");
-// })
-
-// app.get("/emp_transactions", (req,res) => {
-//   res.render("pages/emp_transactions")
-// })
 
 app.get("/emp_employees", (req,res) => {
   res.render("pages/emp_employees")
 })
-
-// app.get("/emp_clients_search", (req,res) => {
-  //   res.render("pages/emp_clients_search")
-// })
-
-// app.get("/emp_clients_edit", (req,res) => {
-//   res.render("pages/emp_clients_edit")
-// })
 
 app.get("/res_search", (req,res) => {
   const user = req.session.user;
@@ -247,21 +280,8 @@ app.get("/res_search", (req,res) => {
   if(user) {
 
   }
-  res.render("pages/emp_res_search")
 })
 
-
-// app.get("/emp_clients_search", async (req,res) => {
-//   try {
-//     const result = await getClients(1, 5);
-//     // res.render("pages/emp_clients_search", {clients: result})
-//     // console.log(result);
-//     res.render("pages/emp_clients_search", {clients: result})
-//   } catch (error) {
-//     res.status(500).json({message: error.message});
-//     res.redirect('/emp_clients')
-//   }
-// })
 let currentPage = 1;
 const pageSize = 10;
 

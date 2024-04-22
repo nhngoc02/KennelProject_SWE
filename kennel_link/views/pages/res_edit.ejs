@@ -1,0 +1,33 @@
+<%- include('../partials/emp-client-head', {title: 'Reservations Edit', type: type}) %>
+
+<body>
+  <div class="container">
+      <h2>Change Reservation Information</h2>
+      <form action="/update_res/<%= found_res.RID %>" method="post" class="form-group">
+        <div class="form-group">
+          <span>Reservation ID: <%= found_res.RID %> </span>
+        </div>
+        <h3>New Reservation Information</h3>
+        <div class="form-group">
+          <label for="new_arrival_date">New Arrival Date:</label>
+          <input type="datetime-local" id="new_arrival_date" name="new_arrival_date" value="<%= found_res.arrivalDate %>" required>
+        </div>
+        <div class="form-group">
+          <label for="new_depart_date">New Departure Date:</label>
+          <input type="datetime-local" id="new_depart_date" name="new_depart_date" value="<%= found_res.departureDate %>" required>
+        </div>
+        <button class="button" type="submit">Submit Changes</button>
+      </form>
+  
+      <h3>Cancel Reservation</h3>
+      <form action="/remove/<%= found_res.resID %>" method="post">
+        <div class="form-group">
+          <label for="cancel_res_id">Reservation ID:</label>
+          <input type="text" id="cancel_res_id" name="cancel_res_id" required>
+        </div>
+        <button class="button" type="submit">Cancel Reservation</button>
+      </form>
+    </div>
+  </body>
+  </html>
+  

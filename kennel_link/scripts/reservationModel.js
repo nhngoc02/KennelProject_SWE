@@ -119,6 +119,55 @@ async function addReservationWithCheck(ownerFN, ownerLN, pet_name, arrival, depa
     }
 }
 
+async function getReservationByID(res_ID) {
+    try {
+        const res_record = await Reservation.findOne({RID: res_ID});
+        if (!res_record) {
+          console.log("ResID undefined");
+        }
+        // const client_record = await Client.find({clientID: client_id});
+        return res_record;
+    } catch(error) {
+        console.error("Error returning reservation information:", error);
+    } 
+}
+
+async function editRes(ID, arrival, depart) {
+    try {
+      const result = await Reservation.updateOne({ RID: ID }, { arrivalDate: arrival, departureDate: depart });
+      if (result.nModified === 0) {
+        // If no records were modified, the client was not found
+        console.log("Reservation Not Found");
+        return false;
+      } else {
+        console.log("Reservation Updated Successfully")
+        return true;
+      }
+    } catch(error) {
+      console.log("Reservation Not Found", error);
+      return false;
+    }
+}
+
+async function cancelRes(ID) {
+    try {
+        const result = await Reservation.updateOne({ RID: ID }, {$set: {activeFlag: false} });
+        if (result.nModified === 0) {
+            console.log("Reservation Not Found");
+            return false;
+          } else {
+            console.log("Reservation Updated Successfully")
+            return true;
+          }
+        } catch(error) {
+          console.log("Reservation Not Found", error);
+          return false;
+        }
+}
+
 module.exports = {
-    addReservationWithCheck
+    addReservationWithCheck,
+    getReservationByID,
+    editRes,
+    cancelRes
 }
