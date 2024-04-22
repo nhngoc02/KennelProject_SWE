@@ -6,6 +6,7 @@ const pet = require('./scripts/petModel')
 const transaction = require('./scripts/transactionModel')
 const session = require('express-session')
 const reservation = require("./scripts/reservationModel")
+const employee = require("./scripts/empModel")
 const signup_login = require("./scripts/signupLoginModel")
 
 let livereload = require("livereload");
@@ -229,9 +230,20 @@ app.post("/add_pets", async (req, res) => {
 //   res.render("pages/emp_transactions")
 // })
 
+// app.get("/emp_employees", (req,res) => {
+//   res.render("pages/emp_employees")
+// })
+
 app.get("/emp_employees", (req,res) => {
-  res.render("pages/emp_employees")
-})
+  const user = req.session.user;
+  const user_type = req.session.type; 
+  if(user) {
+    res.render("pages/emp_employees", {user: user, type: user_type});
+  } else {
+    res.redirect("/login")
+  }
+  
+});
 
 // app.get("/emp_clients_search", (req,res) => {
   //   res.render("pages/emp_clients_search")
@@ -566,6 +578,37 @@ app.get("/reservations_search/previous", async (req, res) => {
     currentPage_res-=pageSize_res;
   }
   res.redirect('/reservations_search');
+
+});
+
+let currentPage_emp = 1;
+const pageSize_emp = 10;
+
+app.get("/employees_search", async (req,res) => {
+  try {
+    const user_type = req.session.type;
+    const user = req.session.user;
+    if(user_type == 'Employee') {
+      const emps_records = await employee.getEmps(currentPage_emp, pageSize_emp, user_type, 1);
+  
+      res.render("pages/employees_search", { emps: emps_records, currentPage_trans, type: user_type});
+    }
+  }catch(error) {
+    res.status(500).json({ message: error.message });
+  }
+  // else {}
+});
+
+app.get("/employees_search/next", async (req, res) => {
+  currentPage_emp += pageSize_emp;
+  res.redirect('/employees_search');
+});
+
+app.get("/employees_search/previous", async (req, res) => {
+  if (currentPage_emp > 1) {
+    currentPage_emp-=pageSize_emp;
+  }
+  res.redirect('/employees_search');
 
 });
 
