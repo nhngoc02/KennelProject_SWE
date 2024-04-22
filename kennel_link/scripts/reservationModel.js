@@ -119,19 +119,6 @@ async function addReservationWithCheck(ownerFN, ownerLN, pet_name, arrival, depa
     }
 }
 
-async function getReservationByID(res_ID) {
-    try {
-        const res_record = await Reservation.findOne({RID: res_ID});
-        if (!res_record) {
-          console.log("ResID undefined");
-        }
-        // const client_record = await Client.find({clientID: client_id});
-        return res_record;
-    } catch(error) {
-        console.error("Error returning reservation information:", error);
-    } 
-}
-
 async function editRes(ID, arrival, depart) {
     try {
       const result = await Reservation.updateOne({ RID: ID }, { arrivalDate: arrival, departureDate: depart });
@@ -220,26 +207,26 @@ async function getRes(start, end, user_type, client_id) {
       }
     }
   
-  };
+};
 
-  async function getResById(res_id) {
-    try {
-      const res_record = await Reservation.findOne({RID: res_id});
-      if (!res_record) {
-        console.log("Reservation ID undefined");
-      }
-      return res_record;
-    } catch(error) {
-        console.error("Error returning reservation information:", error);
-        throw error;
+async function getResById(res_id) {
+  try {
+    console.log(res_id)
+    const res_record = await Reservation.findOne({RID: res_id});
+    if (!res_record) {
+      console.log("Reservation ID undefined");
     }
-  };
+    return res_record;
+  } catch(error) {
+      console.error("Error returning reservation information:", error);
+      throw error;
+  }
+};
 
 module.exports = {
     addReservationWithCheck,
     getRes,
     getResById,
-    getReservationByID,
     editRes,
     cancelRes
 }

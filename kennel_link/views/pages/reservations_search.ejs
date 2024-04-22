@@ -26,11 +26,8 @@
               <td><%= res[i].arrivalDate.toLocaleDateString('en-CA') %></td>
               <td><%= res[i].departureDate.toLocaleDateString('en-CA') %></td>
               <td><%= res[i].kennelID %></td>
-              
-              <td><a href="# %>">Edit</a></td>
-              
-              <td style="display: none;" name="resID"><%= res[i].RID %></td>
-              
+              <td><a href="/res_edit?resID=<%= res[i].RID %>">Edit</a></td>
+
             </tr>
             <% } %>
           </tbody>
@@ -60,10 +57,8 @@
                 <td><%= res[i].arrivalDate.toLocaleDateString('en-CA') %></td>
                 <td><%= res[i].departureDate.toLocaleDateString('en-CA') %></td>
                 <td><%= res[i].kennelID %></td>
-                
-                <td><a href="#">Edit</a></td>
-                
-                <td style="display: none;" name="resID"><%= res[i].RID %></td>
+                <td><a href="/res_edit?resID=<%= res[i].RID %>">Edit</a></td>
+              
                 
               </tr>
               <% } %>

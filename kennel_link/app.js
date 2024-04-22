@@ -163,12 +163,13 @@ app.post("/res_add", async (req,res) => {
 
 app.get("/res_edit", async (req,res) => {
   const resID = req.query.resID;
+  const user_type = req.session.type
   try {
-    const found_res = await reservation.getReservationById(parseInt(resId));
+    const found_res = await reservation.getResById(parseInt(resID));
     if (!found_res) {
       return res.status(404).send("Reservation not found");
     }
-    res.render("pages/res_edit", { found_res: found_res });
+    res.render("pages/res_edit", { found_res: found_res, type: user_type });
   } catch (error) {
     console.error("Error fetching client data:", error);
     res.status(500).send("Internal Server Error");
