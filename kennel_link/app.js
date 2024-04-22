@@ -2,8 +2,6 @@ const express = require('express')
 const methodOverride = require("method-override");
 const mongoose = require("./database");
 const client = require('./scripts/clientModel')
-const Client = require('./db_modules/client')
-const Employee = require('./db_modules/employee')
 const pet = require('./scripts/petModel')
 const transaction = require('./scripts/transactionModel')
 const session = require('express-session')
@@ -16,7 +14,7 @@ const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
     liveReloadServer.refresh("/");
-  }, 100);
+  }, 1000);
 });
 
 require("dotenv").config({path:'../data.env'});
@@ -48,7 +46,7 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    const result = await signup_login.authenticateLogin(username, password, user_type)
+    const result = await signup_login.authenticateLogin(username, password, user_type);
     if(result.worked === true) {
       req.session.user = result.response
       req.session.type = user_type
@@ -76,49 +74,23 @@ app.post("/signup", async (req, res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
 
-    const uniqueEmpUsernameCheck = await Employee.findOne({ emp_username: username });
-    const uniqueClientUsernameCheck = await Client.findOne({ client_username: username });
-    const uniqueEmpEmailCheck = await Employee.findOne({ empEmail: email });
-    const uniqueClientEmailCheck = await Client.findOne({ clientEmail: email });
-    const uniqueEmpPhoneCheck = await Employee.findOne({empPhone: phone});
-    const uniqueClientPhoneCheck = await Employee.findOne({clientPhone: phone});
+    let result = await signup_login.uniqueUser(user_type, username, email, phone);
 
-    if ((!uniqueEmpUsernameCheck) && (!uniqueClientUsernameCheck) && (!uniqueEmpEmailCheck) && (!uniqueClientEmailCheck) && (!uniqueClientPhoneCheck) && (!uniqueEmpPhoneCheck)) {
-      if (user_type === 'employee') {
-        // If the user type is employee
-        signup_login.addEmployee(first_name, last_name, email, phone, username, password);
-        res.redirect('/login');
-      } else if (user_type === 'client') {
-        // If the user type is client
-        signup_login.addClient(first_name, last_name, email, phone, username, password);
-        res.redirect('/login');
-      } else {
-        // If the user type is neither client nor employee
-        throw new Error("Invalid user type selected");
-      }
+    if(user_type === 'Client' && result.unique === true) {
+      await signup_login.addClient(first_name, last_name, email, phone, username, password);
+      res.redirect("/login");
+    } else if (user_type === 'Employee' && result.unique === true) {
+      await signup_login.addEmployee(first_name, last_name, email, phone, username, password);
+      res.redirect("/login");
     } else {
-      // If any of the data points are not unique, throw an error
-      if (uniqueClientEmailCheck || uniqueEmpEmailCheck !== null){
-        errorMsg = "Email is already in use";
-        throw new Error (errorMsg);
-       
-        /*res.render("pages/signup",{message: "Email is already in use"})*/
-      }
-      else if (uniqueClientPhoneCheck || uniqueEmpPhoneCheck !== null){
-        errorMsg = "Phone is already in use";
-        throw new Error (errorMsg);
-      }
-      else{
-        errorMsg = "Username is already in use";
-        throw new Error(errorMsg);
-        /*res.render("pages/signup",{message: "Username is already in use"})*/
-      }
+      res.render("pages/signup", {message: result.message});
     }
+
   } catch (error) {
     // Handle any errors that occur during the signup process
-    console.error(errorMsg, error);
+    console.error(error);
     /*res.status(500).send(errorMsg);*/
-    res.render("pages/signup",{message: errorMsg})
+    res.render("pages/signup",{message: error})
   }
 });
 
@@ -217,45 +189,65 @@ app.get("/transactions", (req,res) => {
   
 });
 
- app.get("/add_pets", async (req,res) => {
+app.get("/add_pets", async (req, res) => {
   try {
-    // Fetch clients for populating owner options in the form
-    const clients = await Client.find();
     const user = req.session.user;
     const user_type = req.session.type;
-    res.render("pages/add_pets", { user, type: user_type, clients });
-} catch (error) {
+
+    if (user) {
+      if (user_type === "Client") {
+        // If the user is a client, render the add_pets page without their first and last name
+        res.render("pages/add_pets", { type: user_type, user: user, message: "", ownerFN: user.clientFN, ownerLN: user.clientLN });
+      } else if(user_type === "Employee") {
+        // If the user is not a client (e.g., an employee), render the add_pets page with owner information
+        res.render("pages/add_pets", { type: user_type, user: user, message: "", ownerFirst: "", ownerLast: "" });
+      }
+    } else {
+      // If no user is logged in, you might want to redirect them to a login page or handle it in another way
+      res.redirect("/login"); // For example, redirect to a login page
+    }
+  } catch (error) {
     console.error("Error fetching clients:", error);
     res.status(500).send("Internal Server Error");
-}
+  }
 });
+
 
 app.post("/add_pets", async (req, res) => {
   try {
     // Extract pet data from the request body
-    const { petName, petType, petBreed, petSex, petDOB, petWeight, ownerID } = req.body;
-    
-    // Create a new pet document
-    const newPet = new Pet({
-        petName,
-        petType,
-        petBreed,
-        petSex,
-        petDOB,
-        petWeight,
-        ownerID
-    });
+    const user = req.session.user;
+    const user_type = req.session.type;
 
-    // Save the new pet to the database
-    await newPet.save();
+    if (user_type === "Client") { // Ensure you compare to a string
+      const { petName, petType, petBreed, petSex, petDOB, petWeight } = req.body; 
+      const ownerFirst = user.clientFN;
+      const ownerLast = user.clientLN;
 
-    // Redirect to a success page or render a success message
-    res.render("pages/add_pet_success", { pet: newPet });
-} catch (error) {
+      const result = await pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFirst, ownerLast);
+      if (result === true) {
+        res.render("pages/add_pets", { type: user_type, message: "Successfully added Pet", ownerFN: ownerFirst, ownerLN: ownerLast });
+      } else {
+        console.log("res wasn't true lol")
+      }
+    } else if (user_type === "Employee") {
+      ownerFirst = req.body.ownerFN;
+      ownerLast = req.body.ownerLN;
+      const { petName, petType, petBreed, petSex, petDOB, petWeight} = req.body;
+      const result = await pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFirst, ownerLast);
+      if (result ===true){
+        res.render("pages/add_pets", { type: user_type, message: "Successfully added Pet", ownerFN: "", ownerLN: "" });
+      }
+      else {
+        console.log("res wasn't true lol")
+      }
+    }
+  } catch (error) {
     console.error("Error adding pet:", error);
     res.status(500).send("Internal Server Error");
-}
+  }
 });
+
 // app.get("/emp_pets", (req,res) => {
 //   res.render("pages/emp_pets");
 // })
@@ -276,29 +268,15 @@ app.get("/emp_employees", (req,res) => {
 //   res.render("pages/emp_clients_edit")
 // })
 
-app.get("/emp_reservation_add", (req,res) => {
-  res.render("pages/emp_res_add")
-})
+app.get("/res_search", (req,res) => {
+  const user = req.session.user;
+  const type = req.session.user_type;
+  if(user) {
 
-app.get("/emp_reservation_edit", (req,res) => {
-  res.render("pages/emp_res_edit")
-})
-
-app.get("/emp_reservation_search", (req,res) => {
+  }
   res.render("pages/emp_res_search")
 })
 
-app.get("/emp_pets_edit", (req,res) => {
-  res.render("pages/emp_pets_edit")
-})
-
-app.get("/emp_transactions_search", (req,res) => {
-  res.render("pages/emp_transactions_search")
-})
-
-app.get("/emp_transactions_edit", (req,res) => {
-  res.render("pages/emp_transactions_edit")
-})
 
 // app.get("/emp_clients_search", async (req,res) => {
 //   try {
@@ -311,35 +289,6 @@ app.get("/emp_transactions_edit", (req,res) => {
 //     res.redirect('/emp_clients')
 //   }
 // })
-
-async function getNextID() {
-    try {
-        // Find the maximum employee ID
-        const maxEmployee = await Employee.find().sort({ empID: -1 }).limit(1);
-
-        // Find the maximum client ID
-        const maxClient = await Client.find().sort({ clientID: -1 }).limit(1);
-
-        // Determine the maximum ID from both collections
-        const maxID = Math.max((maxClient[0]?.clientID || 0), (maxEmployee[0]?.empID || 0)) + 1;
-
-        return maxID;
-    } catch (error) {
-        console.error("Error calculating next empID:", error);
-        throw error;
-    }
-}
-
-async function getClients(start, end) {
-  try {
-    const clients = await Client.find().sort({clientLN:1}).skip(start-1).limit(end);
-    return clients;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
 let currentPage = 1;
 const pageSize = 10;
 
@@ -379,28 +328,19 @@ app.get("/emp_clients_edit", async (req, res) => {
   }
 });
 
-pet.getPets(1, 5)
-  .then(pets => {
-    console.log("Fetched pets");
-  })
-  .catch(error => {
-    console.error("Error fetching pets:", error);
-  });
 // Delete client
 app.post("/delete_client/:clientID", async (req, res) => {
   const clientID = req.params.clientID;
 
   try {
     // Delete the client from the database
-    const result = await Client.deleteOne({ clientID });
-
-    if (result.deletedCount === 0) {
-      // If no records were deleted, the client was not found
-      return res.status(404).send("Client not found");
-    }
-
+    const result = await client.removeClient(clientID)
     // Client deleted successfully
-    res.status(200).send("Client deleted successfully");
+    if(result) {
+      res.status(200).send("Client deleted successfully");
+    } else {
+      console.log("Error")
+    }
   } catch (error) {
     console.error("Error deleting client:", error);
     res.status(500).send("Internal Server Error");
@@ -414,69 +354,44 @@ app.post("/update_client/:clientID", async (req, res) => {
 
   try {
     // Update the client information in the database
-    const result = await Client.updateOne({ clientID }, { clientFN, clientLN, clientEmail, clientPhone });
-
-    if (result.nModified === 0) {
-      // If no records were modified, the client was not found
-      return res.status(404).send("Client not found");
+    const result = client.editClient(clientID, clientFN, clientLN, clientEmail, clientPhone)
+    if(result) {
+      res.status(200).send("Client updated successfully");
+    } else {
+      console.log("Error Updating Client")
     }
-
-    // Client updated successfully
-    res.status(200).send("Client updated successfully");
   } catch (error) {
     console.error("Error updating client:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-async function getPets(start, end, user_type, owner_id) {
-  if(user_type=='Client') {
-    try {
-      const pet_records = await Pet.find({ownerID: owner_id}).sort({petName:1}).skip(start-1).limit(end);
-      return pet_records;
-    } catch(error) {
-        console.error("Error returning client information:", error);
-        throw error;
-    }
-  }
-  if(user_type=='Employee') {
-    try {
-      const pet_records = await Pet.find().sort({petName:1}).skip(start-1).limit(end);
-      return pet_records;
-    } catch(error) {
-        console.error("Error returning client information:", error);
-        throw error;
-    }
-  }
-
-};
-
 let currentPage_pets = 1;
 const pageSize_pets = 10;
 
 app.get("/pets_search", async (req,res) => {
   const user_type = req.session.type;
-
+  console.log(user_type);
   if(user_type == 'Employee') {
     try {
-    const pet_records = await getPets(currentPage_pets, pageSize_pets, user_type, '');
+    const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, '');
     const ownerIDs = pet_records.map(pet => pet.ownerID);
-    const pet_owners = await Client.find({ clientID: { $in: ownerIDs } });
+    const pet_owners = await client.findOwningClients(ownerIDs);
     const pet_owners_name = pet_owners.map(pet_owner => `${pet_owner.clientFN} ${pet_owner.clientLN}`);
-
     res.render("pages/pets_search", { pets: pet_records, owner_names: pet_owners_name, currentPage_pets, type: user_type});
     } catch (error) {
       res.status(500).json({ message: error.message });
-      res.redirect('/pets');
     }
   }
   else if(user_type == 'Client') {
     const owner_id = parseInt(req.session.user.clientID);
-    const pet_records = await getPets(currentPage_pets, pageSize_pets, user_type, owner_id);
+    const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, owner_id);
     res.render("pages/pets_search", { pets: pet_records, currentPage_pets, type: user_type});
 
   }
-  else {}
+  else {
+    console.log("user_type")
+  }
 });
 
 app.get("/pets_search/next", async (req, res) => {
@@ -491,27 +406,14 @@ app.get("/pets_search/previous", async (req, res) => {
   res.redirect('/pets_search');
 });
 
-async function getPetById(pet_id) {
-  try {
-    const pet_record = await Pet.findOne({petID: pet_id});
-    if (!pet_record) {
-      console.log("petID undefined");
-    }
-    return pet_record;
-  } catch(error) {
-      console.error("Error returning client information:", error);
-      throw error;
-  }
-}
-
 app.get("/pets_edit", async (req, res) => {
   const petId = req.query.petId;
   try {
-    const found_pet = await getPetById(parseInt(petId)); // Fetch the client data
+    const found_pet = await pet.getPetById(parseInt(petId)); // Fetch the client data
     if (!found_pet) {
       return res.status(404).send("Pet not found");
     }
-    res.render("pages/pets_edit", { found_pet: found_pet }); // Pass the client data to the template
+    res.render("pages/pets_edit", { found_pet: found_pet, message: "" }); // Pass the client data to the template
   } catch (error) {
     console.error("Error fetching pet data:", error);
     res.status(500).send("Internal Server Error");
@@ -519,22 +421,18 @@ app.get("/pets_edit", async (req, res) => {
 });
 
 
-// Delete client
+// Delete pet
 app.post("/delete_pet/:petID", async (req, res) => {
   const petID = req.params.petID;
 
   try {
     // Delete the client from the database
-    const result = await pet.updateOne({petID: petID},{$set: {activeFlag: false}});
-    // const result = await Pet.deleteOne({ petID });
-
-    if (result.deletedCount === 0) {
-      // If no records were deleted, the client was not found
-      return res.status(404).send("Pet not found");
+    const result = await pet.removePet(petID);
+    if(result) {
+      res.status(200).send("Pet deleted successfully");
+    } else {
+      res.status(200).send("Unsuccessful pet deletion");
     }
-
-    // Client deleted successfully
-    res.status(200).send("Pet deleted successfully");
   } catch (error) {
     console.error("Error deleting pet:", error);
     res.status(500).send("Internal Server Error");
@@ -548,17 +446,19 @@ app.post("/update_pet/:petID", async (req, res) => {
 
   try {
     // Update the pet information in the database
-    const result = pet.updatePet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
-    if(!result){
-      res.status(200).send("Unsuccessful pat update");
+    const result = await pet.editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
+    if (result) {
+      res.status(200).send("Pet updated successfully");
+    } else {
+      // If the result is false, it means the pet was not found or the update failed
+      res.status(400).send("Failed to update pet");
     }
-    // Pet updated successfully
-    res.status(200).send("Pet updated successfully");
   } catch (error) {
     console.error("Error updating pet:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 app.get("/emp_pets_search", async (req,res) => {
   try {
@@ -570,31 +470,8 @@ app.get("/emp_pets_search", async (req,res) => {
     }
     // Render the page with the fetched pets
     res.render("pages/emp_pets_search", { pets, searchQuery });
-  } catch (error){}});
-
-
-async function getTrans(start, end, user_type, client_id) {
-  if(user_type=='Client') {
-    try {
-      const trans_records = await Transaction.find({clientID: client_id}).sort({transactionDate: -1}).skip(start-1).limit(end);
-      return trans_records;
-    } catch(error) {
-        console.error("Error returning transaction information:", error);
-        throw error;
-    }
-  }
-  if(user_type=='Employee') {
-    try {
-      const trans_records = await Transaction.find().sort({transactionDate: -1}).skip(start-1).limit(end);
-      return trans_records;
-    } catch(error) {
-        console.error("Error returning transactioin information:", error);
-        throw error;
-    }
-  }
-
-  };
-
+  } catch (error){}
+});
 
 let currentPage_trans = 1;
 const pageSize_trans = 10;
@@ -666,7 +543,7 @@ app.post("/update_transaction/:TID", async (req, res) => {
   const transAmount = req.body.totalAmount_usd;
 
   try {
-    const result = await transaction.update_transaction(tranID, transAmount);
+    const result = await transaction.updateTransaction(tranID, transAmount);
     if (!result) {
       return res.status(404).send("Transaction not found");
     }
