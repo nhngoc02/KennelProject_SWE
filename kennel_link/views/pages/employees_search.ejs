@@ -1,0 +1,39 @@
+<%- include('../partials/emp-client-head', {title: 'Employee Search', type: type}) %>
+
+<body>
+    <div class="container">
+      <h2>Other Employee Search</h2>
+      <% if(type == 'Employee') { %>
+
+        <table class="table table-inverse">
+            <thead>
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Start Date</th>
+                </tr>
+            </thead>
+        
+          <tbody>
+            <% for(var i=0; i < emps.length; i++) { %>
+            <tr>
+                <td><%= emps[i].empFN %> <%= emps[i].empLN %></td>
+              <td><%= emps[i].empPhone %></td>
+              <td><%= emps[i].empEmail %></td>
+              <td><%= emps[i].empStartDate.toLocaleDateString('en-CA') %></td>
+              
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      
+        <a href="/employees_search/previous" class="previous round">&#8249;</a>
+        <a href="/employees_search/next" class="next round">&#8250;</a>
+
+      <% } else { %>
+          <p> Error with accessing user data</p>
+      <% } %>
+    </div>
+</body>
+</html>
