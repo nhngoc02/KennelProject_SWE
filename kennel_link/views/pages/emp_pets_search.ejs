@@ -1,0 +1,96 @@
+<%- include('../partials/emp-client-head', {title: 'Pets Search', type: 'Employee'}) %>
+
+<body>
+  <div class="container">
+    <h2>Pet Search</h2>
+    <!-- Button to show all pets -->
+    <button id="showAllPetsBtn">Show All Pets</button>
+
+    <!-- Table to display pets -->
+    <table class="table table-inverse" id="petsTable" style="display: none;">
+      <!-- Table headers -->
+      <thead>
+        <tr>
+          <th>Pet Name</th>
+          <th>Client Name</th>
+          <th>Type</th>
+          <th>Breed</th>
+          <th></th>
+        </tr>
+      </thead>
+      <!-- Table body to be populated with pets -->
+      <tbody>
+        <!-- Pets will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+    <form action="/emp_pets_search" method="GET">
+      <input type="text" name="searchQuery" placeholder="Search by Pet Name or Breed">
+      <button type="submit">Search</button>
+    </form>
+
+    <% if (pets && pets.length > 0) { %>
+      <table class="table table-inverse">
+        <thead>
+          <tr>
+            <th>Pet Name</th>
+            <th>Client Name</th>
+            <th>Type</th>
+            <th>Breed</th>
+            <th></th>
+          </tr>
+        </thead>
+        
+        <tbody>
+          <% for(var i=0; i < pets.length; i++) { %>
+            <tr>
+              <td><%= pets[i].petName %></td>
+              <td><%= pets[i].clientName %></td>
+              <td><%= pets[i].petType %></td>
+              <td><%= pets[i].petBreed %></td>
+              <td><a href="/emp_pets_edit">Edit</a></td>
+              <!-- <td><a href="/emp_pets_edit<%= pets[i]._id %>">Edit</a></td> -->
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else if (searchQuery) { %>
+      <p>No pets found matching the search criteria</p>
+    <% } %>
+  </div>
+
+</body>
+</html>
+
+<!-- <body>
+    <div class="container">
+      <h2>Search for Pets</h2>
+      <div class="bulk-search">
+        <h3>Bulk Search</h3>
+        <a class="button" href="#">View All Pets</a>
+      </div>
+      <div class="specific-search">
+        <h3>Specific Search</h3>
+        <form action="#" method="post">
+          <div class="form-group">
+            <label for="pet_name">Pet Name:</label>
+            <input type="text" id="pet_name" name="pet_name" placeholder="Enter pet name">
+          </div>
+          <div class="form-group">
+            <label for="client_name">Client Name:</label>
+            <input type="text" id="client_name" name="client_name" placeholder="Enter client name">
+          </div>
+          <div class="form-group">
+            <label for="pet_type">Pet Type:</label>
+            <input type="text" id="pet_type" name="pet_type" placeholder="Enter pet type">
+          </div>
+          <div class="form-group">
+            <label for="pet_breed">Pet Breed:</label>
+            <input type="text" id="pet_breed" name="pet_breed" placeholder="Enter pet breed">
+          </div>
+          <button class="button" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </body>
+  </html> -->

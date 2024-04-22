@@ -1,4 +1,4 @@
-<%- include('../partials/emp-client-head', {title: 'Pet Search', type: type}) %>
+<%- include('../partials/emp-client-head', {title: 'Reservation Search', type: type}) %>
 
 <body>
     <div class="container">
@@ -6,19 +6,19 @@
       <% if(type == 'Employee') { %>
 
         <table class="table table-inverse">
-          <thead>
-            <tr>
-              <th>Pet Name</th>
-              <th>Owner Name</th>
-              <th>Pet Type</th>
-              <th>Pet Breed</th>
-              <th>Pet Sex</th>
-              <th>Pet DOB</th>
-              <th>Pet Weight (lbs)</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
+            <thead>
+                <tr>
+                    <th>Reservation ID</th>
+                    <th>Client Name</th>
+                    <th>Pet Name</th>
+                    <th>Arrival Date</th>
+                    <th>Departure Date</th>
+                    <th>Kennel ID</th>
+                    <th>Emp ID</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
         
           <tbody>
             <% for(var i=0; i < pets.length; i++) { %>
