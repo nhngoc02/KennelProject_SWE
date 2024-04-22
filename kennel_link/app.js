@@ -48,7 +48,7 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     const result = await signup_login.authenticateLogin(username, password, user_type)
-    if(result.status === 200) {
+    if(result.worked === true) {
       req.session.user = result.response
       req.session.type = user_type
       res.render("pages/dashboard", {user: result.response, type: user_type})
@@ -526,7 +526,48 @@ app.post("/update_transaction/:TID", async (req, res) => {
   }
 });
 
+let currentPage_res = 1;
+const pageSize_res = 10;
 
+app.get("/reservations_search", async (req,res) => {
+  try {
+    const user_type = req.session.type;
+    const user = req.session.user
+    if(user_type == 'Employee') {
+      const res_records = await reservation.getRes(currentPage_res, pageSize_res, user_type, '');
+      const clientIDs = res_records.map(res => res.clientID);
+      const res_clients = await client.getClientsByID(clientIDs);
+      const res_clients_name = res_clients.map(res_client => `${res_client.clientFN} ${res_client.clientLN}`);
+  
+      res.render("pages/reservations_search", { res: res_records, client_names: res_clients_name, currentPage_res, type: user_type});
+    }
+    else if(user_type == 'Client') {
+
+      const client_id = parseInt(req.session.user.clientID);
+      const client_record = await client.getClientById(client_id);
+      const clientName = `${client_record.clientFN} ${client_record.clientLN}`;
+      const res_records = await reservation.getRes(currentPage_res, pageSize_res, user_type, client_id);
+  
+      res.render("pages/reservations_search", { res: res_records, client_name: clientName, currentPage_res, type: user_type});
+    } 
+  }catch(error) {
+    res.status(500).json({ message: error.message });
+  }
+  // else {}
+});
+
+app.get("/reservations_search/next", async (req, res) => {
+  currentPage_res += pageSize_res;
+  res.redirect('/reservations_search');
+});
+
+app.get("/reservations_search/previous", async (req, res) => {
+  if (currentPage_res > 1) {
+    currentPage_res-=pageSize_res;
+  }
+  res.redirect('/reservations_search');
+
+});
 
 const PORT = process.env.PORT;
 module.exports = app;
