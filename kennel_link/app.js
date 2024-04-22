@@ -16,6 +16,7 @@ liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
     liveReloadServer.refresh("/");
   }, 100000000);
+
 });
 
 require("dotenv").config({path:'../data.env'});
@@ -191,36 +192,66 @@ app.get("/transactions", (req,res) => {
   
 });
 
- app.get("/add_pets", async (req,res) => {
+app.get("/add_pets", async (req, res) => {
   try {
     const user = req.session.user;
     const user_type = req.session.type;
-    if(user) {
-      res.render("pages/add_pets", { type: user_type, user: user });
+
+    if (user) {
+      if (user_type === "Client") {
+        // If the user is a client, render the add_pets page without their first and last name
+        res.render("pages/add_pets", { type: user_type, user: user, message: "", ownerFN: user.clientFN, ownerLN: user.clientLN });
+      } else if(user_type === "Employee") {
+        // If the user is not a client (e.g., an employee), render the add_pets page with owner information
+        res.render("pages/add_pets", { type: user_type, user: user, message: "", ownerFirst: "", ownerLast: "" });
+      }
+    } else {
+      // If no user is logged in, you might want to redirect them to a login page or handle it in another way
+      res.redirect("/login"); // For example, redirect to a login page
     }
-} catch (error) {
-    console.error("Error fetching pets:", error);
+
+  } catch (error) {
+    console.error("Error fetching clients:", error);
     res.status(500).send("Internal Server Error");
-}
+  }
 });
+
 
 app.post("/add_pets", async (req, res) => {
   try {
     // Extract pet data from the request body
-    const { petName, petType, petBreed, petSex, petDOB, petWeight, ownerFN, ownerLN } = req.body;
-    const result = pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFN, ownerLN);
-    if(result) {
-      console.log("Pet added successfully")
-      res.render("pages/add_pets", { pet: newPet })
-    }
+    const user = req.session.user;
+    const user_type = req.session.type;
 
-    // Redirect to a success page or render a success message
-    res.render("pages/add_pet_success", { pet: newPet });
-} catch (error) {
+    if (user_type === "Client") { // Ensure you compare to a string
+      const { petName, petType, petBreed, petSex, petDOB, petWeight } = req.body; 
+      const ownerFirst = user.clientFN;
+      const ownerLast = user.clientLN;
+
+      const result = await pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFirst, ownerLast);
+      if (result === true) {
+        res.render("pages/add_pets", { type: user_type, message: "Successfully added Pet", ownerFN: ownerFirst, ownerLN: ownerLast });
+      } else {
+        console.log("res wasn't true lol")
+      }
+    } else if (user_type === "Employee") {
+      ownerFirst = req.body.ownerFN;
+      ownerLast = req.body.ownerLN;
+      const { petName, petType, petBreed, petSex, petDOB, petWeight} = req.body;
+      const result = await pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFirst, ownerLast);
+      if (result ===true){
+        res.render("pages/add_pets", { type: user_type, message: "Successfully added Pet", ownerFN: "", ownerLN: "" });
+      }
+      else {
+        console.log("res wasn't true lol")
+      }
+    }
+  } catch (error) {
     console.error("Error adding pet:", error);
     res.status(500).send("Internal Server Error");
-}
+  }
 });
+
 // app.get("/emp_pets", (req,res) => {
 //   res.render("pages/emp_pets");
 // })
@@ -355,14 +386,13 @@ const pageSize_pets = 10;
 
 app.get("/pets_search", async (req,res) => {
   const user_type = req.session.type;
-
+  console.log(user_type);
   if(user_type == 'Employee') {
     try {
     const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, '');
     const ownerIDs = pet_records.map(pet => pet.ownerID);
-    const pet_owners = await pet.getClients(ownerIDs);
+    const pet_owners = await client.findOwningClients(ownerIDs);
     const pet_owners_name = pet_owners.map(pet_owner => `${pet_owner.clientFN} ${pet_owner.clientLN}`);
-
     res.render("pages/pets_search", { pets: pet_records, owner_names: pet_owners_name, currentPage_pets, type: user_type});
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -374,7 +404,9 @@ app.get("/pets_search", async (req,res) => {
     res.render("pages/pets_search", { pets: pet_records, currentPage_pets, type: user_type});
 
   }
-  else {}
+  else {
+    console.log("user_type")
+  }
 });
 
 app.get("/pets_search/next", async (req, res) => {
@@ -396,7 +428,7 @@ app.get("/pets_edit", async (req, res) => {
     if (!found_pet) {
       return res.status(404).send("Pet not found");
     }
-    res.render("pages/pets_edit", { found_pet: found_pet }); // Pass the client data to the template
+    res.render("pages/pets_edit", { found_pet: found_pet, message: "" }); // Pass the client data to the template
   } catch (error) {
     console.error("Error fetching pet data:", error);
     res.status(500).send("Internal Server Error");
@@ -429,17 +461,19 @@ app.post("/update_pet/:petID", async (req, res) => {
 
   try {
     // Update the pet information in the database
-    const result = pet.editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
-    if(result){
+    const result = await pet.editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight);
+    if (result) {
       res.status(200).send("Pet updated successfully");
     } else {
-      res.status(200).send("Unsuccessful pat update");
+      // If the result is false, it means the pet was not found or the update failed
+      res.status(400).send("Failed to update pet");
     }
   } catch (error) {
     console.error("Error updating pet:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 app.get("/emp_pets_search", async (req,res) => {
   try {

@@ -4,7 +4,7 @@
 <body>
     <div class="container">
       <h2>Pet Information:</h2>
-
+      <h3> <%- message %> </h3>
       <form class="form-group" action="/update_pet/<%= found_pet.petID %>" method="post">
         <label for="petName">Pet Name:</label>
         <input type="text" id="petName" name="petName" value="<%= found_pet.petName %>" required><br>

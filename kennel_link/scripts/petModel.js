@@ -33,6 +33,7 @@ async function getPets(start, end, user_type, owner_id) {
       return pet_records;
     } catch(error) {
         console.error("Error returning client information:", error);
+
         throw error;
     }
   }
@@ -65,20 +66,21 @@ async function removePet(petID) {
 
 async function editPet(petID, petName, petType, petBreed, petSex, petDOB, petWeight) {
   try {
-    const result = await Pet.updateOne({ ID }, { petID, petName, petType, petBreed, petSex, petDOB, petWeight });
+    const result = await Pet.updateOne({ petID }, { petName, petType, petBreed, petSex, petDOB, petWeight });
     if (result.nModified === 0) {
-      // If no records were modified, the client was not found
+      // If no records were modified, the pet was not found
       console.log("Pet Not Found");
       return false;
     } else {
       console.log("Pet Updated Successfully")
       return true;
     }
-  } catch(error) {
-    console.log("Pet Not Found");
+  } catch (error) {
+    console.error("Error updating pet:", error);
     return false;
   }
 }
+
 
 // returns true if pet is unique and false if not
 async function checkForDuplicates(petName, ownerID, DOB) {
@@ -96,21 +98,27 @@ async function checkForDuplicates(petName, ownerID, DOB) {
 }
 
 // tries to add a pet: if pet is unique will add it and return true, else will not add it and return false
-async function addPet(name, type, breed, sex, DOB, weight, ownerFN) {
+/*async function addPet(name, type, breed, sex, DOB, weight, ownerFN, ownerLN) {
   try {
-    const ownerID = findOwnerID()
-    const unique = checkForDuplicates(name, ownerID, DOB);
+    const ownerID = await findOwnerID(ownerFN, ownerLN);
+    const unique = await checkForDuplicates(name, ownerID, DOB);
     if(unique) {
+      newPetID = await getNextPetID();
       const newPet = new Pet({
-        name,
-        type,
-        breed,
-        sex,
-        DOB,
-        weight,
-        ownerID
+        petID: newPetID,
+        ownerID: ownerID,
+        petName: name,
+        petType: type,
+        petBreed: breed,
+        petSex: sex,
+        petDOB: DOB,
+        petWeight: weight,
+        activeFlag: true,
+        modifiedDate: 0,
+        createTime: new Date()
       });
       await newPet.save();
+      console.log(newPet);
       return true;
     } else {
       console.log("Pet is a duplicate")
@@ -118,10 +126,38 @@ async function addPet(name, type, breed, sex, DOB, weight, ownerFN) {
     }
 
    } catch(error) {
-    console.log("Unable to add pet")
+    console.log(newPet);
+    console.log("Unable to add pet");
     return false;
    }
    
+}
+*/
+async function addPet(name, type, breed, sex, DOB, weight, ownerFN, ownerLN) {
+    const ownerID = await findOwnerID(ownerFN, ownerLN);
+    const unique = await checkForDuplicates(name, ownerID, DOB);
+    if(unique){
+      newPetID = await getNextPetID();
+      console.log(newPetID);
+      const newPet = new Pet({
+        petID: newPetID,
+        ownerID: ownerID,
+        petName: name,
+        petType: type,
+        petBreed: breed,
+        petSex: sex,
+        petDOB: DOB,
+        petWeight: weight,
+        activeFlag: true,
+        modifiedDate: 0,
+        createTime: new Date()
+      });
+      await newPet.save();
+      /*console.log(newPet);*/
+      return true;
+    }else{
+      return false;
+    }
 }
 
 async function getClients(ownerIDs) {
@@ -132,17 +168,32 @@ async function getClients(ownerIDs) {
 // returns ID if client is found or zero if not
 async function findOwnerID(ownerFN, ownerLN) {
   try {
-    const client = Client.findOne({clientFN: ownerFN, clientLN: ownerLN});
-    if(client) {
+    const client = await Client.findOne({ clientFN: ownerFN, clientLN: ownerLN });
+    if (client) {
       const id = client.clientID;
       return id;
     } else {
       return 0;
     }
-  } catch(error) {
-    console.log(error)
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error finding owner ID');
   }
 }
+
+async function getNextPetID() {
+  try {
+      // Find the maximum employee ID
+      const maxPet = await Pet.find().sort({ petID: -1 }).limit(1);
+      maxPetID = Math.max(maxPet[0]?.petID || 0);
+      const maxID = maxPetID + 1;
+      return maxID;
+  } catch (error) {
+      console.error("Error calculating next empID:", error);
+      throw error;
+  }
+}
+
 
 module.exports = {
   petSearch,
