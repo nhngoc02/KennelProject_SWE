@@ -181,7 +181,7 @@ app.post("/update_res/:RID", async (req,res) => {
   const { new_arrival_date, new_depart_date } = req.body;
   try {
     // Update the client information in the database
-    const result = reservation.editRes(res_id, new_arrival_date, new_depart_date)
+    const result = reservation.editRes(res_ID, new_arrival_date, new_depart_date)
     if(result) {
       res.status(200).send("Reservation updated successfully");
     } else {
@@ -196,13 +196,15 @@ app.post("/cancel_res/:RID", async (req,res) => {
   const res_ID = req.params.RID;
   const entered = req.body.cancel_res_id
   try {
-    if(res_ID == entered) {
-      const result = await reservation.cancelRes(res_ID)
+    if(parseInt(res_ID) == entered) {
+      const result = await reservation.cancelRes(parseInt(res_ID))
       if(result) {
         res.status(200).send("Reservation deleted successfully");
       } else {
         console.log("Error")
       }
+    } else {
+      console.log("Something Didnt work")
     }
   } catch (error) {
     console.error("Error deleting Reservation:", error);

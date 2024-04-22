@@ -20,7 +20,7 @@
       </form>
   
       <h3>Cancel Reservation</h3>
-      <form action="/remove/<%= found_res.resID %>" method="post">
+      <form action="/cancel_res/<%= found_res.RID %>" method="post">
         <div class="form-group">
           <label for="cancel_res_id">Reservation ID:</label>
           <input type="text" id="cancel_res_id" name="cancel_res_id" required>
