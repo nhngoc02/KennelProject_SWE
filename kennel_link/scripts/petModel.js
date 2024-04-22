@@ -149,7 +149,7 @@ async function addPet(name, type, breed, sex, DOB, weight, ownerFN, ownerLN) {
         petDOB: DOB,
         petWeight: weight,
         activeFlag: true,
-        modifiedDate: 0,
+        modifiedDate: new Date(),
         createTime: new Date()
       });
       await newPet.save();

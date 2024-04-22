@@ -54,7 +54,7 @@ const reservation = new mongoose.Schema( {
     // createTime : { type: Date, default: Date.now },
     createTime : Date,
     activeFlag : Boolean,
-    modifiedDate : Number
+    modifiedDate : Date
     },
     {
       timestamps : true,

@@ -50,7 +50,7 @@ const client = new mongoose.Schema({
     clientPhone : String,
     createTime : Date,
     activeFlag : Boolean,
-    modifiedDate : Number,
+    modifiedDate : Date,
     client_username : String,
     client_password : String,
     
