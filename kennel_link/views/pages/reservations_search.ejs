@@ -1,0 +1,76 @@
+<%- include('../partials/emp-client-head', {title: 'Reservation Search', type: type}) %>
+
+<body>
+    <div class="container">
+      <h2>Reservation Search</h2>
+      <% if(type == 'Employee') { %>
+
+        <table class="table table-inverse">
+            <thead>
+                <tr>
+                    <th>Reservation ID</th>
+                    <th>Client Name</th>
+                    <th>Arrival Date</th>
+                    <th>Departure Date</th>
+                    <th>Kennel ID</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+        
+          <tbody>
+            <% for(var i=0; i < res.length; i++) { %>
+            <tr>
+              <td><%= res[i].RID %></td>
+              <td><%= client_names[i] %></td>
+              <td><%= res[i].arrivalDate.toLocaleDateString('en-CA') %></td>
+              <td><%= res[i].departureDate.toLocaleDateString('en-CA') %></td>
+              <td><%= res[i].kennelID %></td>
+              <td><a href="/res_edit?resID=<%= res[i].RID %>">Edit</a></td>
+
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      
+        <a href="/reservations_search/previous" class="previous round">&#8249;</a>
+        <a href="/reservations_search/next" class="next round">&#8250;</a>
+
+        <% } else if (type == 'Client') { %>
+
+          <table class="table table-inverse">
+            <thead>
+              <tr>
+                <th>Reservation ID</th>
+                <th>Arrival Date</th>
+                <th>Departure Date</th>
+                <th>Kennel ID</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+          
+            <tbody>
+              <% for(var i=0; i < res.length; i++) { %>
+              <tr>
+                <td><%= res[i].RID %></td>
+                <td><%= res[i].arrivalDate.toLocaleDateString('en-CA') %></td>
+                <td><%= res[i].departureDate.toLocaleDateString('en-CA') %></td>
+                <td><%= res[i].kennelID %></td>
+                <td><a href="/res_edit?resID=<%= res[i].RID %>">Edit</a></td>
+              
+                
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        
+          <a href="/reservations_search/previous" class="previous round">&#8249;</a>
+          <a href="/reservations_search/next" class="next round">&#8250;</a>
+        
+      <% } else { %>
+          <p> Error with accessing user data</p>
+      <% } %>
+    </div>
+</body>
+</html>
