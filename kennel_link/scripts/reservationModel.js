@@ -119,43 +119,6 @@ async function addReservationWithCheck(ownerFN, ownerLN, pet_name, arrival, depa
     }
 }
 
-async function getRes(start, end, user_type, client_id) {
-    if(user_type=='Client') {
-      try {
-        const res_records = await Reservation.find({clientID: client_id, activeFlag: true}).sort({arrivalDate: -1}).skip(start-1).limit(end);
-        return res_records;
-      } catch(error) {
-          console.error("Error returning reservation information:", error);
-          throw error;
-      }
-    }
-    if(user_type=='Employee') {
-      try {
-        const res_records = await Reservation.find({activeFlag: true}).sort({arrivalDate: -1}).skip(start-1).limit(end);
-        return res_records;
-      } catch(error) {
-          console.error("Error returning reservation information:", error);
-          throw error;
-      }
-    }
-  
-  };
-
-  async function getResById(res_id) {
-    try {
-      const res_record = await Reservation.findOne({RID: res_id});
-      if (!res_record) {
-        console.log("Reservation ID undefined");
-      }
-      return res_record;
-    } catch(error) {
-        console.error("Error returning reservation information:", error);
-        throw error;
-    }
-  };
-
 module.exports = {
-    addReservationWithCheck,
-    getRes,
-    getResById
+    addReservationWithCheck
 }
