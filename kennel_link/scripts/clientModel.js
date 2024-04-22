@@ -63,11 +63,22 @@ async function editClient(ID, first, last, phone, email) {
     return false;
   }
 }
+async function findOwningClients(ownerIDs){
+  try {
+    const result = await Client.find({ clientID: { $in: ownerIDs } });
+    return result
+  }
+  catch(error){
+    console.log("issues")
+    return null
+  }
+}
 
 module.exports = {
   getClientById,
   getClientsByID,
   getAllClients,
   removeClient,
-  editClient
+  editClient,
+  findOwningClients,
 }
