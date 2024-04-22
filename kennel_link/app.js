@@ -10,7 +10,6 @@ const signup_login = require("./scripts/signupLoginModel")
 
 let livereload = require("livereload");
 let connectLiveReload = require("connect-livereload");
-
 const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
