@@ -94,7 +94,7 @@ async function addReservationWithCheck(ownerFN, ownerLN, pet_name, arrival, depa
         const resPetID = await findPetID(pet_name, ownerID);
         if(available_kennels === undefined || available_kennels.length == 0) {
             console.log("No available kennels");
-            return false; 
+            return {worked: false, message: "No available kennels", RID: 0}; 
         }
         const newRes = new Reservation({
             RID : resID,
@@ -106,16 +106,16 @@ async function addReservationWithCheck(ownerFN, ownerLN, pet_name, arrival, depa
             empID : emp_id,
             createTime : new Date(),
             activeFlag : true,
-            modifiedDate: 0,
+            modifiedDate: new Date(),
         });
         console.log("Reservation: ", newRes)
         console.log("Got new Reservation here")
         await newRes.save();
         console.log("Saved new reservation")
-        return true;
+        return {worked: true, message: "Saved new reservation", RID: newRes.RID };
     } catch(error) {
         console.error("Unable to add reservation:", error);
-        return false;
+        return {worked: false, message: "Unable to add reservation", RID: 0};
     }
 }
 
@@ -230,5 +230,6 @@ module.exports = {
     getRes,
     getResById,
     editRes,
-    cancelRes
+    cancelRes,
+    findOwnerID
 }

@@ -120,7 +120,7 @@ async function addEmployee(first, last, email, phone, username, pass) {
       empPhone: phone,
       empStartDate: new Date(),
       activeFlag: true,
-      modifiedDate: 0,
+      modifiedDate: new Date(),
       emp_username: username,
       emp_password: pass,
     });
@@ -143,7 +143,7 @@ async function addClient(first, last, email, phone, username, pass) {
       clientPhone: phone,
       createTime: new Date(),
       activeFlag: true,
-      modifiedDate: 0,
+      modifiedDate: new Date(),
       client_username: username,
       client_password: pass,    
     });

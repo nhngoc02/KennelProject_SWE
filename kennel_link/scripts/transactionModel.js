@@ -1,4 +1,6 @@
-const Transaction = require('../db_modules/transaction')
+const Transaction = require('../db_modules/transaction');
+const res_model = require("./reservationModel");
+let kennel_rate = 35;
 
 async function getTrans(start, end, user_type, client_id) {
     if(user_type=='Client') {
@@ -49,10 +51,60 @@ async function updateTransaction(tranID, new_amount) {
   }
 }
 
+async function getNextTID() {
+  try {
+      const maxTID = await Transaction.find().sort({ TID: -1 }).limit(1);
+      const maxID = (maxTID[0]?.TID || 0) +1;
+      return maxID;
+  } catch(error) {
+      console.error("Error calculating next TID:", error);
+      throw error;
+  }
+}
+
+function calcNumDays(arrival, depart) {
+  console.log("Arrival:", arrival, "\nDeparture: ", depart)
+  const arrivalDate = new Date(arrival);
+  const departureDate = new Date(depart)
+  let time_difference = departureDate.getTime() - arrivalDate.getTime();
+  let day_difference = Math.round(time_difference / (1000 * 3600 * 24));
+  return day_difference;
+}
+
+async function makeTransFromRes(clientFN, clientLN, res_id, arrival, departure) {
+  try {
+    const client_ID = await res_model.findOwnerID(clientFN, clientLN);
+    const numDays = calcNumDays(arrival, departure);
+    const total = numDays * kennel_rate;
+    const newTID = await getNextTID();
+    console.log("Got next TID")
+    const newTrans = new Transaction({
+      TID: newTID,
+      clientID: client_ID,
+      reservationID: res_id,
+      totalAmount_usd: total,
+      transactionDate: new Date(),
+      activeFlag: true,
+      modifiedDate: new Date(),
+      createTime: new Date(),
+    });
+    console.log("Made new Trans: ", newTrans);
+    await newTrans.save();
+    return true;
+  } catch(error) {
+    console.log("An Error Occurred: ", error)
+    return false;
+  }
+ 
+  // have to get the clientID
+  // calculate the numDays
+  // make a new transaction for the res
+}
 
 module.exports = {
     getTrans,
     getTranById,
-    updateTransaction
+    updateTransaction,
+    makeTransFromRes
   
 }

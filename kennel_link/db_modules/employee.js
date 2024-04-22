@@ -33,7 +33,7 @@ fetch data from employee collection in database*/
 
 /* restore if necessary.
 const employee = new mongoose.Schema({
-    empID: Number,
+    empID: Date,
     empFN : String,
     empLN : String,
     empEmail : String,
@@ -68,7 +68,7 @@ const employee = new mongoose.Schema({
     empPhone: String,
     empStartDate: Date,
     activeFlag: Boolean,
-    modifiedDate: Number,
+    modifiedDate: Date,
     emp_username: String,
     emp_password: String,
     createTime: Date

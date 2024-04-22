@@ -150,8 +150,10 @@ app.post("/res_add", async (req,res) => {
     const arrival = req.body.arrival_date;
     const departure = req.body.end_date;
     const emp_id = req.body.emp_id;
-    const worked = await reservation.addReservationWithCheck(first, last, pet, arrival, departure, emp_id)
-    if(worked) {
+    const result = await reservation.addReservationWithCheck(first, last, pet, arrival, departure, emp_id)
+    if(result.worked) {
+      // create new transaction
+      await transaction.makeTransFromRes(first, last, result.RID, arrival, departure);
       res.render("pages/res_add", {user: user, type: user_type, message: "Reservation Added"})
     } else {
       res.render("pages/res_add", {user: user, type: user_type, message: "Error: Unable to add Reservation"})
@@ -288,6 +290,7 @@ app.post("/add_pets", async (req, res) => {
     } else if (user_type === "Employee") {
       ownerFirst = req.body.ownerFN;
       ownerLast = req.body.ownerLN;
+      console.log("OwnerFN: ", ownerFirst, "/nOwnerLN: ", ownerLast)
       const { petName, petType, petBreed, petSex, petDOB, petWeight} = req.body;
       const result = await pet.addPet(petName, petType, petBreed, petSex, petDOB, petWeight, ownerFirst, ownerLast);
       if (result ===true){
@@ -396,7 +399,6 @@ const pageSize_pets = 10;
 
 app.get("/pets_search", async (req,res) => {
   const user_type = req.session.type;
-  console.log(user_type);
   if(user_type == 'Employee') {
     try {
     const pet_records = await pet.getPets(currentPage_pets, pageSize_pets, user_type, '');
