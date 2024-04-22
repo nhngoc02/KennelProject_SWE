@@ -160,6 +160,11 @@ async function addPet(name, type, breed, sex, DOB, weight, ownerFN, ownerLN) {
     }
 }
 
+async function getClients(ownerIDs) {
+  const pet_owners = await Client.find({ clientID: { $in: ownerIDs } });
+  return pet_owners;
+}
+
 // returns ID if client is found or zero if not
 async function findOwnerID(ownerFN, ownerLN) {
   try {
@@ -196,5 +201,6 @@ module.exports = {
   getPets,
   editPet,
   removePet,
-  addPet
+  addPet,
+  getClients
 }

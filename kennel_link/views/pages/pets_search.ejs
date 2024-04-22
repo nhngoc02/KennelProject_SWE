@@ -16,7 +16,6 @@
               <th>Pet DOB</th>
               <th>Pet Weight (lbs)</th>
               <th></th>
-              <th></th>
             </tr>
           </thead>
         
@@ -32,8 +31,6 @@
               <td><%= pets[i].petWeight %></td>
               
               <td><a href="/pets_edit?petId=<%= pets[i].petID %>">Edit</a></td>
-              
-              <td style="display: none;" name="petID"><%= pets[i].petID %></td>
               
             </tr>
             <% } %>

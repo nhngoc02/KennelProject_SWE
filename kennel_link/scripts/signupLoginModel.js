@@ -5,25 +5,69 @@ async function authenticateLogin(name, pass, type) {
     if(type === 'Client') {
       const result = await Client.findOne({client_username: name});
       if(!result) {
+        //return {status: 500, message: "Username not found: Please Try Again"};
         return {worked: false, message: "Username not found: Please Try Again", response: result};
       } else {
         if(result.client_password !== pass) {
+          //return {status: 500, message: "Incorrect Password: Please Try Again"};
           return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
         }
+        //return {status: 200, message: "Successful Login", response: result};
         return {worked: true, message: "Successful Login", response: result};
       }
     }
     if(type === 'Employee') {
       const result = await Employee.findOne({emp_username: name});
       if(!result) {
+        //return {status: 500, message: "Username not found: Please Try Again"};
         return {worked: false, message: "Username not found: Please Try Again", response: result};
       } else {
         if(result.emp_password !== pass) {
+          //return {status: 500, message: "Incorrect Password: Please Try Again"};
           return {worked: false, message: "Incorrect Password: Please Try Again", response: result};
         }
         return {worked: true, message: "Successful Login", response: result};
       }
     }
+}
+
+// When given the user type, email, phone, and username will return a boolean value on if the user is unique or a message 
+async function uniqueUser(type, username, email, phone) {
+  let unique = true;
+  let message = "User is unique"
+  console.log("Type is:", type)
+  if(type === 'Client') {
+    uniqueClientUsernameCheck = await Client.findOne({ client_username: username });
+    uniqueClientEmailCheck = await Client.findOne({ clientEmail: email });
+    uniqueClientPhoneCheck = await Employee.findOne({clientPhone: phone});
+    if(uniqueClientUsernameCheck || uniqueClientPhoneCheck !== null) {
+      unique = false;
+      message = "Username already in Use"
+    } else if(uniqueClientEmailCheck || uniqueClientEmailCheck !== null) {
+      unique = false;
+      message = "Email is already in use"
+    } else if(uniqueClientPhoneCheck || uniqueClientPhoneCheck !== null) {
+      unique = false
+      message = "Phone is already in use"
+    }
+  } else if(type === 'Employee') {
+    uniqueEmpUsernameCheck = await Employee.findOne({ emp_username: username });
+    uniqueEmpEmailCheck = await Employee.findOne({ empEmail: email });
+    uniqueEmpPhoneCheck = await Employee.findOne({empPhone: phone});
+    if(uniqueEmpUsernameCheck || uniqueEmpPhoneCheck !== null) {
+      unique = false;
+      message = "Username already in Use"
+    } else if(uniqueEmpEmailCheck || uniqueEmpEmailCheck !== null) {
+      unique = false;
+      message = "Email is already in use"
+    } else if(uniqueEmpPhoneCheck || uniqueEmpPhoneCheck !== null) {
+      unique = false
+      message = "Phone is already in use"
+    }
+  } else {
+    message = "Invalid User Type Selected"
+  }
+  return {unique: unique, message: message}
 }
 
 // When given the user type, email, phone, and username will return a boolean value on if the user is unique or a message 
@@ -82,6 +126,7 @@ async function addEmployee(first, last, email, phone, username, pass) {
     });
 
     await newEmployee.save();
+        //res.status(200).send("Employee added successfully");
   } catch (error) {
     console.error("Error occurred during signup:", error);
   }

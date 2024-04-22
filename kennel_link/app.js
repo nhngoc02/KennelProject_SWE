@@ -6,6 +6,7 @@ const pet = require('./scripts/petModel')
 const transaction = require('./scripts/transactionModel')
 const session = require('express-session')
 const reservation = require("./scripts/reservationModel")
+const employee = require("./scripts/empModel")
 const signup_login = require("./scripts/signupLoginModel")
 
 let livereload = require("livereload");
@@ -14,7 +15,8 @@ const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
     liveReloadServer.refresh("/");
-  }, 1000);
+  }, 100000000);
+
 });
 
 require("dotenv").config({path:'../data.env'});
@@ -46,7 +48,7 @@ app.post("/login", async (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
     const user_type = req.body.user_type;
-    const result = await signup_login.authenticateLogin(username, password, user_type);
+    const result = await signup_login.authenticateLogin(username, password, user_type)
     if(result.worked === true) {
       req.session.user = result.response
       req.session.type = user_type
@@ -55,6 +57,7 @@ app.post("/login", async (req,res) => {
       res.render("pages/login", {message: result.message})
     }
   } catch (error) {
+    console.error("Error occurred during login:", error);
     res.status(500).json({message: error.message}); 
       }
 })
@@ -206,6 +209,7 @@ app.get("/add_pets", async (req, res) => {
       // If no user is logged in, you might want to redirect them to a login page or handle it in another way
       res.redirect("/login"); // For example, redirect to a login page
     }
+
   } catch (error) {
     console.error("Error fetching clients:", error);
     res.status(500).send("Internal Server Error");
@@ -256,9 +260,20 @@ app.post("/add_pets", async (req, res) => {
 //   res.render("pages/emp_transactions")
 // })
 
+// app.get("/emp_employees", (req,res) => {
+//   res.render("pages/emp_employees")
+// })
+
 app.get("/emp_employees", (req,res) => {
-  res.render("pages/emp_employees")
-})
+  const user = req.session.user;
+  const user_type = req.session.type; 
+  if(user) {
+    res.render("pages/emp_employees", {user: user, type: user_type});
+  } else {
+    res.redirect("/login")
+  }
+  
+});
 
 // app.get("/emp_clients_search", (req,res) => {
   //   res.render("pages/emp_clients_search")
@@ -473,6 +488,7 @@ app.get("/emp_pets_search", async (req,res) => {
   } catch (error){}
 });
 
+
 let currentPage_trans = 1;
 const pageSize_trans = 10;
 
@@ -555,7 +571,79 @@ app.post("/update_transaction/:TID", async (req, res) => {
   }
 });
 
+let currentPage_res = 1;
+const pageSize_res = 10;
 
+app.get("/reservations_search", async (req,res) => {
+  try {
+    const user_type = req.session.type;
+    const user = req.session.user
+    if(user_type == 'Employee') {
+      const res_records = await reservation.getRes(currentPage_res, pageSize_res, user_type, '');
+      const clientIDs = res_records.map(res => res.clientID);
+      const res_clients = await client.getClientsByID(clientIDs);
+      const res_clients_name = res_clients.map(res_client => `${res_client.clientFN} ${res_client.clientLN}`);
+  
+      res.render("pages/reservations_search", { res: res_records, client_names: res_clients_name, currentPage_res, type: user_type});
+    }
+    else if(user_type == 'Client') {
+
+      const client_id = parseInt(req.session.user.clientID);
+      const client_record = await client.getClientById(client_id);
+      const clientName = `${client_record.clientFN} ${client_record.clientLN}`;
+      const res_records = await reservation.getRes(currentPage_res, pageSize_res, user_type, client_id);
+  
+      res.render("pages/reservations_search", { res: res_records, client_name: clientName, currentPage_res, type: user_type});
+    } 
+  }catch(error) {
+    res.status(500).json({ message: error.message });
+  }
+  // else {}
+});
+
+app.get("/reservations_search/next", async (req, res) => {
+  currentPage_res += pageSize_res;
+  res.redirect('/reservations_search');
+});
+
+app.get("/reservations_search/previous", async (req, res) => {
+  if (currentPage_res > 1) {
+    currentPage_res-=pageSize_res;
+  }
+  res.redirect('/reservations_search');
+
+});
+
+let currentPage_emp = 1;
+const pageSize_emp = 10;
+
+app.get("/employees_search", async (req,res) => {
+  try {
+    const user_type = req.session.type;
+    const user = req.session.user;
+    if(user_type == 'Employee') {
+      const emps_records = await employee.getEmps(currentPage_emp, pageSize_emp, user_type, 1);
+  
+      res.render("pages/employees_search", { emps: emps_records, currentPage_trans, type: user_type});
+    }
+  }catch(error) {
+    res.status(500).json({ message: error.message });
+  }
+  // else {}
+});
+
+app.get("/employees_search/next", async (req, res) => {
+  currentPage_emp += pageSize_emp;
+  res.redirect('/employees_search');
+});
+
+app.get("/employees_search/previous", async (req, res) => {
+  if (currentPage_emp > 1) {
+    currentPage_emp-=pageSize_emp;
+  }
+  res.redirect('/employees_search');
+
+});
 
 const PORT = process.env.PORT;
 module.exports = app;
