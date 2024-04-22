@@ -48,7 +48,8 @@ app.post("/login", async (req,res) => {
     const password = req.body.password;
     const user_type = req.body.user_type;
     const result = await signup_login.authenticateLogin(username, password, user_type)
-    if(result.status === 200) {
+    
+    if(result.worked === true) {
       req.session.user = result.response
       req.session.type = user_type
       res.render("pages/dashboard", {user: result.response, type: user_type})
