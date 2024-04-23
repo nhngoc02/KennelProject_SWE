@@ -13,7 +13,7 @@ async function getKennelIds() {
 }
 
 // send in a date range which will give a number of available slots --> if value is non-zero then can make a reservation
-async function getNumAvailable(start, end) {
+async function getNumAvailable(arrivalDate, departureDate) {
     const overlappingCount = await Reservation.countDocuments({
         $or: [
             {
@@ -196,5 +196,6 @@ module.exports = {
     getResById,
     editRes,
     cancelRes,
-    findOwnerID
+    findOwnerID,
+    getNumAvailable
 }

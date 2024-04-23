@@ -15,17 +15,19 @@
         }
         #calendar-container {
             display: flex;
-            justify-content: center; /* Center horizontally */
-            align-items: flex-start; /* Align items at the top */
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center horizontally */
         }
         
         #legend {
             padding: 10px;
             background-color: #fff; /* White background */
             border-radius: 10px;
-            height: 55px;
-            margin-right: -181.75px; /* Add margin to create space between legend and calendar */
+            margin-top: 20px; /* Add space between legend and calendar */
+            display: flex;
+            justify-content: center; /* Center legend horizontally */
         }
+
         
         #calendar {
             width: 800px;
@@ -33,13 +35,14 @@
         }
 
         .legend-item {
-            margin-bottom: 10px;
+            margin: 0 10px; /* Add space between legend items */
+            display: flex;
+            align-items: center; /* Align items vertically */
         }
 
         .legend-color {
             width: 20px;
             height: 20px;
-            display: inline-block;
             margin-right: 10px;
             vertical-align: middle;
         }
@@ -112,6 +115,7 @@
 </head>
 <body>
     <div id="calendar-container">
+        <div id="calendar"></div>
         <div id="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #ff5252;"></div>
@@ -122,7 +126,6 @@
                 Private Reserved
             </div>
         </div>
-        <div id="calendar"></div>
     </div>
     <script>
         let currentYear, currentMonth;

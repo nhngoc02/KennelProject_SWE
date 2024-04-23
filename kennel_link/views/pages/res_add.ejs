@@ -1,4 +1,206 @@
 <%- include('../partials/emp-client-head', {title: 'Reservations Insert', type: type}) %>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Urbanist', sans-serif;
+        }
+        #calendar-container {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center horizontally */
+        }
+        
+        #legend {
+            padding: 10px;
+            background-color: #fff; /* White background */
+            border-radius: 3px;
+            margin-top: 0px; /* Add space between legend and calendar */
+            display: flex;
+            justify-content: center; /* Center legend horizontally */
+        }
+
+        
+        #calendar {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        .legend-item {
+            margin: 0 10px; /* Add space between legend items */
+            display: flex;
+            align-items: center; /* Align items vertically */
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .month {
+            margin-bottom: 20px;
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            padding: 10px;
+            text-align: center;
+            color: #333; /* Dark gray text */
+            position: relative;
+        }
+
+        .month-nav {
+            position: absolute;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        .month-nav.left {
+            left: 10px;
+        }
+
+        .month-nav.right {
+            right: 10px;
+        }
+
+        .weekdays {
+            display: flex;
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            margin-bottom: 10px; /* Added margin bottom for better spacing */
+        }
+
+        .weekdays div {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: #333; /* Dark gray text */
+        }
+
+        .days {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #fff; /* White background */
+            border-radius: 10px; /* Rounded corners */
+            padding: 10px;
+        }
+
+        .days div {
+            flex-basis: calc(100% / 7);
+            box-sizing: border-box;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            color: #333; /* Dark gray text */
+        }
+
+        .unavailable {
+            background-color: #ff5252; /* Red */
+        }
+
+        .available {
+            background-color: #8e918f; /* Dark grey */
+            color: #fff; /* White text */
+        }
+    </style>
+</head>
+<body>
+    <div id="calendar-container">
+        <div id="calendar"></div>
+        <div id="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff5252;"></div>
+                Unavailable
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #8e918f;"></div>
+                Available
+            </div>
+        </div>
+    </div>
+    <script>
+      
+        let currentYear, currentMonth;
+        document.addEventListener('DOMContentLoaded', async function() {
+            const calendar = document.getElementById('calendar');
+            
+            function renderCalendar(year, month) {
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                    "July", "August", "September", "October", "November", "December"];
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                
+                let html = '<div class="month">' + 
+                           '<div class="month-nav left" onclick="prevMonth()">&#10094;</div>' +
+                           monthNames[month] + ' ' + year + 
+                           '<div class="month-nav right" onclick="nextMonth()">&#10095;</div></div>';
+                html += '<div class="weekdays">';
+                html += '<div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>';
+                html += '</div><div class="days">';
+                
+                for (let i = 0; i < firstDayOfMonth; i++) {
+                    html += '<div></div>';
+                }
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    let classes = [];
+                    const currentDate = new Date(year,month, day);
+                    const arrivalDate = new Date(currentDate.getFullYear(),currentDate.getMonth(),currentDate.getDay(),0,0,0);
+                    const departureDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
+                    // examples
+
+                    /*getNumAvailable(arrivalDate, departureDate).then(count => {
+                      if (count > 0) {
+                          classes.push('available');
+                      }
+                      else 
+                          classes.push('unavailable');
+                  });*/
+                    if (year === 2024 && month === 3 && day === 10) {
+                        classes.push('unavailable');
+                    }
+                    if (year === 2024 && month === 3 && day === 15) {
+                        classes.push('available');
+                    }
+                    html += '<div class="' + classes.join(' ') + '">' + day + '</div>';
+                }
+                
+                html += '</div>';
+                
+                calendar.innerHTML = html;
+                currentYear = year;
+                currentMonth = month;
+            }
+
+            // Function to navigate to the previous month
+            window.prevMonth = function() {
+                currentMonth -= 1;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear -= 1;
+                }
+                renderCalendar(currentYear, currentMonth);
+            }
+
+            // Function to navigate to the next month
+            window.nextMonth = function() {
+                currentMonth += 1;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear += 1;
+                }
+                renderCalendar(currentYear, currentMonth);
+            }
+
+            // Initial render
+            const isoDate = new Date();
+            const year = isoDate.getFullYear();
+            const month = isoDate.getMonth();
+            renderCalendar(year, month);
+        });
+    </script>
+</body>
+</html>
 
 <body>
   <div class="container">
