@@ -59,7 +59,7 @@ async function removeClient(clientID) {
 
 async function editClient(ID, first, last, phone, email) {
   try {
-    const result = await Client.updateOne({ ID }, { first, last, phone, email });
+    const result = await Client.updateOne({ clientID: ID }, { clientFN: first, clientLN: last, clientPhone: phone, clientEmail: email });
     if (result.nModified === 0) {
       // If no records were modified, the client was not found
       console.log("Client Not Found");

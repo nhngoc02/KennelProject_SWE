@@ -382,11 +382,12 @@ app.post("/update_client/:clientID", async (req, res) => {
 
   try {
     // Update the client information in the database
-    const result = client.editClient(clientID, clientFN, clientLN, clientEmail, clientPhone)
+    const result = client.editClient(clientID, clientFN, clientLN, clientPhone, clientEmail)
     if(result) {
-      res.status(200).send("Client updated successfully");
+      res.redirect("/emp_clients_search");
     } else {
       console.log("Error Updating Client")
+      res.redirect("/update_client/:clientID")
     }
   } catch (error) {
     console.error("Error updating client:", error);
