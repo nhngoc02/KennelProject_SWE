@@ -3,7 +3,7 @@ const Pet = require("../db_modules/pet")
 
 async function getPetById(pet_id) {
   try {
-    const pet_record = await Pet.findOne({petID: pet_id});
+    const pet_record = await Pet.findOne({petID: pet_id, activeFlag: true});
     if (!pet_record) {
       console.log("petID undefined");
     }
@@ -14,10 +14,18 @@ async function getPetById(pet_id) {
   }
 }
 
+async function getPetNamesByID(pet_IDs) {
+  let petNames = [];
+  for(let i=0; i<pet_IDs.length; i++) {
+    const pet = await Pet.findOne({petID: pet_IDs[i]});
+    petNames.push(pet.petName);
+  }
+  return petNames;
+}
 
 async function petSearch(searchQuery) {
   let pets = []; // Initialize pets array
-  pets = await Pet.find({
+  pets = await Pet.find({activeFlag: true}, {
     $or: [
       { petName: { $regex: searchQuery, $options: "i" } }, // Search by pet name (case-insensitive)
       { petBreed: { $regex: searchQuery, $options: "i" } }, // Search by pet breed (case-insensitive)
@@ -26,6 +34,7 @@ async function petSearch(searchQuery) {
   return pets;
 }
 
+// gets a collections of pets when given a certain start point and end point
 async function getPets(start, end, user_type, owner_id) {
   if(user_type=='Client') {
     try {
@@ -49,9 +58,10 @@ async function getPets(start, end, user_type, owner_id) {
 
 };
 
-async function removePet(petID) {
+async function removePet(pet_ID) {
   try {
-    const result = Pet.updateOne({petID: petID},{$set: {activeFlag: false}});
+    const result = await Pet.updateOne({ petID: pet_ID }, { $set: {activeFlag: false} });
+    // currently not working with changing teh info in the database --> still works in mongosh, so its something in the code
     if (result.nModified === 0) {
       console.log("Pet Not Found")
       return false;
@@ -165,6 +175,11 @@ async function getClients(ownerIDs) {
   return pet_owners;
 }
 
+async function getPetsByClient(ownerID) {
+  const pets = await Pet.find({ownerID: ownerID});
+  return pets;
+}
+
 // returns ID if client is found or zero if not
 async function findOwnerID(ownerFN, ownerLN) {
   try {
@@ -202,5 +217,6 @@ module.exports = {
   editPet,
   removePet,
   addPet,
-  getClients
+  getClients,
+  getPetNamesByID
 }

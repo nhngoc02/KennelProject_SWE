@@ -2,6 +2,7 @@ const Kennel = require('../db_modules/kennel')
 const Reservation = require('../db_modules/reservation')
 const Client = require("../db_modules/client")
 const Pet = require('../db_modules/pet')
+const Transaction = require('./transactionModel')
 
 async function getKennelIds() {
     let kennelIds = []
@@ -126,13 +127,20 @@ async function cancelRes(ID) {
             console.log("Reservation Not Found");
             return false;
           } else {
-            console.log("Reservation Updated Successfully")
-            return true;
+            console.log("Reservation Deleted Successfully");
+            // const trans = await Transaction.getTransByRID(ID);
+            // const worked = await Transaction.cancelTrans(trans.TID);
+            // if(worked) {
+                return true;
+            // } else {
+            //     console.log("Reservation Deleted but Transaction was not")
+            //     return false;
+            // }
           }
-        } catch(error) {
-          console.log("Reservation Not Found", error);
-          return false;
-        }
+    } catch(error) {
+        console.log("Reservation Not Found", error);
+        return false;
+    }
 }
 
 

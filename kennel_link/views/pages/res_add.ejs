@@ -210,10 +210,10 @@
         <div class="form-group">
           <% if(type == 'Client') { %>
             <label for="client_fn">Owner First Name:</label>
-            <input type="text" id="client_fn" name="client_fn" required>
+            <input type="text" id="client_fn" name="client_fn" value="<%= user.clientFN %>" readonly>
             <br>
-            <label for="client_fn">Owner Last Name:</label>
-            <input type="text" id="client_ln" name="client_ln" required>
+            <label for="client_ln">Owner Last Name:</label>
+            <input type="text" id="client_ln" name="client_ln" value="<%= user.clientLN %>" readonly>
           <% } else { %>
             <label for="client_fn">Client First Name:</label>
             <input type="text" id="client_fn" name="client_fn" required>

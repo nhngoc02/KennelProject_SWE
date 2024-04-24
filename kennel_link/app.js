@@ -153,7 +153,7 @@ app.post("/res_add", async (req,res) => {
     const result = await reservation.addReservationWithCheck(first, last, pet, arrival, departure, emp_id)
     if(result.worked) {
       // create new transaction
-      //await transaction.makeTransFromRes(first, last, result.RID, arrival, departure);
+      const re = await transaction.makeTransFromRes(first, last, result.RID, arrival, departure);
       res.render("pages/res_add", {user: user, type: user_type, message: "Reservation Added"})
     } else {
       res.render("pages/res_add", {user: user, type: user_type, message: "Error: Unable to add Reservation"})
@@ -382,11 +382,12 @@ app.post("/update_client/:clientID", async (req, res) => {
 
   try {
     // Update the client information in the database
-    const result = client.editClient(clientID, clientFN, clientLN, clientEmail, clientPhone)
+    const result = client.editClient(clientID, clientFN, clientLN, clientPhone, clientEmail)
     if(result) {
-      res.status(200).send("Client updated successfully");
+      res.redirect("/emp_clients_search");
     } else {
       console.log("Error Updating Client")
+      res.redirect("/update_client/:clientID")
     }
   } catch (error) {
     console.error("Error updating client:", error);
@@ -456,7 +457,7 @@ app.post("/delete_pet/:petID", async (req, res) => {
     // Delete the client from the database
     const result = await pet.removePet(petID);
     if(result) {
-      res.status(200).send("Pet deleted successfully");
+      res.redirect("/pets_search")
     } else {
       res.status(200).send("Unsuccessful pet deletion");
     }
@@ -485,21 +486,6 @@ app.post("/update_pet/:petID", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-
-app.get("/emp_pets_search", async (req,res) => {
-  try {
-    const { searchQuery } = req.query; // Extract search query from request query parameters
-    let pets = []
-    if (searchQuery) {
-      // If there's a search query, fetch pets based on the query
-      pets = pet.petSearch(searchQuery)
-    }
-    // Render the page with the fetched pets
-    res.render("pages/emp_pets_search", { pets, searchQuery });
-  } catch (error){}
-});
-
 
 let currentPage_trans = 1;
 const pageSize_trans = 10;
@@ -594,9 +580,11 @@ app.get("/reservations_search", async (req,res) => {
       const res_records = await reservation.getRes(currentPage_res, pageSize_res, user_type, '');
       const clientIDs = res_records.map(res => res.clientID);
       const res_clients = await client.getClientsByID(clientIDs);
+      const pet_IDs = res_records.map(res => res.petID);
+      const pets = await pet.getPetNamesByID(pet_IDs);
       const res_clients_name = res_clients.map(res_client => `${res_client.clientFN} ${res_client.clientLN}`);
   
-      res.render("pages/reservations_search", { res: res_records, client_names: res_clients_name, currentPage_res, type: user_type});
+      res.render("pages/reservations_search", { res: res_records, client_names: res_clients_name, currentPage_res, type: user_type, petNames: pets});
     }
     else if(user_type == 'Client') {
 
@@ -604,10 +592,12 @@ app.get("/reservations_search", async (req,res) => {
       const client_record = await client.getClientById(client_id);
       const clientName = `${client_record.clientFN} ${client_record.clientLN}`;
       const res_records = await reservation.getRes(currentPage_res, pageSize_res, user_type, client_id);
-  
-      res.render("pages/reservations_search", { res: res_records, client_name: clientName, currentPage_res, type: user_type});
+      const pet_IDs = res_records.map(res => res.petID);
+      const pets = await pet.getPetNamesByID(pet_IDs);
+      res.render("pages/reservations_search", { res: res_records, client_name: clientName, currentPage_res, type: user_type, petNames: pets});
     } 
   }catch(error) {
+    console.log(error)
     res.status(500).json({ message: error.message });
   }
   // else {}
@@ -634,7 +624,7 @@ app.get("/employees_search", async (req,res) => {
     const user_type = req.session.type;
     const user = req.session.user;
     if(user_type == 'Employee') {
-      const emps_records = await employee.getEmps(currentPage_emp, pageSize_emp, user_type, 1);
+      const emps_records = await employee.getEmps(currentPage_emp, pageSize_emp, user_type, user.empID);
   
       res.render("pages/employees_search", { emps: emps_records, currentPage_trans, type: user_type});
     }

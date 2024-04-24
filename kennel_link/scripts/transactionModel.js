@@ -1,6 +1,6 @@
 const Transaction = require('../db_modules/transaction');
 const res_model = require("./reservationModel");
-let kennel_rate = 35;
+let kennel_rate = 35.01;
 
 async function getTrans(start, end, user_type, client_id) {
     if(user_type=='Client') {
@@ -36,6 +36,19 @@ async function getTranById(trans_id) {
       throw error;
   }
 };
+
+async function getTransByRID(RID) {
+  try {
+    const trans_record = await Transaction.findOne({reservationID: RID});
+    if (!trans_record) {
+      console.log("Transaction ID undefined");
+    }
+    return trans_record;
+  } catch(error) {
+      console.error("Error returning transaction information:", error);
+      throw error;
+  }
+}
 
 // Updates transaction --> if successfule will return True else False
 async function updateTransaction(tranID, new_amount) {
@@ -102,10 +115,27 @@ async function makeTransFromRes(clientFN, clientLN, res_id, arrival, departure) 
   // make a new transaction for the res
 }
 
+async function cancelTrans(trans_ID){
+  try {
+    const result = await Transaction.updateOne({ TID: ID }, {$set: {activeFlag: false} });
+    if (result.nModified === 0) {
+        console.log("Transaction Not Found");
+        return false;
+      } else {
+        console.log("Transaction Updated Successfully")
+        return true;
+      }
+    } catch(error) {
+      console.log("Transaction Not Found", error);
+      return false;
+}
+}
+
 module.exports = {
     getTrans,
     getTranById,
+    getTransByRID,
     updateTransaction,
-    makeTransFromRes
-  
+    makeTransFromRes,
+    cancelTrans
 }

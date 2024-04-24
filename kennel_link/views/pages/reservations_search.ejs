@@ -9,6 +9,7 @@
             <thead>
                 <tr>
                     <th>Reservation ID</th>
+                    <th>Pet Name</th>
                     <th>Client Name</th>
                     <th>Arrival Date</th>
                     <th>Departure Date</th>
@@ -22,6 +23,7 @@
             <% for(var i=0; i < res.length; i++) { %>
             <tr>
               <td><%= res[i].RID %></td>
+              <td><%= petNames[i] %></td>
               <td><%= client_names[i] %></td>
               <td><%= res[i].arrivalDate.toLocaleDateString('en-CA') %></td>
               <td><%= res[i].departureDate.toLocaleDateString('en-CA') %></td>
@@ -42,10 +44,10 @@
             <thead>
               <tr>
                 <th>Reservation ID</th>
+                <th>Pet Name</th>
                 <th>Arrival Date</th>
                 <th>Departure Date</th>
                 <th>Kennel ID</th>
-                <th></th>
                 <th></th>
               </tr>
             </thead>
@@ -54,6 +56,7 @@
               <% for(var i=0; i < res.length; i++) { %>
               <tr>
                 <td><%= res[i].RID %></td>
+                <td><%= petNames[i] %></td>
                 <td><%= res[i].arrivalDate.toLocaleDateString('en-CA') %></td>
                 <td><%= res[i].departureDate.toLocaleDateString('en-CA') %></td>
                 <td><%= res[i].kennelID %></td>
