@@ -124,21 +124,37 @@ app.get("/reservations", (req,res) => {
     res.redirect("/login")
   }
 })
-
-app.get("/res_add", (req,res) => {
+app.get("/res_add", async (req, res) => {
   try {
-    const user = req.session.user
-    const user_type = req.session.type
-    if(user) {
-    res.render("pages/res_add", {user: user, type: user_type, message: ""})
-    } else {
-    res.redirect("/login") 
-    }
+      const user = req.session.user;
+      const user_type = req.session.type;
+      
+      // Assuming you have a way to get the current month
+      const currentMonth = new Date().getMonth(); /* Get the current month */
+      const currentYear = new Date().getFullYear();
+
+      const startOfMonth = new Date(currentYear, currentMonth, 1); // Set the date to the 1st of the month
+      const endOfMonth = new Date(currentYear, currentMonth + 1, 0); // Set the date to the last day of the month
+
+      // Fetch availability list from the server
+      const availabilityList = await reservation.getAvailabilityList(startOfMonth, endOfMonth);
+      
+      // Continue with your logic, rendering the page with the availabilityList
+      res.render("pages/res_add", { 
+          user: user, 
+          type: user_type, 
+          message: "", 
+          availabilityList: availabilityList // Pass availabilityList to the EJS template
+      });
   } catch (error) {
-    console.log("The error is: " + error)
-    res.redirect("/login")
+      console.error("Error in /res_add route:", error);
+      // Handle errors appropriately
+      res.status(500).send("Internal Server Error");
   }
-})
+});
+
+
+
 
 app.post("/res_add", async (req,res) => {
   const user = req.session.user;

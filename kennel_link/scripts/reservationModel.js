@@ -14,6 +14,7 @@ async function getKennelIds() {
 
 // send in a date range which will give a number of available slots --> if value is non-zero then can make a reservation
 async function getNumAvailable(arrivalDate, departureDate) {
+    const totalkennels = await Kennel.countDocuments();
     const overlappingCount = await Reservation.countDocuments({
         $or: [
             {
@@ -28,7 +29,7 @@ async function getNumAvailable(arrivalDate, departureDate) {
             }
         ]
     });
-    return overlappingCount;
+    return totalkennels - overlappingCount;
 }
 
 // returns an array of the kennel IDs taken during a given time, if none are available will return an empty array
@@ -58,6 +59,27 @@ async function getAvailability(start, end) {
     let available = (await all_kennels).filter( (elem) => !taken.includes(elem))
     return available;
 }
+
+
+async function getAvailabilityList(startOfMonth, endOfMonth){
+    let availabilityList = [];
+    for (let currentDate = new Date(startOfMonth); currentDate <= endOfMonth; currentDate.setDate(currentDate.getDate() + 1)) {
+        const startOfDay = new Date(currentDate);
+        startOfDay.setHours(0, 0, 0, 0); // Set time to midnight
+
+        const endOfDay = new Date(currentDate);
+        endOfDay.setHours(23, 59, 59, 999); // Set time to 11:59:59 PM
+
+        // Get the availability for the current day
+        const availability = await getNumAvailable(startOfDay, endOfDay);
+        //console.log(availability);
+        // Push the availability status to the list
+        availabilityList.push(availability);
+    }
+
+    return availabilityList;
+}
+
 
 async function getNextRID() {
     try {
@@ -197,5 +219,6 @@ module.exports = {
     editRes,
     cancelRes,
     findOwnerID,
-    getNumAvailable
+    getNumAvailable,
+    getAvailabilityList
 }
